@@ -34,6 +34,8 @@
   .puzzle-container {
     text-align: center;
     padding: 20px;
+    height: 100%;
+    overflow-y: auto;
   }
   
   .puzzle-title {
@@ -172,8 +174,11 @@
 
   /* CSS cho game lật thẻ */
   .memory-container {
-    max-width: 600px;
+    max-width: 100%;
     margin: 0 auto;
+    height: 100%;
+    overflow-y: auto;
+    padding: 15px;
   }
 
   .memory-stats {
@@ -181,6 +186,7 @@
     justify-content: center;
     gap: 15px;
     margin-bottom: 20px;
+    flex-wrap: wrap;
   }
 
   .memory-board {
@@ -265,6 +271,7 @@
     gap: 10px;
     justify-content: center;
     margin-top: 20px;
+    flex-wrap: wrap;
   }
 
   .memory-complete {
@@ -326,6 +333,121 @@
     margin-bottom: 20px;
   }
 
+  /* GAME FULLSCREEN MODE */
+  .game-fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    z-index: 9999;
+    overflow-y: auto;
+    display: none;
+  }
+
+  .game-fullscreen.active {
+    display: block;
+  }
+
+  .game-fullscreen-header {
+    background: linear-gradient(90deg, var(--accent), #d32);
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+
+  .game-fullscreen-title {
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin: 0;
+  }
+
+  .game-fullscreen-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 5px;
+  }
+
+  .game-fullscreen-body {
+    padding: 20px;
+    height: calc(100% - 70px);
+    overflow-y: auto;
+  }
+
+  .quiz-container {
+    max-width: 800px;
+    margin: 0 auto;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .quiz-question {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-left: 4px solid var(--accent);
+  }
+
+  .quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 20px 0;
+  }
+
+  .quiz-option {
+    padding: 15px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .quiz-option:hover {
+    border-color: var(--accent);
+    background: #fff5f5;
+  }
+
+  .quiz-option.selected {
+    border-color: var(--accent);
+    background: #ffeaea;
+  }
+
+  .quiz-feedback {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    display: none;
+  }
+
+  .quiz-feedback.correct {
+    background: #e8f5e8;
+    border: 1px solid #4caf50;
+    display: block;
+  }
+
+  .quiz-feedback.wrong {
+    background: #ffebee;
+    border: 1px solid #f44336;
+    display: block;
+  }
+
+  .quiz-controls {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 0;
+  }
+
   @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -368,6 +490,15 @@
     .memory-card {
       height: 80px;
     }
+    .game-fullscreen-header {
+      padding: 12px 15px;
+    }
+    .game-fullscreen-title {
+      font-size: 1.1rem;
+    }
+    .game-fullscreen-body {
+      padding: 15px;
+    }
   }
 
   @media (max-width:480px){ 
@@ -390,6 +521,28 @@
     
     .card-front .card-content i {
       font-size: 1.5rem;
+    }
+    .quiz-option {
+      padding: 12px;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .memory-board {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+    }
+    
+    .memory-card {
+      height: 60px;
+    }
+    .puzzle-piece {
+      width: 50px;
+      height: 50px;
+    }
+    .puzzle-board {
+      width: 150px;
+      height: 150px;
     }
   }
 </style>
@@ -500,22 +653,16 @@
   </div>
 </div>
 
-<!-- GAME MODAL -->
-<div class="modal fade" id="gameModal" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header" style="background:#222;color:var(--gold)">
-        <h5 class="modal-title" id="gameTitle"></h5>
-        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body" id="gameBody"></div>
-      <div class="modal-footer">
-        <div class="me-auto"><small id="gameNote" class="text-muted"></small></div>
-        <button id="gameNext" class="btn btn-dark" style="display:none">Tiếp</button>
-        <button id="gameSubmit" class="btn btn-accent">Hoàn thành</button>
-        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Thoát</button>
-      </div>
-    </div>
+<!-- GAME FULLSCREEN MODE -->
+<div id="gameFullscreen" class="game-fullscreen">
+  <div class="game-fullscreen-header">
+    <h2 class="game-fullscreen-title" id="gameFullscreenTitle">Mini-game</h2>
+    <button class="game-fullscreen-close" id="gameFullscreenClose">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="game-fullscreen-body" id="gameFullscreenBody">
+    <!-- Nội dung game sẽ được đặt ở đây -->
   </div>
 </div>
 
@@ -737,7 +884,6 @@ DI_TICH.forEach(p=>{
 
 /* modal instances */
 const diModal = new bootstrap.Modal(document.getElementById('diModal'));
-const gameModal = new bootstrap.Modal(document.getElementById('gameModal'));
 
 /* open di tích modal (with details) */
 function openDiModal(p){
@@ -882,16 +1028,16 @@ function recordDone(siteId, gameId){
 
 /* ---------- Game picker & implementations ---------- */
 function openGamePicker(site){
-  document.getElementById('gameTitle').innerText = `Mini-game — ${site.name}`;
-  // build a selection
-  const html = `<div><p>Chọn mini-game:</p><div class="d-flex gap-2 flex-wrap">` +
-    site.games.map(g=>`<button class="btn btn-outline-dark game-choice" data-game="${g}">${labelGame(g)}</button>`).join('') +
-    `</div></div>`;
-  document.getElementById('gameBody').innerHTML = html;
-  document.getElementById('gameNote').innerText = 'Mỗi mini-game có 1–6 bước. Kết quả sẽ lưu vào hồ sơ của bạn (demo).';
-  document.getElementById('gameSubmit').style.display='none';
-  document.getElementById('gameNext').style.display='none';
-  gameModal.show();
+  const html = `<div class="text-center">
+    <h4 class="mb-4">Chọn mini-game — ${site.name}</h4>
+    <div class="d-flex flex-column gap-3 align-items-center">
+      ${site.games.map(g=>`<button class="btn btn-accent btn-lg w-75 game-choice" data-game="${g}">${labelGame(g)}</button>`).join('')}
+    </div>
+    <p class="mt-4 text-muted">Mỗi mini-game có 1–6 bước. Kết quả sẽ lưu vào hồ sơ của bạn (demo).</p>
+  </div>`;
+  
+  showGameFullscreen('Chọn mini-game', html);
+  
   // attach click listeners
   document.querySelectorAll('.game-choice').forEach(btn=> btn.addEventListener('click', ()=> {
     const g = btn.dataset.game;
@@ -909,6 +1055,28 @@ function labelGame(id){
     'memory_trungtruc':'Lật thẻ (Đình)'
   };
   return map[id]||id;
+}
+
+/* ---------- GAME FULLSCREEN MODE ---------- */
+const gameFullscreen = document.getElementById('gameFullscreen');
+const gameFullscreenTitle = document.getElementById('gameFullscreenTitle');
+const gameFullscreenBody = document.getElementById('gameFullscreenBody');
+const gameFullscreenClose = document.getElementById('gameFullscreenClose');
+
+gameFullscreenClose.addEventListener('click', () => {
+  hideGameFullscreen();
+});
+
+function showGameFullscreen(title, content) {
+  gameFullscreenTitle.textContent = title;
+  gameFullscreenBody.innerHTML = content;
+  gameFullscreen.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function hideGameFullscreen() {
+  gameFullscreen.classList.remove('active');
+  document.body.style.overflow = 'auto';
 }
 
 /* ---------- GAME LẬT THẺ (MEMORY CARD) ---------- */
@@ -986,13 +1154,8 @@ function startMemoryGame(gameId, site) {
     </div>
   `;
 
-  document.getElementById('gameBody').innerHTML = html;
-  document.getElementById('gameTitle').innerText = gameData.title;
-  document.getElementById('gameNote').innerText = 'Tìm các cặp thẻ giống nhau';
-  document.getElementById('gameSubmit').style.display = 'none';
-
+  showGameFullscreen(gameData.title, html);
   initializeMemoryGame();
-  gameModal.show();
 }
 
 function initializeMemoryGame() {
@@ -1113,7 +1276,7 @@ function finishMemoryGame() {
   } else {
     alert(`Bạn đã tìm được ${matchedPairs}/4 cặp thẻ. Hãy tiếp tục!`);
   }
-  gameModal.hide();
+  hideGameFullscreen();
 }
 
 /* ---------- GAME GHÉP HÌNH ---------- */
@@ -1166,14 +1329,8 @@ function startPuzzleGame(gameId, site) {
   currentPuzzleGame = { id: gameId, site: site, puzzleData: puzzleData };
   placedPieces = 0;
   
+  showGameFullscreen(puzzleData.title, '');
   loadPuzzle();
-  
-  document.getElementById('gameTitle').innerText = puzzleData.title;
-  document.getElementById('gameNote').innerText = 'Kéo thả các mảnh ghép vào đúng vị trí trên bảng';
-  document.getElementById('gameSubmit').style.display = 'none';
-  document.getElementById('gameNext').style.display = 'none';
-  
-  gameModal.show();
 }
 
 function loadPuzzle() {
@@ -1209,7 +1366,7 @@ function loadPuzzle() {
     </div>
   `;
   
-  document.getElementById('gameBody').innerHTML = html;
+  gameFullscreenBody.innerHTML = html;
   
   // Tạo board với các ô
   const board = document.getElementById('puzzleBoard');
@@ -1490,7 +1647,7 @@ function showPuzzleInfo() {
 function finishPuzzleGame() {
   recordDone(currentPuzzleGame.site.id, currentPuzzleGame.id);
   alert(`Chúc mừng! Bạn đã hoàn thành ghép hình về ${currentPuzzleGame.site.name}`);
-  gameModal.hide();
+  hideGameFullscreen();
 }
 
 /* ---------- GAME QUIZ ---------- */
@@ -1546,59 +1703,96 @@ const QUIZZES = {
 /* Start quiz run: show one question at a time with explanation */
 let currentQuiz = null;
 let currentQIndex = 0;
+let selectedOption = null;
+
 function startQuiz(quizId, site){
   const qset = QUIZZES[quizId];
   if(!qset){ alert('Quiz chưa có nội dung.'); return; }
   currentQuiz = {id:quizId, site:site, qset:qset};
   currentQIndex = 0;
+  selectedOption = null;
   renderCurrentQuestion();
-  document.getElementById('gameSubmit').style.display = 'none';
-  document.getElementById('gameNext').style.display = 'inline-block';
-  document.getElementById('gameTitle').innerText = qset.title;
-  document.getElementById('gameNote').innerText = `Trả lời từng câu — bạn sẽ nhận phản hồi ngay sau mỗi câu.`;
-  gameModal.show();
 }
+
 function renderCurrentQuestion(){
-  const body = document.getElementById('gameBody');
   const qobj = currentQuiz.qset.items[currentQIndex];
-  let html = `<div><strong>Câu ${currentQIndex+1} / ${currentQuiz.qset.items.length}</strong><p style="margin-top:8px"><em>${qobj.q}</em></p>`;
-  html += `<div>`;
-  qobj.opts.forEach((opt,i)=> html += `<div style="margin-bottom:6px"><label><input type="radio" name="opt" value="${i}"> ${opt}</label></div>`);
-  html += `</div><div id="qFeedback" style="margin-top:10px"></div></div>`;
-  body.innerHTML = html;
-  document.getElementById('gameNext').innerText = currentQIndex+1 < currentQuiz.qset.items.length ? 'Trả lời & Tiếp' : 'Trả lời & Hoàn thành';
-  document.getElementById('gameNext').onclick = handleAnswerAndNext;
+  
+  const html = `
+    <div class="quiz-container">
+      <div class="quiz-question">
+        <h5>Câu ${currentQIndex+1} / ${currentQuiz.qset.items.length}</h5>
+        <p class="fs-5">${qobj.q}</p>
+      </div>
+      
+      <div class="quiz-options" id="quizOptions">
+        ${qobj.opts.map((opt, i) => `
+          <div class="quiz-option" data-index="${i}">
+            ${opt}
+          </div>
+        `).join('')}
+      </div>
+      
+      <div class="quiz-feedback" id="quizFeedback"></div>
+      
+      <div class="quiz-controls">
+        <button class="btn btn-outline-secondary" onclick="hideGameFullscreen()">Thoát</button>
+        <button class="btn btn-accent" id="quizNextBtn" onclick="handleAnswerAndNext()" disabled>Tiếp tục</button>
+      </div>
+    </div>
+  `;
+  
+  showGameFullscreen(currentQuiz.qset.title, html);
+  
+  // Thêm sự kiện cho các lựa chọn
+  document.querySelectorAll('.quiz-option').forEach(option => {
+    option.addEventListener('click', () => {
+      // Xóa lựa chọn cũ
+      document.querySelectorAll('.quiz-option').forEach(opt => {
+        opt.classList.remove('selected');
+      });
+      
+      // Chọn lựa chọn mới
+      option.classList.add('selected');
+      selectedOption = parseInt(option.dataset.index);
+      document.getElementById('quizNextBtn').disabled = false;
+    });
+  });
 }
+
 function handleAnswerAndNext(){
-  const sel = document.querySelector('input[name="opt"]:checked');
-  if(!sel){ alert('Vui lòng chọn 1 đáp án'); return; }
-  const chosen = Number(sel.value);
-  const qobj = currentQuiz.qset.items[currentQIndex];
-  const fb = document.getElementById('qFeedback');
-  if(chosen === qobj.ans){
-    fb.innerHTML = `<div class="correct">Đáp án đúng ✓</div><div class="explain">${qobj.explain}</div>`;
-  } else {
-    fb.innerHTML = `<div class="wrong">Đáp án sai ✗</div><div class="explain">Đáp án đúng: <strong>${qobj.opts[qobj.ans]}</strong><br>${qobj.explain}</div>`;
+  if(selectedOption === null){ 
+    alert('Vui lòng chọn 1 đáp án'); 
+    return; 
   }
+  
+  const qobj = currentQuiz.qset.items[currentQIndex];
+  const fb = document.getElementById('quizFeedback');
+  
+  if(selectedOption === qobj.ans){
+    fb.innerHTML = `<div class="correct">✓ Đáp án đúng</div><div class="explain mt-2">${qobj.explain}</div>`;
+    fb.className = 'quiz-feedback correct';
+  } else {
+    fb.innerHTML = `<div class="wrong">✗ Đáp án sai</div><div class="explain mt-2">Đáp án đúng: <strong>${qobj.opts[qobj.ans]}</strong><br>${qobj.explain}</div>`;
+    fb.className = 'quiz-feedback wrong';
+  }
+  
   // brief pause then next or finish
   setTimeout(()=> {
     currentQIndex++;
     if(currentQIndex < currentQuiz.qset.items.length){
+      selectedOption = null;
       renderCurrentQuestion();
     } else {
       // quiz finished: record and show final
       recordDone(currentQuiz.site.id, currentQuiz.id);
       alert('Bạn đã hoàn thành quiz: ' + currentQuiz.qset.title);
-      gameModal.hide();
+      hideGameFullscreen();
     }
-  }, 700);
+  }, 1500);
 }
 
 /* startGameInstance wrapper called from picker */
 function startGameInstance(gid, site){
-  document.getElementById('gameBody').innerHTML = '';
-  document.getElementById('gameSubmit').style.display='none';
-  document.getElementById('gameNext').style.display='none';
   if(gid.startsWith('quiz_')) startQuiz(gid, site);
   else if(gid.startsWith('puzzle_')) startPuzzleGame(gid, site);
   else if(gid.startsWith('memory_')) startMemoryGame(gid, site);
