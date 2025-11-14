@@ -7,6 +7,7 @@
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
   :root{
@@ -169,6 +170,107 @@
     animation: fadeIn 0.5s ease;
   }
 
+  /* CSS cho game lật thẻ */
+  .memory-container {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .memory-stats {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+
+  .memory-board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .memory-card {
+    aspect-ratio: 3/4;
+    perspective: 1000px;
+    cursor: pointer;
+  }
+
+  .card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+  }
+
+  .memory-card.flipped .card-inner {
+    transform: rotateY(180deg);
+  }
+
+  .memory-card.matched .card-inner {
+    transform: rotateY(180deg);
+  }
+
+  .memory-card.matched {
+    cursor: default;
+  }
+
+  .card-front, .card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+
+  .card-front {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+  }
+
+  .card-back {
+    background: white;
+    border: 2px solid #dee2e6;
+    transform: rotateY(180deg);
+  }
+
+  .card-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .card-back .card-content img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+    border-radius: 6px;
+  }
+
+  .card-front .card-content i {
+    font-size: 2rem;
+  }
+
+  .memory-controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .memory-complete {
+    margin-top: 20px;
+  }
+
   /* Hiệu ứng lắc khi sai */
   @keyframes shake {
     0%, 100% { transform: translateX(0); }
@@ -258,6 +360,14 @@
       width: 210px;
       height: 210px;
     }
+    .memory-board {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    
+    .memory-card {
+      height: 80px;
+    }
   }
 
   @media (max-width:480px){ 
@@ -268,6 +378,18 @@
     .puzzle-board {
       width: 180px;
       height: 180px;
+    }
+    .memory-board {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+    }
+    
+    .memory-card {
+      height: 70px;
+    }
+    
+    .card-front .card-content i {
+      font-size: 1.5rem;
     }
   }
 </style>
@@ -458,7 +580,7 @@ const DI_TICH = [
       'Khoảng 40.000 tù binh từng bị giam; nhiều tù nhân bị tra tấn dã man. Có 45 cuộc vượt ngục ghi nhận.'
     ],
     lat:10.044417, lng:104.017639, // 10°02'39.9"N 104°01'03.5"E
-    games:['quiz_nhatu', 'puzzle_nhatu'],
+    games:['quiz_nhatu', 'puzzle_nhatu', 'memory_nhatu'],
     img: 'images/nhatupq3.jpg'
   },
   {
@@ -512,7 +634,7 @@ const DI_TICH = [
       'Nguyễn Trung Trực nổi tiếng với chiến công đốt tàu Pháp trên sông Nhật Tảo.'
     ],
     lat:10.373306, lng:103.842972, // 10°22'23.9"N 103°50'34.7"E
-    games:['quiz_trungtruc', 'puzzle_trungtruc'],
+    games:['quiz_trungtruc', 'puzzle_trungtruc', 'memory_trungtruc'],
     img:'images/dinhntt.jpg'
   }
 ];
@@ -782,10 +904,218 @@ function labelGame(id){
     'quiz_nhatu':'Quiz (Nhà tù)',
     'quiz_trungtruc':'Quiz (Đình)',
     'puzzle_nhatu':'Mảnh ghép lịch sử (Nhà tù)',
-    'puzzle_trungtruc':'Mảnh ghép lịch sử (Đình)'
+    'puzzle_trungtruc':'Mảnh ghép lịch sử (Đình)',
+    'memory_nhatu':'Lật thẻ (Nhà tù)',
+    'memory_trungtruc':'Lật thẻ (Đình)'
   };
   return map[id]||id;
 }
+
+/* ---------- GAME LẬT THẺ (MEMORY CARD) ---------- */
+const MEMORY_GAMES = {
+  'memory_nhatu': {
+    title: 'Lật thẻ - Nhà tù Phú Quốc',
+    cards: [
+      { id: 1, image: 'images/nhatucard1.jpg', matchId: 2 },
+      { id: 2, image: 'images/nhatutext1.jpg', matchId: 1 },
+      { id: 3, image: 'images/nhatucard2.jpg', matchId: 4 },
+      { id: 4, image: 'images/nhatutext2.jpg', matchId: 3 },
+      { id: 5, image: 'images/nhatucard3.jpg', matchId: 6 },
+      { id: 6, image: 'images/nhatutext3.jpg', matchId: 5 },
+      { id: 7, image: 'images/nhatucard4.jpg', matchId: 8 },
+      { id: 8, image: 'images/nhatutext4.jpg', matchId: 7 }
+    ]
+  },
+  'memory_trungtruc': {
+    title: 'Lật thẻ - Đình Nguyễn Trung Trực',
+    cards: [
+      { id: 1, image: 'images/dinhcard1.jpg', matchId: 2 },
+      { id: 2, image: 'images/dinhtext1.jpg', matchId: 1 },
+      { id: 3, image: 'images/dinhcard2.jpg', matchId: 4 },
+      { id: 4, image: 'images/dinhtext2.jpg', matchId: 3 },
+      { id: 5, image: 'images/dinhcard3.jpg', matchId: 6 },
+      { id: 6, image: 'images/dinhtext3.jpg', matchId: 5 },
+      { id: 7, image: 'images/dinhcard4.jpg', matchId: 8 },
+      { id: 8, image: 'images/dinhtext4.jpg', matchId: 7 }
+    ]
+  }
+};
+
+let currentMemoryGame = null;
+let flippedCards = [];
+let matchedPairs = 0;
+let canFlip = true;
+let flipCount = 0;
+
+function startMemoryGame(gameId, site) {
+  const gameData = MEMORY_GAMES[gameId];
+  if (!gameData) {
+    alert('Game lật thẻ chưa có nội dung.');
+    return;
+  }
+
+  currentMemoryGame = { id: gameId, site: site, gameData: gameData };
+  flippedCards = [];
+  matchedPairs = 0;
+  canFlip = true;
+  flipCount = 0;
+
+  const html = `
+    <div class="memory-container text-center">
+      <h4 class="mb-3">${gameData.title}</h4>
+      <div class="memory-stats mb-3">
+        <span class="badge bg-primary">Cặp đã tìm: <span id="matchedCount">0</span>/4</span>
+        <span class="badge bg-secondary ms-2">Lượt lật: <span id="flipCount">0</span></span>
+      </div>
+      
+      <div class="memory-board" id="memoryBoard">
+        <!-- Cards will be generated here -->
+      </div>
+      
+      <div class="memory-controls mt-4">
+        <button class="btn btn-accent" onclick="finishMemoryGame()">Hoàn thành</button>
+        <button class="btn btn-outline-secondary" onclick="resetMemoryGame()">Chơi lại</button>
+      </div>
+      
+      <div class="memory-complete mt-3" id="memoryComplete" style="display: none;">
+        <div class="alert alert-success">
+          <h5>🎉 Chúc mừng!</h5>
+          <p>Bạn đã hoàn thành game lật thẻ!</p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('gameBody').innerHTML = html;
+  document.getElementById('gameTitle').innerText = gameData.title;
+  document.getElementById('gameNote').innerText = 'Tìm các cặp thẻ giống nhau';
+  document.getElementById('gameSubmit').style.display = 'none';
+
+  initializeMemoryGame();
+  gameModal.show();
+}
+
+function initializeMemoryGame() {
+  const board = document.getElementById('memoryBoard');
+  const gameData = currentMemoryGame.gameData;
+  
+  // Xáo trộn thẻ
+  const shuffledCards = [...gameData.cards].sort(() => Math.random() - 0.5);
+  
+  board.innerHTML = shuffledCards.map(card => `
+    <div class="memory-card" data-card-id="${card.id}" data-match-id="${card.matchId}">
+      <div class="card-inner">
+        <div class="card-front">
+          <div class="card-content">
+            <i class="fas fa-question"></i>
+          </div>
+        </div>
+        <div class="card-back">
+          <div class="card-content">
+            <img src="${card.image}" alt="Memory card" onerror="this.style.display='none'">
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  // Thêm sự kiện click
+  document.querySelectorAll('.memory-card').forEach(card => {
+    card.addEventListener('click', handleCardClick);
+  });
+
+  flipCount = 0;
+  updateFlipCount();
+}
+
+function handleCardClick() {
+  if (!canFlip) return;
+  if (this.classList.contains('flipped') || this.classList.contains('matched')) return;
+  if (flippedCards.length >= 2) return;
+
+  // Lật thẻ
+  this.classList.add('flipped');
+  flippedCards.push(this);
+
+  // Cập nhật số lượt lật
+  flipCount++;
+  updateFlipCount();
+
+  // Kiểm tra khi có đủ 2 thẻ
+  if (flippedCards.length === 2) {
+    canFlip = false;
+    setTimeout(checkForMatch, 800);
+  }
+}
+
+function checkForMatch() {
+  const [card1, card2] = flippedCards;
+  const matchId1 = card1.dataset.matchId;
+  const matchId2 = card2.dataset.matchId;
+
+  if (card1.dataset.cardId === matchId2 && card2.dataset.cardId === matchId1) {
+    // Đúng cặp
+    card1.classList.add('matched');
+    card2.classList.add('matched');
+    matchedPairs++;
+    updateMatchedCount();
+
+    // Kiểm tra hoàn thành game
+    if (matchedPairs === 4) {
+      setTimeout(() => {
+        document.getElementById('memoryComplete').style.display = 'block';
+      }, 500);
+    }
+  } else {
+    // Sai cặp - lật lại
+    card1.classList.remove('flipped');
+    card2.classList.remove('flipped');
+  }
+
+  // Reset
+  flippedCards = [];
+  canFlip = true;
+}
+
+function updateMatchedCount() {
+  document.getElementById('matchedCount').textContent = matchedPairs;
+}
+
+function updateFlipCount() {
+  document.getElementById('flipCount').textContent = flipCount;
+}
+
+function resetMemoryGame() {
+  flippedCards = [];
+  matchedPairs = 0;
+  canFlip = true;
+  flipCount = 0;
+  
+  document.querySelectorAll('.memory-card').forEach(card => {
+    card.classList.remove('flipped', 'matched');
+  });
+  
+  document.getElementById('memoryComplete').style.display = 'none';
+  updateMatchedCount();
+  updateFlipCount();
+  
+  // Xáo trộn lại các thẻ
+  const board = document.getElementById('memoryBoard');
+  const cards = Array.from(board.children);
+  cards.sort(() => Math.random() - 0.5);
+  cards.forEach(card => board.appendChild(card));
+}
+
+function finishMemoryGame() {
+  if (matchedPairs === 4) {
+    recordDone(currentMemoryGame.site.id, currentMemoryGame.id);
+    alert('🎉 Chúc mừng! Bạn đã hoàn thành game lật thẻ!');
+  } else {
+    alert(`Bạn đã tìm được ${matchedPairs}/4 cặp thẻ. Hãy tiếp tục!`);
+  }
+  gameModal.hide();
+}
+
 /* ---------- GAME GHÉP HÌNH ---------- */
 const PUZZLE_GAMES = {
   'puzzle_nhatu': {
@@ -1271,6 +1601,7 @@ function startGameInstance(gid, site){
   document.getElementById('gameNext').style.display='none';
   if(gid.startsWith('quiz_')) startQuiz(gid, site);
   else if(gid.startsWith('puzzle_')) startPuzzleGame(gid, site);
+  else if(gid.startsWith('memory_')) startMemoryGame(gid, site);
   else { alert('Game chưa được hỗ trợ'); }
 }
 
