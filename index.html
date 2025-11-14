@@ -786,7 +786,6 @@ function labelGame(id){
   };
   return map[id]||id;
 }
-
 /* ---------- GAME GHÉP HÌNH ---------- */
 const PUZZLE_GAMES = {
   'puzzle_nhatu': {
@@ -906,13 +905,18 @@ function createPuzzlePieces() {
   const puzzle = currentPuzzleGame.puzzleData;
   const piecesContainer = document.getElementById('puzzlePieces');
   
-  // Tạo placeholder cho các mảnh ghép
+  piecesContainer.innerHTML = '';
+  
+  // Tạo tất cả 9 mảnh ghép
   for (let i = 0; i < puzzle.pieces; i++) {
     const piece = document.createElement('div');
     piece.className = 'puzzle-piece';
     piece.dataset.index = i;
-    piece.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#999;font-size:12px;">${i+1}</div>`;
-    piece.style.background = '#f0f0f0';
+    
+    // Tạo placeholder với số thứ tự
+    piece.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#999;font-size:14px;font-weight:bold;">${i+1}</div>`;
+    piece.style.background = '#f8f9fa';
+    piece.style.border = '2px solid #dee2e6';
     
     // Thêm sự kiện kéo thả
     addDragEvents(piece);
@@ -927,27 +931,51 @@ function createPuzzlePieces() {
 function loadActualImages() {
   const puzzle = currentPuzzleGame.puzzleData;
   const pieces = document.querySelectorAll('.puzzle-piece');
+  let loadedCount = 0;
+  
+  console.log(`Bắt đầu tải ${puzzle.pieces} ảnh cho game ${currentPuzzleGame.id}`);
   
   pieces.forEach((piece, index) => {
     const img = new Image();
+    
     img.onload = function() {
+      console.log(`✅ Đã tải ảnh ${index + 1}: ${puzzle.pieceImages[index]}`);
       // Khi ảnh tải xong, cập nhật background
       piece.style.backgroundImage = `url('${puzzle.pieceImages[index]}')`;
-      piece.innerHTML = '';
+      piece.style.backgroundSize = 'cover';
+      piece.style.backgroundPosition = 'center';
+      piece.style.backgroundRepeat = 'no-repeat';
+      piece.innerHTML = ''; // Xóa số placeholder
+      
+      loadedCount++;
+      console.log(`📊 Đã tải ${loadedCount}/${puzzle.pieces} ảnh`);
+      
+      // Khi tất cả ảnh đã tải xong
+      if (loadedCount === puzzle.pieces) {
+        console.log('🎉 Tất cả ảnh đã tải xong!');
+        addSlotEvents();
+        shufflePieces();
+      }
     };
     
     img.onerror = function() {
-      console.error(`Không thể tải ảnh: ${puzzle.pieceImages[index]}`);
+      console.error(`❌ Lỗi tải ảnh ${index + 1}: ${puzzle.pieceImages[index]}`);
+      // Giữ nguyên placeholder nếu ảnh lỗi
+      piece.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#dc3545;font-size:12px;">Lỗi<br>ảnh ${index+1}</div>`;
+      piece.style.background = '#ffebee';
+      piece.style.border = '2px solid #dc3545';
+      
+      loadedCount++;
+      if (loadedCount === puzzle.pieces) {
+        addSlotEvents();
+        shufflePieces();
+      }
     };
     
+    // Bắt đầu tải ảnh
+    console.log(`🔄 Đang tải ảnh ${index + 1}: ${puzzle.pieceImages[index]}`);
     img.src = puzzle.pieceImages[index];
   });
-  
-  // Thêm sự kiện cho các ô sau khi tải xong
-  setTimeout(() => {
-    addSlotEvents();
-    shufflePieces();
-  }, 500);
 }
 
 // HÀM THÊM SỰ KIỆN KÉO THẢ
