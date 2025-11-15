@@ -554,6 +554,501 @@
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-10px); }
   }
+
+  /* ========== NEW PQ STORIES DESIGN ========== */
+  #page-stories {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 0;
+    margin: 0;
+  }
+  
+  .stories-hero {
+    text-align: center;
+    padding: 80px 20px 40px;
+    background: linear-gradient(135deg, rgba(198,40,40,0.1) 0%, rgba(255,213,79,0.05) 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .stories-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="%23C62828" opacity="0.03"><circle cx="20" cy="20" r="5"/><circle cx="80" cy="30" r="8"/><circle cx="40" cy="80" r="6"/><circle cx="70" cy="70" r="4"/></svg>');
+    background-size: 200px 200px;
+  }
+  
+  .stories-hero h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: var(--accent);
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 2;
+  }
+  
+  .stories-hero p {
+    font-size: 1.3rem;
+    color: #555;
+    max-width: 600px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+  }
+  
+  .stories-wall-container {
+    position: relative;
+    padding: 40px 20px 100px;
+    min-height: 60vh;
+  }
+  
+  .stories-wall-new {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+  }
+  
+  .story-note-new {
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  .story-note-new::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(90deg, var(--accent), var(--gold));
+  }
+  
+  .story-note-new:hover {
+    transform: translateY(-8px) rotate(1deg);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+  }
+  
+  .story-note-new h3 {
+    margin-top: 0;
+    font-size: 1.3rem;
+    color: #333;
+    line-height: 1.4;
+    margin-bottom: 10px;
+  }
+  
+  .story-content-new {
+    flex-grow: 1;
+    margin-bottom: 15px;
+    line-height: 1.5;
+    color: #555;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+  }
+  
+  .story-media-new {
+    width: 100%;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    max-height: 200px;
+    object-fit: cover;
+  }
+  
+  .story-meta-new {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    color: #777;
+    margin-bottom: 10px;
+  }
+  
+  .story-actions-new {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+  }
+  
+  .story-action-new {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.9rem;
+  }
+  
+  .story-action-new:hover {
+    color: var(--accent);
+    transform: scale(1.1);
+  }
+  
+  .story-action-new.liked {
+    color: #e74c3c;
+  }
+  
+  .story-comments {
+    margin-top: 15px;
+    border-top: 1px solid rgba(0,0,0,0.1);
+    padding-top: 15px;
+    display: none;
+  }
+  
+  .story-comment {
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+  }
+  
+  .story-comment:last-child {
+    border-bottom: none;
+  }
+  
+  .story-comment-author {
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: #333;
+  }
+  
+  .story-comment-content {
+    font-size: 0.85rem;
+    color: #555;
+    margin-top: 3px;
+  }
+  
+  .add-comment-form {
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+  }
+  
+  .add-comment-input {
+    flex-grow: 1;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    padding: 8px 15px;
+    font-size: 0.85rem;
+    outline: none;
+  }
+  
+  .add-comment-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 15px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  
+  .add-comment-btn:hover {
+    background: #b71c1c;
+  }
+  
+  .add-story-btn-container {
+    position: fixed;
+    bottom: 30px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    z-index: 10;
+  }
+  
+  .add-story-btn {
+    background: linear-gradient(135deg, var(--accent), #d32);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 15px 30px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    box-shadow: 0 5px 20px rgba(198,40,40,0.4);
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 100;
+  }
+  
+  .add-story-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(198,40,40,0.5);
+  }
+  
+  .add-story-btn:active {
+    transform: translateY(1px);
+  }
+  
+  /* Story Modal */
+  .story-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s;
+  }
+  
+  .story-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .story-modal {
+    background: white;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    transform: scale(0.9);
+    transition: all 0.3s;
+    position: relative;
+  }
+  
+  .story-modal-overlay.active .story-modal {
+    transform: scale(1);
+  }
+  
+  .story-modal-header {
+    padding: 25px 30px 15px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .story-modal-header h2 {
+    margin: 0;
+    color: var(--accent);
+    font-size: 1.5rem;
+  }
+  
+  .story-modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #777;
+    cursor: pointer;
+    transition: color 0.3s;
+  }
+  
+  .story-modal-close:hover {
+    color: var(--accent);
+  }
+  
+  .story-modal-body {
+    padding: 20px 30px 30px;
+  }
+  
+  .story-form-group {
+    margin-bottom: 20px;
+  }
+  
+  .story-form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .story-form-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+  }
+  
+  .story-form-input:focus {
+    border-color: var(--accent);
+    outline: none;
+  }
+  
+  .story-form-textarea {
+    min-height: 120px;
+    resize: vertical;
+  }
+  
+  .word-count {
+    text-align: right;
+    font-size: 0.85rem;
+    color: #777;
+    margin-top: 5px;
+  }
+  
+  .word-count.warning {
+    color: #e74c3c;
+  }
+  
+  .upload-area-new {
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-bottom: 15px;
+  }
+  
+  .upload-area-new:hover {
+    border-color: var(--accent);
+    background: rgba(198,40,40,0.03);
+  }
+  
+  .upload-area-new i {
+    font-size: 2.5rem;
+    color: #ddd;
+    margin-bottom: 10px;
+    display: block;
+  }
+  
+  .file-preview-new {
+    margin-top: 15px;
+    text-align: center;
+  }
+  
+  .file-preview-new img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+  }
+  
+  .file-preview-new video {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+  }
+  
+  .remove-file {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+  
+  .story-modal-footer {
+    padding: 20px 30px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .btn-post-story {
+    background: linear-gradient(135deg, var(--accent), #d32);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 30px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  
+  .btn-post-story:hover {
+    background: linear-gradient(135deg, #b71c1c, #c62828);
+    transform: translateY(-2px);
+  }
+  
+  .btn-post-story:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  /* Success Message */
+  .success-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #4CAF50;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 10000;
+    transform: translateX(150%);
+    transition: transform 0.3s;
+  }
+  
+  .success-message.show {
+    transform: translateX(0);
+  }
+  
+  .success-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+  
+  /* Note colors */
+  .note-color-1 { background: #FFEAA7; }
+  .note-color-2 { background: #D8BFD8; }
+  .note-color-3 { background: #A5D6A7; }
+  .note-color-4 { background: #81D4FA; }
+  .note-color-5 { background: #FFCC80; }
+  .note-color-6 { background: #F8BBD0; }
+  .note-color-7 { background: #C5E1A5; }
+  .note-color-8 { background: #B39DDB; }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .stories-hero h1 {
+      font-size: 2.5rem;
+    }
+    
+    .stories-hero p {
+      font-size: 1.1rem;
+    }
+    
+    .stories-wall-new {
+      grid-template-columns: 1fr;
+    }
+    
+    .story-modal {
+      width: 95%;
+    }
+  }
 </style>
 </head>
 <body>
@@ -641,38 +1136,22 @@
 
   <!-- PQ STORIES PAGE -->
   <section id="page-stories" style="display:none">
-    <div class="profile-container">
-      <div class="profile-header">
-        <h2>PQ Stories</h2>
-        <p class="mb-0">Chia sẻ ký ức và trải nghiệm của bạn về Phú Quốc</p>
-      </div>
-
-      <!-- Upload Form -->
-      <div class="upload-form">
-        <h4 class="mb-3">Chia sẻ câu chuyện của bạn</h4>
-        <form id="storyForm">
-          <div class="mb-3">
-            <input type="text" class="form-control" id="storyTitle" placeholder="Tiêu đề câu chuyện...">
-          </div>
-          <div class="mb-3">
-            <textarea class="form-control" id="storyContent" rows="4" placeholder="Kể cho mọi người nghe câu chuyện của bạn..."></textarea>
-          </div>
-          <div class="upload-area" id="uploadArea">
-            <i class="fas fa-cloud-upload-alt"></i>
-            <p>Kéo thả ảnh/video vào đây hoặc click để chọn</p>
-            <input type="file" id="fileInput" accept="image/*,video/*" style="display:none">
-          </div>
-          <div id="filePreview" class="mb-3" style="display:none">
-            <img id="previewImage" src="" style="max-width: 200px; border-radius: 8px;">
-          </div>
-          <button type="submit" class="btn btn-accent w-100">Đăng story</button>
-        </form>
-      </div>
-
-      <!-- Stories Wall -->
-      <div class="stories-wall" id="storiesWall">
+    <div class="stories-hero">
+      <h1>PQ Stories</h1>
+      <p>Nơi bạn chia sẻ và lan toả những câu chuyện đẹp về Phú Quốc</p>
+    </div>
+    
+    <div class="stories-wall-container">
+      <div class="stories-wall-new" id="storiesWallNew">
         <!-- Stories will be dynamically added here -->
       </div>
+    </div>
+    
+    <div class="add-story-btn-container">
+      <button class="add-story-btn" id="addStoryBtn">
+        <i class="fas fa-plus"></i>
+        Kể câu chuyện của riêng bạn tại đây
+      </button>
     </div>
   </section>
 
@@ -707,6 +1186,57 @@
   <footer>
     © Dự án KHKT — THPT An Thới — Miễn phí
   </footer>
+</div>
+
+<!-- Story Modal -->
+<div class="story-modal-overlay" id="storyModalOverlay">
+  <div class="story-modal">
+    <div class="story-modal-header">
+      <h2>Chia sẻ câu chuyện của bạn</h2>
+      <button class="story-modal-close" id="storyModalClose">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="story-modal-body">
+      <form id="storyFormNew">
+        <div class="story-form-group">
+          <label for="storyTitleNew">Tiêu đề câu chuyện</label>
+          <input type="text" class="story-form-input" id="storyTitleNew" placeholder="Nhập tiêu đề hấp dẫn...">
+        </div>
+        
+        <div class="story-form-group">
+          <label for="storyContentNew">Kể cho mọi người nghe câu chuyện của bạn</label>
+          <textarea class="story-form-input story-form-textarea" id="storyContentNew" placeholder="Chia sẻ câu chuyện đáng nhớ của bạn về Phú Quốc... (giới hạn 200 từ)"></textarea>
+          <div class="word-count" id="wordCount">0/200 từ</div>
+        </div>
+        
+        <div class="story-form-group">
+          <label>Thêm hình ảnh, video hoặc âm thanh</label>
+          <div class="upload-area-new" id="uploadAreaNew">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <p>Kéo thả file vào đây hoặc click để chọn</p>
+            <p class="text-muted" style="font-size: 0.9rem; margin-top: 5px;">Hỗ trợ: ảnh, video, âm thanh</p>
+            <input type="file" id="fileInputNew" accept="image/*,video/*,audio/*" style="display:none">
+          </div>
+          <div id="filePreviewNew" class="file-preview-new" style="display:none">
+            <!-- Preview will be shown here -->
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="story-modal-footer">
+      <button class="btn-post-story" id="btnPostStory">Đăng story</button>
+    </div>
+  </div>
+</div>
+
+<!-- Success Message -->
+<div class="success-message" id="successMessage">
+  <i class="fas fa-check-circle"></i>
+  <span>Bạn đã đăng tải thành công câu chuyện của mình</span>
+  <button class="success-close" id="successClose">
+    <i class="fas fa-times"></i>
+  </button>
 </div>
 
 <!-- Các modal và popup khác giữ nguyên -->
@@ -849,40 +1379,96 @@ function showPage(page) {
   currentPage = page;
 }
 
-/* ---------- PQ Stories Functionality ---------- */
-const storyForm = document.getElementById('storyForm');
-const uploadArea = document.getElementById('uploadArea');
-const fileInput = document.getElementById('fileInput');
-const filePreview = document.getElementById('filePreview');
-const previewImage = document.getElementById('previewImage');
-const storiesWall = document.getElementById('storiesWall');
+/* ---------- NEW PQ STORIES FUNCTIONALITY ---------- */
+const addStoryBtn = document.getElementById('addStoryBtn');
+const storyModalOverlay = document.getElementById('storyModalOverlay');
+const storyModalClose = document.getElementById('storyModalClose');
+const storyFormNew = document.getElementById('storyFormNew');
+const uploadAreaNew = document.getElementById('uploadAreaNew');
+const fileInputNew = document.getElementById('fileInputNew');
+const filePreviewNew = document.getElementById('filePreviewNew');
+const storiesWallNew = document.getElementById('storiesWallNew');
+const storyContentNew = document.getElementById('storyContentNew');
+const wordCount = document.getElementById('wordCount');
+const btnPostStory = document.getElementById('btnPostStory');
+const successMessage = document.getElementById('successMessage');
+const successClose = document.getElementById('successClose');
+
+// Mở modal khi click nút thêm story
+addStoryBtn.addEventListener('click', () => {
+  storyModalOverlay.classList.add('active');
+});
+
+// Đóng modal
+storyModalClose.addEventListener('click', () => {
+  storyModalOverlay.classList.remove('active');
+});
+
+// Đóng modal khi click bên ngoài
+storyModalOverlay.addEventListener('click', (e) => {
+  if (e.target === storyModalOverlay) {
+    storyModalOverlay.classList.remove('active');
+  }
+});
 
 // Upload area click
-uploadArea.addEventListener('click', () => {
-  fileInput.click();
+uploadAreaNew.addEventListener('click', () => {
+  fileInputNew.click();
 });
 
 // File input change
-fileInput.addEventListener('change', (e) => {
+fileInputNew.addEventListener('change', (e) => {
   const file = e.target.files[0];
   if (file) {
-    if (file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        previewImage.src = e.target.result;
-        filePreview.style.display = 'block';
-      };
-      reader.readAsDataURL(file);
-    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      let previewHTML = '';
+      
+      if (file.type.startsWith('image/')) {
+        previewHTML = `<img src="${e.target.result}" alt="Preview">`;
+      } else if (file.type.startsWith('video/')) {
+        previewHTML = `<video controls><source src="${e.target.result}" type="${file.type}">Trình duyệt của bạn không hỗ trợ video.</video>`;
+      } else if (file.type.startsWith('audio/')) {
+        previewHTML = `<audio controls><source src="${e.target.result}" type="${file.type}">Trình duyệt của bạn không hỗ trợ audio.</audio>`;
+      } else {
+        previewHTML = `<p>File: ${file.name}</p>`;
+      }
+      
+      previewHTML += `<button class="remove-file" onclick="removeFile()">Xóa</button>`;
+      filePreviewNew.innerHTML = previewHTML;
+      filePreviewNew.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+// Xóa file preview
+function removeFile() {
+  filePreviewNew.style.display = 'none';
+  fileInputNew.value = '';
+}
+
+// Đếm số từ
+storyContentNew.addEventListener('input', () => {
+  const content = storyContentNew.value;
+  const words = content.trim() === '' ? 0 : content.trim().split(/\s+/).length;
+  wordCount.textContent = `${words}/200 từ`;
+  
+  if (words > 200) {
+    wordCount.classList.add('warning');
+    btnPostStory.disabled = true;
+  } else {
+    wordCount.classList.remove('warning');
+    btnPostStory.disabled = false;
   }
 });
 
 // Story form submit
-storyForm.addEventListener('submit', (e) => {
+btnPostStory.addEventListener('click', (e) => {
   e.preventDefault();
   
-  const title = document.getElementById('storyTitle').value;
-  const content = document.getElementById('storyContent').value;
+  const title = document.getElementById('storyTitleNew').value;
+  const content = document.getElementById('storyContentNew').value;
   const user = loadUser();
   
   if (!user) {
@@ -895,6 +1481,12 @@ storyForm.addEventListener('submit', (e) => {
     return;
   }
   
+  const words = content.trim().split(/\s+/).length;
+  if (words > 200) {
+    alert('Nội dung câu chuyện vượt quá 200 từ. Vui lòng rút gọn.');
+    return;
+  }
+  
   const newStory = {
     id: Date.now(),
     title: title,
@@ -902,9 +1494,11 @@ storyForm.addEventListener('submit', (e) => {
     author: user.name,
     timestamp: new Date().toISOString(),
     likes: 0,
-    comments: 0,
-    media: fileInput.files[0] ? URL.createObjectURL(fileInput.files[0]) : null,
-    liked: false
+    comments: [],
+    liked: false,
+    media: fileInputNew.files[0] ? URL.createObjectURL(fileInputNew.files[0]) : null,
+    mediaType: fileInputNew.files[0] ? fileInputNew.files[0].type : null,
+    colorClass: `note-color-${Math.floor(Math.random() * 8) + 1}`
   };
   
   // Thêm story vào mảng
@@ -916,12 +1510,33 @@ storyForm.addEventListener('submit', (e) => {
   // Cập nhật giao diện
   renderStories();
   
-  // Reset form
-  storyForm.reset();
-  filePreview.style.display = 'none';
-  fileInput.value = '';
+  // Đóng modal
+  storyModalOverlay.classList.remove('active');
   
-  alert('Câu chuyện của bạn đã được đăng thành công!');
+  // Reset form
+  storyFormNew.reset();
+  filePreviewNew.style.display = 'none';
+  fileInputNew.value = '';
+  wordCount.textContent = '0/200 từ';
+  wordCount.classList.remove('warning');
+  
+  // Hiển thị thông báo thành công
+  showSuccessMessage();
+});
+
+// Hiển thị thông báo thành công
+function showSuccessMessage() {
+  successMessage.classList.add('show');
+  
+  // Tự động ẩn sau 5 giây
+  setTimeout(() => {
+    successMessage.classList.remove('show');
+  }, 5000);
+}
+
+// Đóng thông báo thành công
+successClose.addEventListener('click', () => {
+  successMessage.classList.remove('show');
 });
 
 // Load stories từ localStorage
@@ -940,11 +1555,11 @@ function saveStories() {
 
 // Render stories
 function renderStories() {
-  storiesWall.innerHTML = '';
+  storiesWallNew.innerHTML = '';
   
   if (stories.length === 0) {
-    storiesWall.innerHTML = `
-      <div class="col-12 text-center py-5">
+    storiesWallNew.innerHTML = `
+      <div class="col-12 text-center py-5" style="grid-column: 1 / -1;">
         <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
         <h4 class="text-muted">Chưa có câu chuyện nào</h4>
         <p class="text-muted">Hãy là người đầu tiên chia sẻ ký ức về Phú Quốc!</p>
@@ -955,32 +1570,51 @@ function renderStories() {
   
   stories.forEach(story => {
     const storyElement = document.createElement('div');
-    storyElement.className = 'story-note';
+    storyElement.className = `story-note-new ${story.colorClass}`;
     storyElement.innerHTML = `
-      ${story.media ? `<img src="${story.media}" alt="${story.title}" class="story-media">` : ''}
-      <div class="story-content">
-        <h5>${story.title}</h5>
-        <p>${story.content}</p>
+      <div>
+        <h3>${story.title}</h3>
+        ${story.media ? (
+          story.mediaType.startsWith('image/') ? 
+            `<img src="${story.media}" alt="${story.title}" class="story-media-new">` :
+          story.mediaType.startsWith('video/') ? 
+            `<video controls class="story-media-new"><source src="${story.media}" type="${story.mediaType}">Trình duyệt của bạn không hỗ trợ video.</video>` :
+          story.mediaType.startsWith('audio/') ? 
+            `<audio controls class="story-media-new"><source src="${story.media}" type="${story.mediaType}">Trình duyệt của bạn không hỗ trợ audio.</audio>` :
+            ''
+        ) : ''}
+        <div class="story-content-new">${story.content}</div>
       </div>
-      <div class="story-meta">
-        <span>${story.author}</span>
-        <span>${formatTimeAgo(story.timestamp)}</span>
-      </div>
-      <div class="story-actions">
-        <div class="story-action" onclick="likeStory(${story.id})">
-          <i class="fas fa-heart ${story.liked ? 'text-danger' : ''}"></i>
-          <span>${story.likes}</span>
+      <div>
+        <div class="story-meta-new">
+          <span>${story.author}</span>
+          <span>${formatTimeAgo(story.timestamp)}</span>
         </div>
-        <div class="story-action">
-          <i class="fas fa-comment"></i>
-          <span>${story.comments}</span>
+        <div class="story-actions-new">
+          <div class="story-action-new ${story.liked ? 'liked' : ''}" onclick="likeStory(${story.id})">
+            <i class="fas fa-heart"></i>
+            <span>${story.likes}</span>
+          </div>
+          <div class="story-action-new" onclick="toggleComments(${story.id})">
+            <i class="fas fa-comment"></i>
+            <span>${story.comments.length}</span>
+          </div>
         </div>
-        <div class="story-action">
-          <i class="fas fa-share"></i>
+        <div class="story-comments" id="comments-${story.id}">
+          ${story.comments.map(comment => `
+            <div class="story-comment">
+              <div class="story-comment-author">${comment.author}</div>
+              <div class="story-comment-content">${comment.content}</div>
+            </div>
+          `).join('')}
+          <div class="add-comment-form">
+            <input type="text" class="add-comment-input" id="comment-input-${story.id}" placeholder="Viết bình luận...">
+            <button class="add-comment-btn" onclick="addComment(${story.id})">Gửi</button>
+          </div>
         </div>
       </div>
     `;
-    storiesWall.appendChild(storyElement);
+    storiesWallNew.appendChild(storyElement);
   });
 }
 
@@ -1003,6 +1637,45 @@ function likeStory(storyId) {
     }
     saveStories();
     renderStories();
+  }
+}
+
+// Toggle comments
+function toggleComments(storyId) {
+  const commentsDiv = document.getElementById(`comments-${storyId}`);
+  if (commentsDiv.style.display === 'block') {
+    commentsDiv.style.display = 'none';
+  } else {
+    commentsDiv.style.display = 'block';
+  }
+}
+
+// Add comment
+function addComment(storyId) {
+  const user = loadUser();
+  if (!user) {
+    alert('Vui lòng đăng nhập để bình luận.');
+    return;
+  }
+  
+  const commentInput = document.getElementById(`comment-input-${storyId}`);
+  const content = commentInput.value.trim();
+  
+  if (!content) {
+    alert('Vui lòng nhập nội dung bình luận.');
+    return;
+  }
+  
+  const story = stories.find(s => s.id === storyId);
+  if (story) {
+    story.comments.push({
+      author: user.name,
+      content: content,
+      timestamp: new Date().toISOString()
+    });
+    saveStories();
+    renderStories();
+    commentInput.value = '';
   }
 }
 
