@@ -541,41 +541,6 @@
     padding: 25px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.1);
   }
-  
-  /* User Management Section */
-  .user-management {
-    background: white;
-    border-radius: 15px;
-    padding: 25px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-    margin-bottom: 30px;
-  }
-  
-  .user-list {
-    margin-top: 15px;
-  }
-  
-  .user-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 15px;
-    border-bottom: 1px solid #eee;
-  }
-  
-  .user-item:last-child {
-    border-bottom: none;
-  }
-  
-  .user-info {
-    flex-grow: 1;
-  }
-  
-  .user-actions {
-    display: flex;
-    gap: 10px;
-  }
-  
   @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -1215,14 +1180,6 @@
           <!-- Badges will appear here -->
         </div>
       </div>
-      
-      <!-- User Management Section (for admin purposes) -->
-      <div class="user-management" id="userManagementSection" style="display:none">
-        <h4 class="mb-3">Quản lý người dùng</h4>
-        <div class="user-list" id="userList">
-          <!-- Users will be listed here -->
-        </div>
-      </div>
     </div>
   </section>
 
@@ -1362,280 +1319,12 @@
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script>
 /* ---------------------------
-  CẬP NHẬT: Hệ thống đăng ký/đăng nhập mới
+  CẬP NHẬT: Thêm tính năng Menu và PQ Stories
 ----------------------------*/
 
-// Biến toàn cục
+// Biến toàn cục mới
 let currentPage = 'home';
 let stories = [];
-let currentUser = null;
-
-/* -----------------------
-  Local storage keys - ĐÃ CẬP NHẬT
-------------------------*/
-const STORAGE_USERS = 'pq_users_v2'; // Lưu danh sách người dùng
-const STORAGE_CURRENT_USER = 'pq_current_user_v2'; // Lưu người dùng hiện tại
-const STORAGE_BADGES = 'pq_badges_v2'; // Lưu huy hiệu theo user
-const STORAGE_DONE = 'pq_done_games_v2'; // Lưu game đã hoàn thành theo user
-const STORAGE_VISIT = 'pq_visited_v2'; // Lưu địa điểm đã đến theo user
-const STORAGE_STORIES = 'pq_stories_v2'; // Lưu stories
-
-/* --------- Helpers ĐÃ CẬP NHẬT ------------- */
-// Lưu danh sách người dùng
-function saveUsers(users) { 
-  localStorage.setItem(STORAGE_USERS, JSON.stringify(users)); 
-}
-
-// Lấy danh sách người dùng
-function loadUsers() { 
-  return JSON.parse(localStorage.getItem(STORAGE_USERS) || '[]'); 
-}
-
-// Lưu người dùng hiện tại
-function saveCurrentUser(user) { 
-  localStorage.setItem(STORAGE_CURRENT_USER, JSON.stringify(user)); 
-  currentUser = user;
-}
-
-// Lấy người dùng hiện tại
-function loadCurrentUser() { 
-  return JSON.parse(localStorage.getItem(STORAGE_CURRENT_USER) || 'null'); 
-}
-
-// Lưu dữ liệu theo user ID
-function saveUserData(userId, key, data) {
-  const userKey = `${key}_${userId}`;
-  localStorage.setItem(userKey, JSON.stringify(data));
-}
-
-// Lấy dữ liệu theo user ID
-function loadUserData(userId, key) {
-  const userKey = `${key}_${userId}`;
-  return JSON.parse(localStorage.getItem(userKey) || (key === STORAGE_BADGES ? '[]' : '{}'));
-}
-
-// Lấy badges của user hiện tại
-function loadBadges() {
-  if (!currentUser) return [];
-  return loadUserData(currentUser.id, STORAGE_BADGES);
-}
-
-// Lưu badges của user hiện tại
-function saveBadges(badges) {
-  if (!currentUser) return;
-  saveUserData(currentUser.id, STORAGE_BADGES, badges);
-}
-
-// Lấy game đã hoàn thành của user hiện tại
-function loadDone() {
-  if (!currentUser) return {};
-  return loadUserData(currentUser.id, STORAGE_DONE);
-}
-
-// Lưu game đã hoàn thành của user hiện tại
-function saveDone(done) {
-  if (!currentUser) return;
-  saveUserData(currentUser.id, STORAGE_DONE, done);
-}
-
-// Lấy địa điểm đã đến của user hiện tại
-function loadVisited() {
-  if (!currentUser) return [];
-  return loadUserData(currentUser.id, STORAGE_VISIT);
-}
-
-// Lưu địa điểm đã đến của user hiện tại
-function saveVisited(visited) {
-  if (!currentUser) return;
-  saveUserData(currentUser.id, STORAGE_VISIT, visited);
-}
-
-// Lưu stories (chung cho tất cả user)
-function saveStories() { 
-  localStorage.setItem(STORAGE_STORIES, JSON.stringify(stories)); 
-}
-
-// Tạo ID ngẫu nhiên
-function generateId() {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2);
-}
-
-/* ---------- NEW AUTH SYSTEM ---------- */
-function authRegister(){
-  const name = document.getElementById('inName').value.trim();
-  const email = document.getElementById('inEmail').value.trim();
-  const pass = document.getElementById('inPass').value;
-  
-  if(!name || !email || !pass){ 
-    showAuthError('Điền đủ tên, email, mật khẩu'); 
-    return; 
-  }
-  
-  // Kiểm tra email đã tồn tại chưa
-  const users = loadUsers();
-  const existingUser = users.find(u => u.email === email);
-  if (existingUser) {
-    showAuthError('Email này đã được đăng ký. Vui lòng sử dụng email khác.');
-    return;
-  }
-  
-  // Tạo user mới
-  const newUser = {
-    id: generateId(),
-    name: name,
-    email: email,
-    pass: pass,
-    createdAt: new Date().toISOString(),
-    lastLogin: new Date().toISOString()
-  };
-  
-  // Thêm user vào danh sách
-  users.push(newUser);
-  saveUsers(users);
-  
-  // Đăng nhập luôn
-  saveCurrentUser(newUser);
-  
-  authModal.hide();
-  refreshProfileAuthUI();
-  alert('Đăng ký thành công! Xin chào ' + name);
-}
-
-function authLogin(){
-  const email = document.getElementById('inEmail').value.trim();
-  const pass = document.getElementById('inPass').value;
-  
-  const users = loadUsers();
-  const user = users.find(u => u.email === email && u.pass === pass);
-  
-  if(!user){ 
-    showAuthError('Email hoặc mật khẩu không đúng'); 
-    return; 
-  }
-  
-  // Cập nhật thời gian đăng nhập cuối
-  user.lastLogin = new Date().toISOString();
-  saveUsers(users);
-  
-  // Lưu user hiện tại
-  saveCurrentUser(user);
-  
-  authModal.hide();
-  refreshProfileAuthUI();
-  alert('Đăng nhập thành công. Xin chào ' + user.name);
-}
-
-function authLogout(){
-  saveCurrentUser(null);
-  refreshProfileAuthUI();
-  alert('Đăng xuất thành công.');
-}
-
-function showAuthError(msg){ 
-  const a=document.getElementById('authAlert'); 
-  a.innerText=msg; 
-  a.classList.remove('d-none'); 
-}
-
-function refreshProfileAuthUI(){
-  currentUser = loadCurrentUser();
-  const profileInfo = document.getElementById('profile-info');
-  const btnLogin = document.getElementById('btn-profile-login');
-  const btnRegister = document.getElementById('btn-profile-register');
-  const btnLogout = document.getElementById('btn-profile-logout');
-  const userManagementSection = document.getElementById('userManagementSection');
-  
-  if(currentUser){ 
-    btnLogin.style.display='none'; 
-    btnRegister.style.display='none'; 
-    btnLogout.style.display='inline-block'; 
-    profileInfo.innerHTML = `Xin chào <strong>${currentUser.name}</strong> — ${currentUser.email}<br>
-                            <small>Tham gia từ: ${new Date(currentUser.createdAt).toLocaleDateString('vi-VN')}</small>`;
-    profileInfo.className = 'alert alert-success';
-    
-    // Hiển thị phần quản lý user nếu là admin
-    if (currentUser.email === 'admin@phuquoc.com') {
-      userManagementSection.style.display = 'block';
-      loadUserList();
-    } else {
-      userManagementSection.style.display = 'none';
-    }
-  } else { 
-    btnLogin.style.display='inline-block'; 
-    btnRegister.style.display='inline-block'; 
-    btnLogout.style.display='none'; 
-    profileInfo.innerHTML = 'Bạn chưa đăng nhập. Vui lòng đăng nhập để lưu tiến trình và nhận huy hiệu.';
-    profileInfo.className = 'alert alert-info';
-    userManagementSection.style.display = 'none';
-  }
-  
-  renderProfileBadges();
-}
-
-// Tải danh sách người dùng (cho admin)
-function loadUserList() {
-  const users = loadUsers();
-  const userList = document.getElementById('userList');
-  
-  if (users.length === 0) {
-    userList.innerHTML = '<p class="text-muted">Chưa có người dùng nào.</p>';
-    return;
-  }
-  
-  userList.innerHTML = users.map(user => `
-    <div class="user-item">
-      <div class="user-info">
-        <strong>${user.name}</strong> (${user.email})<br>
-        <small class="text-muted">
-          Tham gia: ${new Date(user.createdAt).toLocaleDateString('vi-VN')} | 
-          Đăng nhập cuối: ${new Date(user.lastLogin).toLocaleDateString('vi-VN')}
-        </small>
-      </div>
-      <div class="user-actions">
-        <button class="btn btn-sm btn-outline-primary" onclick="viewUserData('${user.id}')">Xem dữ liệu</button>
-        <button class="btn btn-sm btn-outline-danger" onclick="deleteUser('${user.id}')">Xóa</button>
-      </div>
-    </div>
-  `).join('');
-}
-
-// Xem dữ liệu của user
-function viewUserData(userId) {
-  const users = loadUsers();
-  const user = users.find(u => u.id === userId);
-  
-  if (!user) return;
-  
-  const badges = loadUserData(userId, STORAGE_BADGES);
-  const visited = loadUserData(userId, STORAGE_VISIT);
-  const doneGames = loadUserData(userId, STORAGE_DONE);
-  
-  alert(`Thông tin người dùng:\n
-Tên: ${user.name}
-Email: ${user.email}
-Huy hiệu: ${badges.length} cái
-Địa điểm đã đến: ${visited.length} nơi
-Game đã hoàn thành: ${Object.keys(doneGames).length} game`);
-}
-
-// Xóa user
-function deleteUser(userId) {
-  if (!confirm('Bạn có chắc muốn xóa người dùng này? Dữ liệu của họ sẽ bị mất vĩnh viễn.')) {
-    return;
-  }
-  
-  const users = loadUsers();
-  const updatedUsers = users.filter(u => u.id !== userId);
-  saveUsers(updatedUsers);
-  
-  // Xóa dữ liệu của user
-  localStorage.removeItem(`${STORAGE_BADGES}_${userId}`);
-  localStorage.removeItem(`${STORAGE_DONE}_${userId}`);
-  localStorage.removeItem(`${STORAGE_VISIT}_${userId}`);
-  
-  loadUserList();
-  alert('Đã xóa người dùng thành công.');
-}
 
 /* ---------- Menu Navigation ---------- */
 const menuBtn = document.getElementById('nav-menu');
@@ -1780,8 +1469,9 @@ btnPostStory.addEventListener('click', (e) => {
   
   const title = document.getElementById('storyTitleNew').value;
   const content = document.getElementById('storyContentNew').value;
+  const user = loadUser();
   
-  if (!currentUser) {
+  if (!user) {
     alert('Vui lòng đăng nhập để chia sẻ câu chuyện.');
     return;
   }
@@ -1801,8 +1491,7 @@ btnPostStory.addEventListener('click', (e) => {
     id: Date.now(),
     title: title,
     content: content,
-    author: currentUser.name,
-    authorId: currentUser.id,
+    author: user.name,
     timestamp: new Date().toISOString(),
     likes: 0,
     comments: [],
@@ -1852,11 +1541,16 @@ successClose.addEventListener('click', () => {
 
 // Load stories từ localStorage
 function loadStories() {
-  const savedStories = localStorage.getItem(STORAGE_STORIES);
+  const savedStories = localStorage.getItem('pq_stories');
   if (savedStories) {
     stories = JSON.parse(savedStories);
   }
   renderStories();
+}
+
+// Save stories to localStorage
+function saveStories() {
+  localStorage.setItem('pq_stories', JSON.stringify(stories));
 }
 
 // Render stories
@@ -1926,7 +1620,8 @@ function renderStories() {
 
 // Like story function
 function likeStory(storyId) {
-  if (!currentUser) {
+  const user = loadUser();
+  if (!user) {
     alert('Vui lòng đăng nhập để thích câu chuyện.');
     return;
   }
@@ -1957,7 +1652,8 @@ function toggleComments(storyId) {
 
 // Add comment
 function addComment(storyId) {
-  if (!currentUser) {
+  const user = loadUser();
+  if (!user) {
     alert('Vui lòng đăng nhập để bình luận.');
     return;
   }
@@ -1973,8 +1669,7 @@ function addComment(storyId) {
   const story = stories.find(s => s.id === storyId);
   if (story) {
     story.comments.push({
-      author: currentUser.name,
-      authorId: currentUser.id,
+      author: user.name,
       content: content,
       timestamp: new Date().toISOString()
     });
@@ -2160,6 +1855,26 @@ const DI_TICH = [
   }
 ];
 
+/* -----------------------
+  Local storage keys
+------------------------*/
+const STORAGE_USER = 'pq_user_v1';
+const STORAGE_BADGES = 'pq_badges_v1';
+const STORAGE_DONE = 'pq_done_games_v1';
+const STORAGE_VISIT = 'pq_visited_v1';
+const STORAGE_STORIES = 'pq_stories';
+
+/* --------- Helpers ------------- */
+function saveUser(u){ localStorage.setItem(STORAGE_USER, JSON.stringify(u)) }
+function loadUser(){ return JSON.parse(localStorage.getItem(STORAGE_USER) || 'null') }
+function loadBadges(){ return JSON.parse(localStorage.getItem(STORAGE_BADGES) || '[]') }
+function saveBadges(a){ localStorage.setItem(STORAGE_BADGES, JSON.stringify(a)) }
+function loadDone(){ return JSON.parse(localStorage.getItem(STORAGE_DONE) || '{}') }
+function saveDone(o){ localStorage.setItem(STORAGE_DONE, JSON.stringify(o)) }
+function loadVisited(){ return JSON.parse(localStorage.getItem(STORAGE_VISIT) || '[]') }
+function saveVisited(a){ localStorage.setItem(STORAGE_VISIT, JSON.stringify(a)) }
+function saveStories(){ localStorage.setItem(STORAGE_STORIES, JSON.stringify(stories)) }
+
 /* ---------- UI & Navigation ---------- */
 const pageHome = document.getElementById('page-home');
 const pageMap = document.getElementById('page-map');
@@ -2189,8 +1904,60 @@ document.getElementById('btn-profile-login').addEventListener('click', ()=> {
 });
 
 document.getElementById('btn-profile-logout').addEventListener('click', ()=> {
-  authLogout();
+  localStorage.removeItem(STORAGE_USER);
+  refreshProfileAuthUI();
+  alert('Đăng xuất thành công.');
 });
+
+/* auth functions */
+function authRegister(){
+  const name = document.getElementById('inName').value.trim();
+  const email = document.getElementById('inEmail').value.trim();
+  const pass = document.getElementById('inPass').value;
+  if(!name || !email || !pass){ showAuthError('Điền đủ tên, email, mật khẩu'); return; }
+  const u = {name,email,pass};
+  saveUser(u);
+  alert('Đăng ký thành công. Vui lòng đăng nhập.');
+  authModal.hide();
+}
+
+function authLogin(){
+  const email = document.getElementById('inEmail').value.trim();
+  const pass = document.getElementById('inPass').value;
+  const u = loadUser();
+  if(!u || u.email !== email || u.pass !== pass){ showAuthError('Email hoặc mật khẩu không đúng'); return; }
+  authModal.hide();
+  refreshProfileAuthUI();
+  alert('Đăng nhập thành công. Xin chào ' + u.name);
+}
+
+function showAuthError(msg){ 
+  const a=document.getElementById('authAlert'); 
+  a.innerText=msg; 
+  a.classList.remove('d-none'); 
+}
+
+function refreshProfileAuthUI(){
+  const u = loadUser();
+  const profileInfo = document.getElementById('profile-info');
+  const btnLogin = document.getElementById('btn-profile-login');
+  const btnRegister = document.getElementById('btn-profile-register');
+  const btnLogout = document.getElementById('btn-profile-logout');
+  
+  if(u){ 
+    btnLogin.style.display='none'; 
+    btnRegister.style.display='none'; 
+    btnLogout.style.display='inline-block'; 
+    profileInfo.innerHTML = `Xin chào <strong>${u.name}</strong> — ${u.email}`;
+    profileInfo.className = 'alert alert-success';
+  } else { 
+    btnLogin.style.display='inline-block'; 
+    btnRegister.style.display='inline-block'; 
+    btnLogout.style.display='none'; 
+    profileInfo.innerHTML = 'Bạn chưa đăng nhập. Vui lòng đăng nhập để lưu tiến trình và nhận huy hiệu.';
+    profileInfo.className = 'alert alert-info';
+  }
+}
 
 /* ---------- Map init ---------- */
 const map = L.map('map', {zoomControl:true}).setView([10.28,103.98], 11);
@@ -2284,7 +2051,8 @@ function openDiModal(p){
   } else { btnPlay.style.display='none'; btnPlay.onclick=null; }
   // check-in button
   document.getElementById('btn-checkin').onclick = ()=> {
-    if(!currentUser){ alert('Vui lòng đăng nhập trước khi check-in.'); return; }
+    const u = loadUser();
+    if(!u){ alert('Vui lòng đăng nhập trước khi check-in.'); return; }
     markVisited(p.id);
     awardBadgeSite(p.id,p.name);
   };
@@ -2868,6 +2636,7 @@ function startGameInstance(gid, site){
 
 /* ---------- initial UI state ---------- */
 refreshProfileAuthUI();
+renderProfileBadges();
 loadStories();
 
 /* ensure map resizes when switching pages */
@@ -2879,3 +2648,6 @@ window.addEventListener('resize', ()=> {
 </script>
 </body>
 </html>
+
+
+ĐỀ XUẤT HƯỚNG GIẢI PHÁP CHO VIỆC ĐĂNG KÍ, ĐĂNG NHẬP
