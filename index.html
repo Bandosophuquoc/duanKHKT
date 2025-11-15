@@ -944,39 +944,7 @@ function recordDone(siteId, gameId){
   if(!o[siteId].includes(gameId)){ 
     o[siteId].push(gameId); 
     saveDone(o); 
-    
-    // Kiểm tra và trao huy hiệu đặc biệt
-    checkAndAwardSpecialBadges();
-    
     renderProfileBadges(); 
-  }
-}
-// Kiểm tra và trao huy hiệu đặc biệt
-function checkAndAwardSpecialBadges() {
-  const done = loadDone();
-  
-  // Đếm tổng số game đã hoàn thành
-  let totalGamesCompleted = 0;
-  const allGameIds = ['quiz_nhatu', 'memory_nhatu', 'quiz_trungtruc', 'memory_trungtruc'];
-  
-  allGameIds.forEach(gameId => {
-    const nhaTuDone = done['nha-tu'] && done['nha-tu'].includes(gameId);
-    const dinhDone = done['dinh-ntt'] && done['dinh-ntt'].includes(gameId);
-    
-    if (nhaTuDone || dinhDone) {
-      totalGamesCompleted++;
-    }
-  });
-  
-  console.log(`Tổng số game đã hoàn thành: ${totalGamesCompleted}/4`);
-  
-  // Kiểm tra và trao huy hiệu
-  if (totalGamesCompleted >= 2 && totalGamesCompleted < 4) {
-    awardBadge('nha_su_hoc_tap_su', 'Nhà sử học tập sự', 'images/IMG_4803.png');
-  }
-  
-  if (totalGamesCompleted === 4) {
-    awardBadge('nha_su_hoc_tai_ba', 'Nhà sử học tài ba', 'images/IMG_4802.png');
   }
 }
 /* ---------- Game picker & implementations ---------- */
