@@ -12,6 +12,10 @@
     --accent:#C62828; /* đỏ */
     --gold:#FFD54F;
     --bg:#FBFBFB;
+    --nature:#A5D6A7; /* Xanh lá pastel */
+    --culture:#FFCC80; /* Cam pastel */
+    --entertainment:#CE93D8; /* Tím pastel */
+    --craft:#EF9A9A; /* Đỏ pastel */
   }
   body{font-family: "Noto Sans", system-ui, sans-serif; background:var(--bg); color:#111;}
   .container-main{max-width:1100px;margin:auto;}
@@ -27,6 +31,32 @@
   .correct{color:green;font-weight:700}
   .wrong{color:#c62828;font-weight:700}
   .explain{font-size:0.95rem;color:#444}
+  
+  /* Marker tooltip */
+  .marker-tooltip {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    white-space: nowrap;
+    z-index: 1000;
+    pointer-events: none;
+    transform: translateY(-100%);
+    margin-top: -10px;
+  }
+  .marker-tooltip:after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: rgba(0, 0, 0, 0.8) transparent transparent transparent;
+  }
+  
  /* CSS cho game lật thẻ */
   /* Cập nhật CSS cho game lật thẻ trên điện thoại */
 @media (max-width: 767px) {
@@ -607,16 +637,42 @@
   Dữ liệu điểm (đã cập nhật với tọa độ chính xác của bạn)
 ----------------------------*/
 const DI_TICH = [
+  // Nhóm Thiên Nhiên (Xanh Lá pastel)
   {
-    id:'chua',
-    name:'Chùa Hộ Quốc',
-    address:'426H+GVQ, Dương Tơ, Phú Quốc, Kiên Giang, Việt Nam',
-    note:'Thiền viện Trúc Lâm Hộ Quốc — kiến trúc tâm linh lớn, phong cách cổ truyền Việt.',
-    extra:['Ngôi chùa lớn nhất Phú Quốc', 'Kiến trúc truyền thống Việt Nam', 'Không gian tâm linh thanh tịnh'],
-    lat:10.110028, lng:104.029056,
+    id:'vuon-quoc-gia',
+    name:'Vườn quốc gia Phú Quốc',
+    address:'Vườn quốc gia Phú Quốc, Kiên Giang, Việt Nam',
+    note:'Vườn quốc gia với hệ sinh thái rừng nhiệt đới phong phú, nơi bảo tồn nhiều loài động thực vật quý hiếm.',
+    extra:['Diện tích: 31.422 ha', 'Có nhiều loài động thực vật quý hiếm', 'Hệ sinh thái rừng nhiệt đới đa dạng'],
+    lat:10.3645, lng:103.9919,
     games:[],
-    img: 'images/chua.jpg'
+    img: 'images/vuon.jpg',
+    category: 'nature'
   },
+  {
+    id:'bai-sao',
+    name:'Bãi Sao',
+    address:'Bãi Sao, Phú Quốc, Kiên Giang, Việt Nam',
+    note:'Bãi biển đẹp với cát trắng mịn, nước biển trong xanh, hình lưỡi liềm đặc trưng.',
+    extra:['Cát trắng mịn', 'Nước biển trong xanh', 'Hình dạng lưỡi liềm độc đáo'],
+    lat:10.0572, lng:104.0360,
+    games:[],
+    img:'images/baisao.jpg',
+    category: 'nature'
+  },
+  {
+    id:'hon-thom',
+    name:'Hòn Thơm',
+    address:'Hòn Thơm, Phú Quốc, Kiên Giang, Việt Nam',
+    note:'Hòn đảo lớn thứ hai trong quần đảo An Thới, nổi tiếng với cảnh quan thiên nhiên hoang sơ.',
+    extra:['Đảo lớn thứ hai quần đảo An Thới', 'Cảnh quan thiên nhiên hoang sơ', 'Nhiều bãi biển đẹp'],
+    lat:9.9560, lng:104.0179,
+    games:[],
+    img:'images/honthom.jpg',
+    category: 'nature'
+  },
+  
+  // Nhóm Văn Hóa - Lịch Sử (Cam pastel)
   {
     id:'nha-tu',
     name:'Nhà tù Phú Quốc',
@@ -629,47 +685,19 @@ const DI_TICH = [
     ],
     lat:10.044417, lng:104.017639,
     games:['quiz_nhatu', 'memory_nhatu'],
-    img: 'images/nhatupq3.jpg'
+    img: 'images/nhatupq3.jpg',
+    category: 'culture'
   },
   {
-    id:'nha-thung',
-    name:'Nhà thùng nước mắm Phú Quốc (Phụng Hưng)',
-    address:'471 Đ. Nguyễn Văn Cừ, Khu 2, Phú Quốc, Kiên Giang',
-    note:'Nhà thùng nước mắm truyền thống; nghề truyền thống của đảo.',
-    extra:['Lịch sử: hàng trăm năm, phương thức ủ muối truyền thống', 'Nước mắm Phú Quốc nổi tiếng thơm ngon'],
-    lat:10.044917, lng:104.017444,
+    id:'chua',
+    name:'Chùa Hộ Quốc',
+    address:'426H+GVQ, Dương Tơ, Phú Quốc, Kiên Giang, Việt Nam',
+    note:'Thiền viện Trúc Lâm Hộ Quốc — kiến trúc tâm linh lớn, phong cách cổ truyền Việt.',
+    extra:['Ngôi chùa lớn nhất Phú Quốc', 'Kiến trúc truyền thống Việt Nam', 'Không gian tâm linh thanh tịnh'],
+    lat:10.110028, lng:104.029056,
     games:[],
-    img:'images/nhathung.jpg'
-  },
-  {
-    id:'ham-ninh',
-    name:'Làng chài Hàm Ninh',
-    address:'52JV+6XX, TL47, Rạch Hàm, Phú Quốc, Kiên Giang, Việt Nam',
-    note:'Làng chài cổ, nổi tiếng hải sản tươi, ghẹ Hàm Ninh.',
-    extra:['Làng chài truyền thống lâu đời', 'Nổi tiếng với ghẹ Hàm Ninh tươi ngon', 'Cảnh biển đẹp, bình yên'],
-    lat:10.180917, lng:104.048472,
-    games:[],
-    img:'images/langchai.jpg'
-  },
-  {
-    id:'baotang',
-    name:'Bảo tàng Cội Nguồn',
-    address:'Phú Quốc, Kiên Giang',
-    note:'Bảo tàng trưng bày lịch sử-văn hóa địa phương',
-    extra:['Trưng bày lịch sử, văn hóa Phú Quốc', 'Bộ sưu tập cổ vật phong phú', 'Kiến trúc độc đáo'],
-    lat:10.192500, lng:103.967000,
-    games:[],
-    img:'images/coinguon.jpg'
-  },
-  {
-    id:'dinh-cau',
-    name:'Dinh Cậu',
-    address:'Khu phố 2, Tp. Phú Quốc, Kiên Giang 92500, Việt Nam',
-    note:'Di tích thắng cảnh; tín ngưỡng của ngư dân, có lễ hội hàng năm (15–16/10 âm lịch).',
-    extra:['Xây dựng: 1937 (tu sửa 1997)','Biểu tượng tâm linh của người dân địa phương', 'Vị trí đẹp nhìn ra biển'],
-    lat:10.217194, lng:103.956500,
-    games:[],
-    img:'images/dinhcau.jpg'
+    img: 'images/chua.jpg',
+    category: 'culture'
   },
   {
     id:'dinh-ntt',
@@ -683,9 +711,92 @@ const DI_TICH = [
     ],
     lat:10.373306, lng:103.842972,
     games:['quiz_trungtruc', 'memory_trungtruc'],
-    img:'images/dinhntt.jpg'
+    img:'images/dinhntt.jpg',
+    category: 'culture'
+  },
+  {
+    id:'baotang',
+    name:'Bảo tàng Cội Nguồn',
+    address:'Phú Quốc, Kiên Giang',
+    note:'Bảo tàng trưng bày lịch sử-văn hóa địa phương',
+    extra:['Trưng bày lịch sử, văn hóa Phú Quốc', 'Bộ sưu tập cổ vật phong phú', 'Kiến trúc độc đáo'],
+    lat:10.192500, lng:103.967000,
+    games:[],
+    img:'images/coinguon.jpg',
+    category: 'culture'
+  },
+  {
+    id:'dinh-cau',
+    name:'Dinh Cậu',
+    address:'Khu phố 2, Tp. Phú Quốc, Kiên Giang 92500, Việt Nam',
+    note:'Di tích thắng cảnh; tín ngưỡng của ngư dân, có lễ hội hàng năm (15–16/10 âm lịch).',
+    extra:['Xây dựng: 1937 (tu sửa 1997)','Biểu tượng tâm linh của người dân địa phương', 'Vị trí đẹp nhìn ra biển'],
+    lat:10.217194, lng:103.956500,
+    games:[],
+    img:'images/dinhcau.jpg',
+    category: 'culture'
+  },
+  
+  // Nhóm Giải Trí & Hiện Đại (Tím pastel)
+  {
+    id:'cap-treo',
+    name:'Cáp treo Hòn Thơm',
+    address:'Cáp treo Hòn Thơm, Phú Quốc, Kiên Giang, Việt Nam',
+    note:'Tuyến cáp treo vượt biển dài nhất thế giới, kết nối đảo Phú Quốc với đảo Hòn Thơm.',
+    extra:['Tuyến cáp treo vượt biển dài nhất thế giới', 'Kết nối đảo Phú Quốc với Hòn Thơm', 'Cung đường ngắm cảnh tuyệt đẹp'],
+    lat:10.0269, lng:104.0073,
+    games:[],
+    img:'images/captreo.jpg',
+    category: 'entertainment'
+  },
+  {
+    id:'grand-world',
+    name:'Grand World Phú Quốc',
+    address:'Grand World Phú Quốc, Bãi Dài, Phú Quốc, Kiên Giang, Việt Nam',
+    note:'Khu phức hợp giải trí, mua sắm và ẩm thực với kiến trúc châu Âu độc đáo.',
+    extra:['Khu phức hợp giải trí hiện đại', 'Kiến trúc châu Âu độc đáo', 'Nhiều hoạt động vui chơi, mua sắm'],
+    lat:10.3289, lng:103.8629,
+    games:[],
+    img:'images/grandworld.jpg',
+    category: 'entertainment'
+  },
+  
+  // Nhóm Ẩm Thực & Làng Nghề (Đỏ pastel)
+  {
+    id:'nha-thung',
+    name:'Nhà thùng nước mắm Phú Quốc (Phụng Hưng)',
+    address:'471 Đ. Nguyễn Văn Cừ, Khu 2, Phú Quốc, Kiên Giang',
+    note:'Nhà thùng nước mắm truyền thống; nghề truyền thống của đảo.',
+    extra:['Lịch sử: hàng trăm năm, phương thức ủ muối truyền thống', 'Nước mắm Phú Quốc nổi tiếng thơm ngon'],
+    lat:10.044917, lng:104.017444,
+    games:[],
+    img:'images/nhathung.jpg',
+    category: 'craft'
+  },
+  {
+    id:'ngoc-trai',
+    name:'Cơ sở nuôi cấy ngọc trai (Ngọc Hiền Pearl)',
+    address:'Cơ sở nuôi cấy ngọc trai Ngọc Hiền Pearl, Phú Quốc, Kiên Giang',
+    note:'Cơ sở nuôi cấy và chế tác ngọc trai nổi tiếng tại Phú Quốc.',
+    extra:['Nuôi cấy và chế tác ngọc trai', 'Sản phẩm ngọc trai chất lượng cao', 'Quy trình nuôi cấy công phu'],
+    lat:10.1701, lng:103.9703, // Cập nhật tọa độ mới
+    games:[],
+    img:'images/ngoctrai.jpg',
+    category: 'craft'
+  },
+  {
+    id:'ham-ninh',
+    name:'Làng chài Hàm Ninh',
+    address:'52JV+6XX, TL47, Rạch Hàm, Phú Quốc, Kiên Giang, Việt Nam',
+    note:'Làng chài cổ, nổi tiếng hải sản tươi, ghẹ Hàm Ninh.',
+    extra:['Làng chài truyền thống lâu đời', 'Nổi tiếng với ghẹ Hàm Ninh tươi ngon', 'Cảnh biển đẹp, bình yên'],
+    lat:10.180917, lng:104.048472,
+    games:[],
+    img:'images/langchai.jpg',
+    category: 'craft'
   }
 ];
+
 /* -----------------------
   Local storage keys
 ------------------------*/
@@ -693,6 +804,7 @@ const STORAGE_USER = 'pq_user_v1';
 const STORAGE_BADGES = 'pq_badges_v1';
 const STORAGE_DONE = 'pq_done_games_v1';
 const STORAGE_VISIT = 'pq_visited_v1';
+
 /* --------- Helpers ------------- */
 function saveUser(u){ localStorage.setItem(STORAGE_USER, JSON.stringify(u)) }
 function loadUser(){ return JSON.parse(localStorage.getItem(STORAGE_USER) || 'null') }
@@ -702,6 +814,7 @@ function loadDone(){ return JSON.parse(localStorage.getItem(STORAGE_DONE) || '{}
 function saveDone(o){ localStorage.setItem(STORAGE_DONE, JSON.stringify(o)) }
 function loadVisited(){ return JSON.parse(localStorage.getItem(STORAGE_VISIT) || '[]') }
 function saveVisited(a){ localStorage.setItem(STORAGE_VISIT, JSON.stringify(a)) }
+
 /* ---------- UI & Navigation ---------- */
 const pageHome = document.getElementById('page-home');
 const pageMap = document.getElementById('page-map');
@@ -710,17 +823,20 @@ const navHome = document.getElementById('nav-home');
 const navMap = document.getElementById('nav-map');
 const navProfile = document.getElementById('nav-profile');
 const btnStart = document.getElementById('btn-start');
+
 function showHome(){ 
   pageHome.style.display='block'; 
   pageMap.style.display='none'; 
   pageProfile.style.display='none'; 
 }
+
 function showMap(){ 
   pageHome.style.display='none'; 
   pageMap.style.display='block'; 
   pageProfile.style.display='none'; 
   setTimeout(()=> map.invalidateSize(),300); 
 }
+
 function showProfile(){ 
   pageHome.style.display='none'; 
   pageMap.style.display='none'; 
@@ -728,10 +844,12 @@ function showProfile(){
   renderProfileBadges();
   refreshProfileAuthUI();
 }
+
 navHome.onclick = showHome;
 navMap.onclick = showMap;
 navProfile.onclick = showProfile;
 btnStart.onclick = ()=> { showMap(); window.scrollTo(0,0); }
+
 /* Auth modal */
 const authModal = new bootstrap.Modal(document.getElementById('authModal'));
 document.getElementById('btn-profile-register').addEventListener('click', ()=> {
@@ -740,17 +858,20 @@ document.getElementById('btn-profile-register').addEventListener('click', ()=> {
   document.getElementById('authAlert').classList.add('d-none');
   authModal.show();
 });
+
 document.getElementById('btn-profile-login').addEventListener('click', ()=> {
   document.getElementById('authTitle').innerText = 'Đăng nhập'; 
   document.getElementById('authSubmit').onclick = authLogin; 
   document.getElementById('authAlert').classList.add('d-none');
   authModal.show();
 });
+
 document.getElementById('btn-profile-logout').addEventListener('click', ()=> {
   localStorage.removeItem(STORAGE_USER);
   refreshProfileAuthUI();
   alert('Đăng xuất thành công.');
 });
+
 /* auth functions */
 function authRegister(){
   const name = document.getElementById('inName').value.trim();
@@ -762,6 +883,7 @@ function authRegister(){
   alert('Đăng ký thành công. Vui lòng đăng nhập.');
   authModal.hide();
 }
+
 function authLogin(){
   const email = document.getElementById('inEmail').value.trim();
   const pass = document.getElementById('inPass').value;
@@ -771,11 +893,13 @@ function authLogin(){
   refreshProfileAuthUI();
   alert('Đăng nhập thành công. Xin chào ' + u.name);
 }
+
 function showAuthError(msg){ 
   const a=document.getElementById('authAlert'); 
   a.innerText=msg; 
   a.classList.remove('d-none'); 
 }
+
 function refreshProfileAuthUI(){
   const u = loadUser();
   const profileInfo = document.getElementById('profile-info');
@@ -797,20 +921,75 @@ function refreshProfileAuthUI(){
     profileInfo.className = 'alert alert-info';
   }
 }
+
 /* ---------- Map init ---------- */
 const map = L.map('map', {zoomControl:true}).setView([10.28,103.98], 11);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19, attribution:'© OpenStreetMap'}).addTo(map);
-function makeIcon(hasGame){
-  const color = hasGame ? '#C62828' : '#1976D2';
-  return L.divIcon({className:'custom-pin', html:`<div style="background:${color};width:18px;height:18px;border-radius:50%;border:3px solid white"></div>`, iconSize:[24,24], iconAnchor:[12,12]});
+
+// Tạo tooltip cho marker
+let currentTooltip = null;
+
+function createCustomIcon(category, hasGame) {
+  const colorMap = {
+    'nature': '#A5D6A7', // Xanh lá pastel
+    'culture': '#FFCC80', // Cam pastel
+    'entertainment': '#CE93D8', // Tím pastel
+    'craft': '#EF9A9A' // Đỏ pastel
+  };
+  
+  const color = colorMap[category] || '#90CAF9';
+  
+  return L.divIcon({
+    className: 'custom-pin',
+    html: `
+      <div style="
+        background: ${color}; 
+        width: 24px; 
+        height: 24px; 
+        border-radius: 50%; 
+        border: 3px solid white;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      "></div>
+    `,
+    iconSize: [30, 30],
+    iconAnchor: [15, 15]
+  });
 }
+
 /* render markers */
 DI_TICH.forEach(p=>{
-  const m = L.marker([p.lat,p.lng], {icon: makeIcon(p.games.length>0)}).addTo(map);
+  const m = L.marker([p.lat,p.lng], {icon: createCustomIcon(p.category, p.games.length>0)}).addTo(map);
+  
+  // Thêm tooltip khi hover
+  m.on('mouseover', function(e) {
+    if (currentTooltip) {
+      document.body.removeChild(currentTooltip);
+    }
+    
+    currentTooltip = document.createElement('div');
+    currentTooltip.className = 'marker-tooltip';
+    currentTooltip.textContent = p.name;
+    
+    const point = map.latLngToContainerPoint(e.latlng);
+    currentTooltip.style.left = (point.x + 20) + 'px';
+    currentTooltip.style.top = (point.y - 10) + 'px';
+    
+    document.body.appendChild(currentTooltip);
+  });
+  
+  m.on('mouseout', function() {
+    if (currentTooltip) {
+      document.body.removeChild(currentTooltip);
+      currentTooltip = null;
+    }
+  });
+  
   m.on('click', ()=> openDiModal(p));
 });
+
 /* modal instances */
 const diModal = new bootstrap.Modal(document.getElementById('diModal'));
+
 /* open di tích modal (with details) */
 function openDiModal(p){
   document.getElementById('diTitle').innerText = p.name;
@@ -842,8 +1021,10 @@ function openDiModal(p){
   };
   diModal.show();
 }
+
 /* ---------- Badges & check-in logic ---------- */
 function getBadges(){ return loadBadges(); }
+
 function awardBadge(id,name,icon){
   const arr = getBadges();
   if(arr.find(b=>b.id===id)) return false;
@@ -855,6 +1036,7 @@ function awardBadge(id,name,icon){
   showBadgePopup(name, icon);
   return true;
 }
+
 function renderProfileBadges(){
   const wrap = document.getElementById('profile-badge-area');
   wrap.innerHTML = '';
@@ -875,6 +1057,7 @@ function renderProfileBadges(){
     wrap.appendChild(el);
   });
 }
+
 /* mark visited and award site badge */
 function markVisited(siteId){
   const v = loadVisited();
@@ -884,6 +1067,7 @@ function markVisited(siteId){
     renderProfileBadges(); 
   }
 }
+
 function awardBadgeSite(siteId, siteName){
   const id = `site_${siteId}`;
   const name = `${siteName}`;
@@ -894,12 +1078,19 @@ function awardBadgeSite(siteId, siteName){
     'ham-ninh': 'images/hhlangchai.jpg',
     'baotang': 'images/hhcoinguon.jpg',
     'dinh-cau': 'images/hhdinhcau.jpg',
-    'dinh-ntt': 'images/hhdinhntt.jpg'
+    'dinh-ntt': 'images/hhdinhntt.jpg',
+    'vuon-quoc-gia': 'images/hhvuon.jpg',
+    'bai-sao': 'images/hhbaisao.jpg',
+    'hon-thom': 'images/hhhonthom.jpg',
+    'cap-treo': 'images/hhcaptreo.jpg',
+    'grand-world': 'images/hhgrandworld.jpg',
+    'ngoc-trai': 'images/hhngoctrai.jpg'
   };
   
   const badgeIcon = badgeIcons[siteId] || `https://via.placeholder.com/64/C33/fff?text=${encodeURIComponent(siteName.split(' ')[0].charAt(0))}`;
   awardBadge(id, name, badgeIcon);
 }
+
 /* Hiển thị popup huy hiệu lớn */
 function showBadgePopup(badgeName, badgeIcon) {
   const popup = document.getElementById('badgePopup');
@@ -934,9 +1125,11 @@ function showBadgePopup(badgeName, badgeIcon) {
     }
   };
 }
+
 function closeBadgePopup() {
   document.getElementById('badgePopup').style.display = 'none';
 }
+
 /* record game completion */
 function recordDone(siteId, gameId){
   const o = loadDone();
@@ -947,6 +1140,7 @@ function recordDone(siteId, gameId){
     renderProfileBadges(); 
   }
 }
+
 /* ---------- Game picker & implementations ---------- */
 function openGamePicker(site){
   const html = `<div class="text-center">
@@ -964,6 +1158,7 @@ function openGamePicker(site){
     startGameInstance(g, site);
   }));
 }
+
 function labelGame(id){
   const map = {
     'quiz_nhatu':'Quiz (Nhà tù)',
@@ -973,31 +1168,38 @@ function labelGame(id){
   };
   return map[id]||id;
 }
+
 /* ---------- GAME FULLSCREEN MODE ---------- */
 const gameFullscreen = document.getElementById('gameFullscreen');
 const gameFullscreenTitle = document.getElementById('gameFullscreenTitle');
 const gameFullscreenBody = document.getElementById('gameFullscreenBody');
 const gameFullscreenClose = document.getElementById('gameFullscreenClose');
+
 gameFullscreenClose.addEventListener('click', () => {
   hideGameFullscreen();
 });
+
 function showGameFullscreen(title, content) {
   gameFullscreenTitle.textContent = title;
   gameFullscreenBody.innerHTML = content;
   gameFullscreen.classList.add('active');
   document.body.style.overflow = 'hidden';
 }
+
 function hideGameFullscreen() {
   gameFullscreen.classList.remove('active');
   document.body.style.overflow = 'auto';
 }
+
 /* ---------- Victory Popup ---------- */
 const victoryPopup = document.getElementById('victoryPopup');
 const victoryMessage = document.getElementById('victoryMessage');
 const victoryClose = document.getElementById('victoryClose');
+
 victoryClose.addEventListener('click', () => {
   victoryPopup.style.display = 'none';
 });
+
 function showVictory(message) {
   victoryMessage.textContent = message;
   victoryPopup.style.display = 'flex';
@@ -1030,6 +1232,7 @@ function showVictory(message) {
     });
   }, 500);
 }
+
 /* ---------- GAME LẬT THẺ (MEMORY CARD) ---------- */
 const MEMORY_GAMES = {
   'memory_nhatu': {
@@ -1059,11 +1262,13 @@ const MEMORY_GAMES = {
     ]
   }
 };
+
 let currentMemoryGame = null;
 let flippedCards = [];
 let matchedPairs = 0;
 let canFlip = true;
 let flipCount = 0;
+
 function startMemoryGame(gameId, site) {
   const gameData = MEMORY_GAMES[gameId];
   if (!gameData) {
@@ -1103,6 +1308,7 @@ function startMemoryGame(gameId, site) {
   showGameFullscreen(gameData.title, html);
   initializeMemoryGame();
 }
+
 function initializeMemoryGame() {
   const board = document.getElementById('memoryBoard');
   const gameData = currentMemoryGame.gameData;
@@ -1131,6 +1337,7 @@ function initializeMemoryGame() {
   flipCount = 0;
   updateFlipCount();
 }
+
 function handleCardClick() {
   if (!canFlip) return;
   if (this.classList.contains('flipped') || this.classList.contains('matched')) return;
@@ -1144,6 +1351,7 @@ function handleCardClick() {
     setTimeout(checkForMatch, 800);
   }
 }
+
 function checkForMatch() {
   const [card1, card2] = flippedCards;
   const matchId1 = card1.dataset.matchId;
@@ -1166,12 +1374,15 @@ function checkForMatch() {
   flippedCards = [];
   canFlip = true;
 }
+
 function updateMatchedCount() {
   document.getElementById('matchedCount').textContent = matchedPairs;
 }
+
 function updateFlipCount() {
   document.getElementById('flipCount').textContent = flipCount;
 }
+
 function resetMemoryGame() {
   flippedCards = [];
   matchedPairs = 0;
@@ -1191,6 +1402,7 @@ function resetMemoryGame() {
   cards.sort(() => Math.random() - 0.5);
   cards.forEach(card => board.appendChild(card));
 }
+
 function finishMemoryGame() {
   if (matchedPairs === 4) {
     recordDone(currentMemoryGame.site.id, currentMemoryGame.id);
@@ -1199,6 +1411,7 @@ function finishMemoryGame() {
     alert(`Bạn đã tìm được ${matchedPairs}/4 cặp thẻ. Hãy tiếp tục!`);
   }
 }
+
 /* ---------- GAME QUIZ ---------- */
 const QUIZZES = {
   'quiz_nhatu': {
@@ -1290,10 +1503,12 @@ const QUIZZES = {
     ]
   }
 };
+
 /* Start quiz run: show one question at a time with explanation */
 let currentQuiz = null;
 let currentQIndex = 0;
 let selectedOption = null;
+
 function startQuiz(quizId, site){
   const qset = QUIZZES[quizId];
   if(!qset){ alert('Quiz chưa có nội dung.'); return; }
@@ -1302,6 +1517,7 @@ function startQuiz(quizId, site){
   selectedOption = null;
   renderCurrentQuestion();
 }
+
 function renderCurrentQuestion(){
   const qobj = currentQuiz.qset.items[currentQIndex];
   
@@ -1343,6 +1559,7 @@ function renderCurrentQuestion(){
     });
   });
 }
+
 function handleAnswerAndNext(){
   if(selectedOption === null){ 
     alert('Vui lòng chọn 1 đáp án'); 
@@ -1372,15 +1589,18 @@ function handleAnswerAndNext(){
     }
   }, 1500);
 }
+
 /* startGameInstance wrapper called from picker */
 function startGameInstance(gid, site){
   if(gid.startsWith('quiz_')) startQuiz(gid, site);
   else if(gid.startsWith('memory_')) startMemoryGame(gid, site);
   else { alert('Game chưa được hỗ trợ'); }
 }
+
 /* ---------- initial UI state ---------- */
 refreshProfileAuthUI();
 renderProfileBadges();
+
 /* ensure map resizes when switching pages */
 window.addEventListener('resize', ()=> map.invalidateSize());
 </script>
