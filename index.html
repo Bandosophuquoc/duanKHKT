@@ -947,51 +947,39 @@ function recordDone(siteId, gameId){
     
     // Kiểm tra và trao huy hiệu đặc biệt
     checkAndAwardSpecialBadges();
-    // Thay thế hàm checkAndAwardSpecialBadges() hiện tại bằng hàm này
+    
+    renderProfileBadges(); 
+  }
+}
+// Kiểm tra và trao huy hiệu đặc biệt
 function checkAndAwardSpecialBadges() {
   const done = loadDone();
   
-  // Đếm tổng số game đã hoàn thành (mỗi game chỉ tính 1 lần)
+  // Đếm tổng số game đã hoàn thành
   let totalGamesCompleted = 0;
   const allGameIds = ['quiz_nhatu', 'memory_nhatu', 'quiz_trungtruc', 'memory_trungtruc'];
   
   allGameIds.forEach(gameId => {
-    // Kiểm tra xem game này đã hoàn thành ở bất kỳ địa điểm nào chưa
-    let gameCompleted = false;
+    const nhaTuDone = done['nha-tu'] && done['nha-tu'].includes(gameId);
+    const dinhDone = done['dinh-ntt'] && done['dinh-ntt'].includes(gameId);
     
-    // Kiểm tra ở nhà tù Phú Quốc
-    if (done['nha-tu'] && done['nha-tu'].includes(gameId)) {
-      gameCompleted = true;
-    }
-    // Kiểm tra ở đình Nguyễn Trung Trực
-    if (done['dinh-ntt'] && done['dinh-ntt'].includes(gameId)) {
-      gameCompleted = true;
-    }
-    
-    if (gameCompleted) {
+    if (nhaTuDone || dinhDone) {
       totalGamesCompleted++;
     }
   });
   
   console.log(`Tổng số game đã hoàn thành: ${totalGamesCompleted}/4`);
-  console.log('Chi tiết các game đã hoàn thành:', done);
   
-  // Kiểm tra và trao huy hiệu (chỉ trao nếu chưa có)
-  const badges = getBadges();
-  
+  // Kiểm tra và trao huy hiệu
   if (totalGamesCompleted >= 2 && totalGamesCompleted < 4) {
-    if (!badges.find(b => b.id === 'nha_su_hoc_tap_su')) {
-      awardBadge('nha_su_hoc_tap_su', 'Nhà sử học tập sự', 'images/IMG_4803.png');
-    }
+    awardBadge('nha_su_hoc_tap_su', 'Nhà sử học tập sự', 'images/IMG_4803.png');
   }
   
   if (totalGamesCompleted === 4) {
-    if (!badges.find(b => b.id === 'nha_su_hoc_tai_ba')) {
-      awardBadge('nha_su_hoc_tai_ba', 'Nhà sử học tài ba', 'images/IMG_4802.png');
-    }
+    awardBadge('nha_su_hoc_tai_ba', 'Nhà sử học tài ba', 'images/IMG_4802.png');
   }
 }
-    /* ---------- Game picker & implementations ---------- */
+/* ---------- Game picker & implementations ---------- */
 function openGamePicker(site){
   const html = `<div class="text-center">
     <h4 class="mb-4">Chọn mini-game — ${site.name}</h4>
