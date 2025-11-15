@@ -30,7 +30,42 @@
   .wrong{color:#c62828;font-weight:700}
   .explain{font-size:0.95rem;color:#444}
 
-  /* CSS cho game lật thẻ */
+ /* CSS cho game lật thẻ */
+  /* Cập nhật CSS cho game lật thẻ trên điện thoại */
+@media (max-width: 767px) {
+  .memory-board {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px;
+    max-width: 100%;
+  }
+  
+  .memory-card {
+    height: 150px !important;
+    width: 100%;
+    max-width: 200px;
+    margin: 0 auto;
+  }
+  
+  .card-back .card-content img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+  }
+}
+
+@media (max-width: 480px) {
+  .memory-card {
+    height: 140px !important;
+    max-width: 180px;
+  }
+}
+
+@media (max-width: 360px) {
+  .memory-card {
+    height: 130px !important;
+    max-width: 160px;
+  }
+}
   .memory-container {
     max-width: 100%;
     margin: 0 auto;
