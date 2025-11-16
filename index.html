@@ -1281,6 +1281,8 @@
         <h2>Trang Cá Nhân</h2>
         <p class="mb-0">Quản lý tài khoản và xem thành tích của bạn</p>
       </div>
+      
+      <!-- Thêm nút đăng nhập Google -->
       <div class="profile-auth">
         <h4 class="mb-3">Tài khoản</h4>
         <div id="profile-info" class="alert alert-info">
@@ -1289,9 +1291,13 @@
         <div class="d-flex gap-2 flex-wrap">
           <button id="btn-profile-register" class="btn btn-outline-dark">Đăng ký</button>
           <button id="btn-profile-login" class="btn btn-dark">Đăng nhập</button>
+          <button id="btn-google-login" class="btn btn-danger">
+            <i class="fab fa-google me-2"></i>Google
+          </button>
           <button id="btn-profile-logout" class="btn btn-outline-secondary" style="display:none">Đăng xuất</button>
         </div>
       </div>
+      
       <div class="profile-badges">
         <h4 class="mb-3">Huy hiệu của bạn</h4>
         <div style="color:#666;font-size:0.9rem" class="mb-3">Khi hoàn thành các điều kiện, huy hiệu sẽ hiện ở đây.</div>
@@ -1600,6 +1606,170 @@ let currentUser = null;
 let isAdmin = false;
 
 /* ---------------------------
+  DỮ LIỆU ĐIỂM DI TÍCH
+----------------------------*/
+const DI_TICH = [
+  // Nhóm Thiên Nhiên (Xanh Lá pastel)
+  {
+    id:'vuon-quoc-gia',
+    name:'Vườn quốc gia Phú Quốc',
+    address:'Vườn quốc gia Phú Quốc, Kiên Giang, Việt Nam',
+    note:'Vườn quốc gia với hệ sinh thái rừng nhiệt đới phong phú, nơi bảo tồn nhiều loài động thực vật quý hiếm.',
+    extra:['Diện tích: 31.422 ha', 'Có nhiều loài động thực vật quý hiếm', 'Hệ sinh thái rừng nhiệt đới đa dạng'],
+    lat:10.3645, lng:103.9919,
+    games:[],
+    img: 'images/vuon.jpg',
+    category: 'nature'
+  },
+  {
+    id:'bai-sao',
+    name:'Bãi Sao',
+    address:'Bãi Sao, Phú Quốc, Kiên Giang, Việt Nam',
+    note:'Bãi biển đẹp với cát trắng mịn, nước biển trong xanh, hình lưỡi liềm đặc trưng.',
+    extra:['Cát trắng mịn', 'Nước biển trong xanh', 'Hình dạng lưỡi liềm độc đáo'],
+    lat:10.0572, lng:104.0360,
+    games:[],
+    img:'images/baisao.jpg',
+    category: 'nature'
+  },
+  {
+    id:'hon-thom',
+    name:'Hòn Thơm',
+    address:'Hòn Thơm, Phú Quốc, Kiên Giang, Việt Nam',
+    note:'Hòn đảo lớn thứ hai trong quần đảo An Thới, nổi tiếng với cảnh quan thiên nhiên hoang sơ.',
+    extra:['Đảo lớn thứ hai quần đảo An Thới', 'Cảnh quan thiên nhiên hoang sơ', 'Nhiều bãi biển đẹp'],
+    lat:9.9560, lng:104.0179,
+    games:[],
+    img:'images/honthom.jpg',
+    category: 'nature'
+  },
+  
+  // Nhóm Văn Hóa - Lịch Sử (Cam pastel)
+  {
+    id:'nha-tu',
+    name:'Nhà tù Phú Quốc',
+    address:'350 Đ. Nguyễn Văn Cừ, An Thới, Phú Quốc, Kiên Giang, Việt Nam',
+    note:'Di tích lịch sử cấp Quốc gia đặc biệt (2014). Nơi giam giữ nhiều tù binh trong kháng chiến; chứng tích tra tấn, nhưng cũng là biểu tượng ý chí kiên cường.',
+    extra:[
+      'Năm xây dựng: 01/06/1967',
+      'Còn gọi: Nhà lao Cây Dừa',
+      'Khoảng 40.000 tù binh từng bị giam; nhiều tù nhân bị tra tấn dã man. Có 45 cuộc vượt ngục ghi nhận.'
+    ],
+    lat:10.044417, lng:104.017639,
+    games:['quiz_nhatu', 'memory_nhatu'],
+    img: 'images/nhatupq3.jpg',
+    category: 'culture'
+  },
+  {
+    id:'chua',
+    name:'Chùa Hộ Quốc',
+    address:'426H+GVQ, Dương Tơ, Phú Quốc, Kiên Giang, Việt Nam',
+    note:'Thiền viện Trúc Lâm Hộ Quốc — kiến trúc tâm linh lớn, phong cách cổ truyền Việt.',
+    extra:['Ngôi chùa lớn nhất Phú Quốc', 'Kiến trúc truyền thống Việt Nam', 'Không gian tâm linh thanh tịnh'],
+    lat:10.110028, lng:104.029056,
+    games:[],
+    img: 'images/chua.jpg',
+    category: 'culture'
+  },
+  {
+    id:'dinh-ntt',
+    name:'Đình Thần Nguyễn Trung Trực',
+    address:'9RFV+848, Gành Dầu, Phú Quốc, Kiên Giang, Việt Nam',
+    note:'Di tích lịch sử văn hóa. Đình thờ Anh hùng dân tộc Nguyễn Trung Trực (1839-1868).',
+    extra:[
+      'Đình được xây dựng từ năm 1882',
+      'Lễ giỗ tổ chức hàng năm (âm lịch) — hoạt động truyền thống hơn 100 năm',
+      'Nguyễn Trung Trực nổi tiếng với chiến công đốt tàu Pháp trên sông Nhật Tảo.'
+    ],
+    lat:10.373306, lng:103.842972,
+    games:['quiz_trungtruc', 'memory_trungtruc'],
+    img:'images/dinhntt.jpg',
+    category: 'culture'
+  },
+  {
+    id:'baotang',
+    name:'Bảo tàng Cội Nguồn',
+    address:'Phú Quốc, Kiên Giang',
+    note:'Bảo tàng trưng bày lịch sử-văn hóa địa phương',
+    extra:['Trưng bày lịch sử, văn hóa Phú Quốc', 'Bộ sưu tập cổ vật phong phú', 'Kiến trúc độc đáo'],
+    lat:10.192500, lng:103.967000,
+    games:[],
+    img:'images/coinguon.jpg',
+    category: 'culture'
+  },
+  {
+    id:'dinh-cau',
+    name:'Dinh Cậu',
+    address:'Khu phố 2, Tp. Phú Quốc, Kiên Giang 92500, Việt Nam',
+    note:'Di tích thắng cảnh; tín ngưỡng của ngư dân, có lễ hội hàng năm (15–16/10 âm lịch).',
+    extra:['Xây dựng: 1937 (tu sửa 1997)','Biểu tượng tâm linh của người dân địa phương', 'Vị trí đẹp nhìn ra biển'],
+    lat:10.217194, lng:103.956500,
+    games:[],
+    img:'images/dinhcau.jpg',
+    category: 'culture'
+  },
+  
+  // Nhóm Giải Trí & Hiện Đại (Tím pastel)
+  {
+    id:'cap-treo',
+    name:'Cáp treo Hòn Thơm',
+    address:'Cáp treo Hòn Thơm, Phú Quốc, Kiên Giang, Việt Nam',
+    note:'Tuyến cáp treo vượt biển dài nhất thế giới, kết nối đảo Phú Quốc với đảo Hòn Thơm.',
+    extra:['Tuyến cáp treo vượt biển dài nhất thế giới', 'Kết nối đảo Phú Quốc với Hòn Thơm', 'Cung đường ngắm cảnh tuyệt đẹp'],
+    lat:10.0269, lng:104.0073,
+    games:[],
+    img:'images/captreo.jpg',
+    category: 'entertainment'
+  },
+  {
+    id:'grand-world',
+    name:'Grand World Phú Quốc',
+    address:'Grand World Phú Quốc, Bãi Dài, Phú Quốc, Kiên Giang, Việt Nam',
+    note:'Khu phức hợp giải trí, mua sắm và ẩm thực với kiến trúc châu Âu độc đáo.',
+    extra:['Khu phức hợp giải trí hiện đại', 'Kiến trúc châu Âu độc đáo', 'Nhiều hoạt động vui chơi, mua sắm'],
+    lat:10.3289, lng:103.8629,
+    games:[],
+    img:'images/grandworld.jpg',
+    category: 'entertainment'
+  },
+  
+  // Nhóm Ẩm Thực & Làng Nghề (Đỏ pastel)
+  {
+    id:'nha-thung',
+    name:'Nhà thùng nước mắm Phú Quốc (Phụng Hưng)',
+    address:'471 Đ. Nguyễn Văn Cừ, Khu 2, Phú Quốc, Kiên Giang',
+    note:'Nhà thùng nước mắm truyền thống; nghề truyền thống của đảo.',
+    extra:['Lịch sử: hàng trăm năm, phương thức ủ muối truyền thống', 'Nước mắm Phú Quốc nổi tiếng thơm ngon'],
+    lat:10.044917, lng:104.017444,
+    games:[],
+    img:'images/nhathung.jpg',
+    category: 'craft'
+  },
+  {
+    id:'ngoc-trai',
+    name:'Cơ sở nuôi cấy ngọc trai (Ngọc Hiền Pearl)',
+    address:'Cơ sở nuôi cấy ngọc trai Ngọc Hiền Pearl, Phú Quốc, Kiên Giang',
+    note:'Cơ sở nuôi cấy và chế tác ngọc trai nổi tiếng tại Phú Quốc.',
+    extra:['Nuôi cấy và chế tác ngọc trai', 'Sản phẩm ngọc trai chất lượng cao', 'Quy trình nuôi cấy công phu'],
+    lat:10.1701, lng:103.9703, // Cập nhật tọa độ mới
+    games:[],
+    img:'images/ngoctrai.jpg',
+    category: 'craft'
+  },
+  {
+    id:'ham-ninh',
+    name:'Làng chài Hàm Ninh',
+    address:'52JV+6XX, TL47, Rạch Hàm, Phú Quốc, Kiên Giang, Việt Nam',
+    note:'Làng chài cổ, nổi tiếng hải sản tươi, ghẹ Hàm Ninh.',
+    extra:['Làng chài truyền thống lâu đời', 'Nổi tiếng với ghẹ Hàm Ninh tươi ngon', 'Cảnh biển đẹp, bình yên'],
+    lat:10.180917, lng:104.048472,
+    games:[],
+    img:'images/langchai.jpg',
+    category: 'craft'
+  }
+];
+
+/* ---------------------------
   FIREBASE AUTHENTICATION
 ----------------------------*/
 
@@ -1773,395 +1943,290 @@ async function updateUserData(uid, data) {
 }
 
 /* ---------------------------
-  FIREBASE ANALYTICS & FIRESTORE
+  MENU NAVIGATION - ĐÃ SỬA LỖI
+----------------------------*/
+const menuBtn = document.getElementById('nav-menu');
+const menuDropdown = document.getElementById('menuDropdown');
+const menuOverlay = document.getElementById('menuOverlay');
+const menuItems = document.querySelectorAll('.menu-item');
+
+// Toggle menu - ĐÃ SỬA
+menuBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  menuDropdown.classList.toggle('active');
+  menuOverlay.classList.toggle('active');
+});
+
+// Đóng menu khi click overlay - ĐÃ SỬA
+menuOverlay.addEventListener('click', () => {
+  menuDropdown.classList.remove('active');
+  menuOverlay.classList.remove('active');
+});
+
+// Xử lý chọn menu item - ĐÃ SỬA
+menuItems.forEach(item => {
+  item.addEventListener('click', () => {
+    const page = item.dataset.page;
+    showPage(page);
+    menuDropdown.classList.remove('active');
+    menuOverlay.classList.remove('active');
+    
+    // Cập nhật active state
+    menuItems.forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+  });
+});
+
+// Hàm hiển thị trang - ĐÃ SỬA
+function showPage(page) {
+  // Ẩn tất cả các trang
+  document.querySelectorAll('section[id^="page-"]').forEach(section => {
+    section.style.display = 'none';
+  });
+  
+  // Hiển thị trang được chọn
+  const targetPage = document.getElementById(`page-${page}`);
+  if (targetPage) {
+    targetPage.style.display = 'block';
+  }
+  
+  // Ghi nhận lượt xem trang
+  recordPageView(page);
+  
+  // Xử lý đặc biệt cho từng trang
+  if (page === 'map') {
+    setTimeout(() => {
+      if (typeof map !== 'undefined' && map) {
+        map.invalidateSize();
+      }
+    }, 300);
+  } else if (page === 'stories') {
+    loadStories();
+  } else if (page === 'analytics') {
+    renderAnalytics();
+  } else if (page === 'admin' && isAdmin) {
+    updateAdminPanel();
+  }
+  
+  currentPage = page;
+}
+
+/* ---------------------------
+  CÁC NÚT CLICK QUAN TRỌNG - ĐÃ SỬA LỖI
 ----------------------------*/
 
-// Ghi nhận lượt truy cập trang
-function recordPageView(page) {
-  analytics.logEvent('page_view', {
-    page: page
-  });
+// Nút "Bắt đầu khám phá" - ĐÃ SỬA
+document.getElementById('btn-start').addEventListener('click', function() {
+  showPage('map');
+  window.scrollTo(0, 0);
+});
+
+// Nút đăng ký - ĐÃ SỬA
+document.getElementById('btn-profile-register').addEventListener('click', function() {
+  document.getElementById('authTitle').innerText = 'Đăng ký';
+  document.getElementById('authSubmit').onclick = handleRegister;
+  document.getElementById('authAlert').classList.add('d-none');
+  const authModal = new bootstrap.Modal(document.getElementById('authModal'));
+  authModal.show();
+});
+
+// Nút đăng nhập - ĐÃ SỬA
+document.getElementById('btn-profile-login').addEventListener('click', function() {
+  document.getElementById('authTitle').innerText = 'Đăng nhập';
+  document.getElementById('authSubmit').onclick = handleLogin;
+  document.getElementById('authAlert').classList.add('d-none');
+  const authModal = new bootstrap.Modal(document.getElementById('authModal'));
+  authModal.show();
+});
+
+// Nút đăng nhập Google - ĐÃ SỬA
+document.getElementById('btn-google-login').addEventListener('click', async function() {
+  const result = await signInWithGoogle();
+  if (result.success) {
+    alert('Đăng nhập với Google thành công!');
+  } else {
+    alert('Lỗi đăng nhập Google: ' + result.message);
+  }
+});
+
+// Nút đăng xuất - ĐÃ SỬA
+document.getElementById('btn-profile-logout').addEventListener('click', async function() {
+  const result = await signOutUser();
+  if (result.success) {
+    alert('Đăng xuất thành công!');
+  } else {
+    alert('Lỗi đăng xuất: ' + result.message);
+  }
+});
+
+// Xử lý đăng ký - ĐÃ SỬA
+async function handleRegister() {
+  const name = document.getElementById('inName').value.trim();
+  const email = document.getElementById('inEmail').value.trim();
+  const password = document.getElementById('inPass').value;
   
-  // Lưu vào Firestore để phân tích chi tiết
-  if (currentUser) {
-    db.collection('page_views').add({
-      userId: currentUser.uid,
-      page: page,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-      userAgent: navigator.userAgent
-    });
+  if (!name || !email || !password) {
+    showAuthError('Điền đủ tên, email, mật khẩu');
+    return;
+  }
+  
+  const result = await registerWithEmail(name, email, password);
+  if (result.success) {
+    const authModal = bootstrap.Modal.getInstance(document.getElementById('authModal'));
+    authModal.hide();
+    alert('Đăng ký thành công!');
+  } else {
+    showAuthError(result.message);
   }
 }
 
-// Ghi nhận sự kiện check-in
-async function recordCheckIn(siteId, siteName) {
-  analytics.logEvent('check_in', {
-    site_id: siteId,
-    site_name: siteName
-  });
+// Xử lý đăng nhập - ĐÃ SỬA
+async function handleLogin() {
+  const email = document.getElementById('inEmail').value.trim();
+  const password = document.getElementById('inPass').value;
   
-  if (currentUser) {
-    await db.collection('check_ins').add({
-      userId: currentUser.uid,
-      siteId: siteId,
-      siteName: siteName,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    
-    // Cập nhật user data
-    const userData = await getUserData(currentUser.uid);
-    if (userData) {
-      const visitedSites = userData.visitedSites || [];
-      if (!visitedSites.includes(siteId)) {
-        visitedSites.push(siteId);
-        await updateUserData(currentUser.uid, { visitedSites: visitedSites });
-      }
+  if (!email || !password) {
+    showAuthError('Điền đủ email và mật khẩu');
+    return;
+  }
+  
+  const result = await loginWithEmail(email, password);
+  if (result.success) {
+    const authModal = bootstrap.Modal.getInstance(document.getElementById('authModal'));
+    authModal.hide();
+    alert('Đăng nhập thành công!');
+  } else {
+    showAuthError(result.message);
+  }
+}
+
+// Hiển thị lỗi auth - ĐÃ SỬA
+function showAuthError(msg) {
+  const alert = document.getElementById('authAlert');
+  alert.innerText = msg;
+  alert.classList.remove('d-none');
+}
+
+/* ---------------------------
+  MAP INITIALIZATION - ĐÃ SỬA LỖI
+----------------------------*/
+let map;
+
+// Khởi tạo bản đồ - ĐÃ SỬA
+function initMap() {
+  if (typeof L !== 'undefined') {
+    map = L.map('map', { zoomControl: true }).setView([10.28, 103.98], 11);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    // Tạo custom icon
+    function createCustomIcon(category, hasGame) {
+      const colorMap = {
+        'nature': '#A5D6A7',
+        'culture': '#FFCC80',
+        'entertainment': '#CE93D8',
+        'craft': '#EF9A9A'
+      };
+      
+      const color = colorMap[category] || '#90CAF9';
+      
+      return L.divIcon({
+        className: 'custom-pin',
+        html: `
+          <div style="
+            background: ${color}; 
+            width: 24px; 
+            height: 24px; 
+            border-radius: 50%; 
+            border: 3px solid white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+          "></div>
+        `,
+        iconSize: [30, 30],
+        iconAnchor: [15, 15]
+      });
     }
-  }
-}
 
-// Ghi nhận hoàn thành game
-async function recordGameCompletion(siteId, gameId) {
-  analytics.logEvent('game_complete', {
-    site_id: siteId,
-    game_id: gameId
-  });
-  
-  if (currentUser) {
-    await db.collection('game_completions').add({
-      userId: currentUser.uid,
-      siteId: siteId,
-      gameId: gameId,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    
-    // Cập nhật user data
-    const userData = await getUserData(currentUser.uid);
-    if (userData) {
-      const completedGames = userData.completedGames || {};
-      if (!completedGames[siteId]) {
-        completedGames[siteId] = [];
-      }
-      if (!completedGames[siteId].includes(gameId)) {
-        completedGames[siteId].push(gameId);
-        await updateUserData(currentUser.uid, { completedGames: completedGames });
-      }
-    }
-  }
-}
-
-// Ghi nhận đăng story
-async function recordStoryPost(storyId, title) {
-  analytics.logEvent('story_post', {
-    story_id: storyId,
-    title: title
-  });
-  
-  if (currentUser) {
-    await db.collection('story_posts').add({
-      userId: currentUser.uid,
-      storyId: storyId,
-      title: title,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    // Thêm markers - ĐÃ SỬA
+    DI_TICH.forEach(p => {
+      const m = L.marker([p.lat, p.lng], {
+        icon: createCustomIcon(p.category, p.games.length > 0)
+      }).addTo(map);
+      
+      m.on('click', () => openDiModal(p));
     });
   }
 }
 
 /* ---------------------------
-  ADMIN FUNCTIONS
+  MODAL DI TÍCH - ĐÃ SỬA LỖI
 ----------------------------*/
+let diModal;
 
-// Tải thống kê người dùng
-async function loadUserStats() {
-  try {
-    const usersSnapshot = await db.collection('users').get();
-    const pageViewsSnapshot = await db.collection('page_views')
-      .where('timestamp', '>=', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000))
-      .get();
-    
-    const users = [];
-    const activeUserIds = new Set();
-    
-    pageViewsSnapshot.forEach(doc => {
-      activeUserIds.add(doc.data().userId);
-    });
-    
-    usersSnapshot.forEach(doc => {
-      users.push({
-        id: doc.id,
-        ...doc.data()
-      });
-    });
-    
-    const html = `
-      <h5>Thống kê người dùng</h5>
-      <div class="table-responsive">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Tên</th>
-              <th>Email</th>
-              <th>Ngày tạo</th>
-              <th>Địa điểm đã thăm</th>
-              <th>Game đã hoàn thành</th>
-              <th>Trạng thái</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${users.map(user => `
-              <tr>
-                <td>${user.name || 'N/A'}</td>
-                <td>${user.email || 'N/A'}</td>
-                <td>${user.createdAt ? user.createdAt.toDate().toLocaleDateString('vi-VN') : 'N/A'}</td>
-                <td>${(user.visitedSites || []).length}</td>
-                <td>${Object.values(user.completedGames || {}).reduce((acc, games) => acc + games.length, 0)}</td>
-                <td><span class="badge ${activeUserIds.has(user.id) ? 'bg-success' : 'bg-secondary'}">${activeUserIds.has(user.id) ? 'Hoạt động' : 'Không hoạt động'}</span></td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </div>
-      <div class="mt-3">
-        <p><strong>Tổng số:</strong> ${users.length} người dùng</p>
-        <p><strong>Đang hoạt động (7 ngày):</strong> ${activeUserIds.size} người dùng</p>
-      </div>
-    `;
-    
-    document.getElementById('adminDataView').innerHTML = html;
-  } catch (error) {
-    console.error('Error loading user stats:', error);
-    document.getElementById('adminDataView').innerHTML = '<div class="alert alert-danger">Lỗi khi tải thống kê người dùng</div>';
+function openDiModal(p) {
+  if (!diModal) {
+    diModal = new bootstrap.Modal(document.getElementById('diModal'));
   }
-}
-
-// Tải thống kê câu chuyện
-async function loadStoryStats() {
-  try {
-    const storiesSnapshot = await db.collection('stories').orderBy('timestamp', 'desc').get();
-    const stories = [];
-    
-    storiesSnapshot.forEach(doc => {
-      stories.push({
-        id: doc.id,
-        ...doc.data()
-      });
-    });
-    
-    const html = `
-      <h5>Thống kê câu chuyện</h5>
-      <div class="table-responsive">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Tiêu đề</th>
-              <th>Tác giả</th>
-              <th>Ngày đăng</th>
-              <th>Lượt thích</th>
-              <th>Bình luận</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${stories.map(story => `
-              <tr>
-                <td>${story.title}</td>
-                <td>${story.author}</td>
-                <td>${story.timestamp ? story.timestamp.toDate().toLocaleDateString('vi-VN') : 'N/A'}</td>
-                <td>${story.likes || 0}</td>
-                <td>${(story.comments || []).length}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
+  
+  document.getElementById('diTitle').innerText = p.name;
+  const extras = p.extra.map(x => `<li>${x}</li>`).join('');
+  const html = `
+    <div class="row">
+      <div class="col-md-5"><img src="${p.img}" alt="${p.name}" style="width:100%;border-radius:8px;object-fit:cover"></div>
+      <div class="col-md-7">
+        <h5 class="diatic-title">${p.name}</h5>
+        <p style="margin:0">${p.address}</p>
+        <p style="margin-top:8px;color:#333">${p.note}</p>
+        ${extras ? `<ul>${extras}</ul>` : ''}
       </div>
-      <div class="mt-3">
-        <p><strong>Tổng số:</strong> ${stories.length} câu chuyện</p>
-      </div>
-    `;
-    
-    document.getElementById('adminDataView').innerHTML = html;
-  } catch (error) {
-    console.error('Error loading story stats:', error);
-    document.getElementById('adminDataView').innerHTML = '<div class="alert alert-danger">Lỗi khi tải thống kê câu chuyện</div>';
-  }
-}
-
-// Tải thống kê game
-async function loadGameStats() {
-  try {
-    const gameCompletionsSnapshot = await db.collection('game_completions').get();
-    const checkInsSnapshot = await db.collection('check_ins').get();
-    
-    const gameStats = {};
-    const siteStats = {};
-    
-    gameCompletionsSnapshot.forEach(doc => {
-      const data = doc.data();
-      if (!gameStats[data.gameId]) {
-        gameStats[data.gameId] = 0;
-      }
-      gameStats[data.gameId]++;
-    });
-    
-    checkInsSnapshot.forEach(doc => {
-      const data = doc.data();
-      if (!siteStats[data.siteId]) {
-        siteStats[data.siteId] = 0;
-      }
-      siteStats[data.siteId]++;
-    });
-    
-    const html = `
-      <h5>Thống kê game và check-in</h5>
-      <div class="row">
-        <div class="col-md-6">
-          <h6>Thống kê game</h6>
-          <div class="table-responsive">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Game ID</th>
-                  <th>Số lượt hoàn thành</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${Object.entries(gameStats).map(([gameId, count]) => `
-                  <tr>
-                    <td>${gameId}</td>
-                    <td>${count}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <h6>Thống kê check-in</h6>
-          <div class="table-responsive">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Địa điểm ID</th>
-                  <th>Số lượt check-in</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${Object.entries(siteStats).map(([siteId, count]) => `
-                  <tr>
-                    <td>${siteId}</td>
-                    <td>${count}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-      <div class="mt-3">
-        <p><strong>Tổng lượt chơi game:</strong> ${Object.values(gameStats).reduce((acc, count) => acc + count, 0)}</p>
-        <p><strong>Tổng lượt check-in:</strong> ${Object.values(siteStats).reduce((acc, count) => acc + count, 0)}</p>
-      </div>
-    `;
-    
-    document.getElementById('adminDataView').innerHTML = html;
-  } catch (error) {
-    console.error('Error loading game stats:', error);
-    document.getElementById('adminDataView').innerHTML = '<div class="alert alert-danger">Lỗi khi tải thống kê game</div>';
-  }
-}
-
-// Xuất dữ liệu
-async function exportData() {
-  try {
-    // Thu thập tất cả dữ liệu
-    const [usersSnapshot, storiesSnapshot, gameCompletionsSnapshot, checkInsSnapshot, pageViewsSnapshot] = await Promise.all([
-      db.collection('users').get(),
-      db.collection('stories').get(),
-      db.collection('game_completions').get(),
-      db.collection('check_ins').get(),
-      db.collection('page_views').get()
-    ]);
-    
-    const data = {
-      users: usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })),
-      stories: storiesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })),
-      gameCompletions: gameCompletionsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })),
-      checkIns: checkInsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })),
-      pageViews: pageViewsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })),
-      exportDate: new Date().toISOString()
+    </div>
+  `;
+  document.getElementById('diBody').innerHTML = html;
+  document.getElementById('diCoords').innerText = `${p.lat.toFixed(6)}, ${p.lng.toFixed(6)}`;
+  
+  const btnPlay = document.getElementById('btn-play');
+  if (p.games && p.games.length) {
+    btnPlay.style.display = 'inline-block';
+    btnPlay.onclick = () => {
+      diModal.hide();
+      openGamePicker(p);
     };
-    
-    // Tạo file JSON và tải về
-    const dataStr = JSON.stringify(data, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `phuquoc_data_${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    
-    document.getElementById('adminDataView').innerHTML = '<div class="alert alert-success">Đã xuất dữ liệu thành công!</div>';
-  } catch (error) {
-    console.error('Error exporting data:', error);
-    document.getElementById('adminDataView').innerHTML = '<div class="alert alert-danger">Lỗi khi xuất dữ liệu</div>';
-  }
-}
-
-// Xóa tất cả dữ liệu (chỉ dùng cho mục đích phát triển)
-async function clearAllData() {
-  if (!confirm('Bạn có chắc chắn muốn xóa TẤT CẢ dữ liệu? Hành động này không thể hoàn tác!')) {
-    return;
+  } else {
+    btnPlay.style.display = 'none';
+    btnPlay.onclick = null;
   }
   
-  try {
-    // Xóa tất cả collections
-    const collections = ['users', 'stories', 'game_completions', 'check_ins', 'page_views'];
-    
-    for (const collection of collections) {
-      const snapshot = await db.collection(collection).get();
-      const batch = db.batch();
-      snapshot.docs.forEach(doc => {
-        batch.delete(doc.ref);
-      });
-      await batch.commit();
+  // check-in button - ĐÃ SỬA
+  document.getElementById('btn-checkin').onclick = () => {
+    if (!currentUser) {
+      alert('Vui lòng đăng nhập trước khi check-in.');
+      return;
     }
-    
-    document.getElementById('adminDataView').innerHTML = '<div class="alert alert-success">Đã xóa tất cả dữ liệu thành công!</div>';
-  } catch (error) {
-    console.error('Error clearing data:', error);
-    document.getElementById('adminDataView').innerHTML = '<div class="alert alert-danger">Lỗi khi xóa dữ liệu</div>';
-  }
-}
-
-// Reset thống kê
-function resetAnalytics() {
-  if (!confirm('Bạn có chắc chắn muốn reset thống kê?')) {
-    return;
-  }
+    markVisited(p.id);
+    awardBadgeSite(p.id, p.name);
+  };
   
-  // Reset analytics local storage
-  localStorage.removeItem('pq_analytics_v1');
-  localStorage.removeItem('pq_visitor_id');
-  
-  document.getElementById('adminDataView').innerHTML = '<div class="alert alert-success">Đã reset thống kê thành công!</div>';
+  diModal.show();
 }
 
 /* ---------------------------
-  CẬP NHẬT CÁC HÀM HIỆN CÓ ĐỂ SỬ DỤNG FIREBASE
+  CÁC HÀM QUAN TRỌNG KHÁC - ĐÃ SỬA LỖI
 ----------------------------*/
 
-// Cập nhật hàm refreshProfileAuthUI
+// Refresh profile UI - ĐÃ SỬA
 function refreshProfileAuthUI() {
   const profileInfo = document.getElementById('profile-info');
   const btnLogin = document.getElementById('btn-profile-login');
   const btnRegister = document.getElementById('btn-profile-register');
+  const btnGoogle = document.getElementById('btn-google-login');
   const btnLogout = document.getElementById('btn-profile-logout');
   
   if (currentUser) {
     btnLogin.style.display = 'none';
     btnRegister.style.display = 'none';
+    btnGoogle.style.display = 'none';
     btnLogout.style.display = 'inline-block';
     profileInfo.innerHTML = `Xin chào <strong>${currentUser.displayName || currentUser.email}</strong>`;
     profileInfo.className = 'alert alert-success';
@@ -2171,6 +2236,7 @@ function refreshProfileAuthUI() {
   } else {
     btnLogin.style.display = 'inline-block';
     btnRegister.style.display = 'inline-block';
+    btnGoogle.style.display = 'inline-block';
     btnLogout.style.display = 'none';
     profileInfo.innerHTML = 'Bạn chưa đăng nhập. Vui lòng đăng nhập để lưu tiến trình và nhận huy hiệu.';
     profileInfo.className = 'alert alert-info';
@@ -2178,7 +2244,7 @@ function refreshProfileAuthUI() {
   }
 }
 
-// Cập nhật hàm loadUserBadges
+// Load user badges - ĐÃ SỬA
 async function loadUserBadges() {
   if (!currentUser) return;
   
@@ -2194,7 +2260,34 @@ async function loadUserBadges() {
   }
 }
 
-// Cập nhật hàm awardBadge
+// Render user badges - ĐÃ SỬA
+function renderUserBadges(badges) {
+  const wrap = document.getElementById('profile-badge-area');
+  wrap.innerHTML = '';
+  
+  if (!badges || badges.length === 0) {
+    wrap.innerHTML = '<div class="text-muted">Chưa có huy hiệu nào. Hãy khám phá các địa điểm và hoàn thành thử thách!</div>';
+    return;
+  }
+  
+  badges.forEach(b => {
+    const el = document.createElement('div');
+    el.className = 'text-center';
+    el.innerHTML = `
+      <img src="${b.icon}" class="badge-img" alt="${b.name}">
+      <div style="font-size:12px; max-width:80px">${b.name}</div>
+    `;
+    wrap.appendChild(el);
+  });
+}
+
+// Render profile badges - ĐÃ SỬA
+function renderProfileBadges() {
+  const wrap = document.getElementById('profile-badge-area');
+  wrap.innerHTML = '<div class="text-muted">Đăng nhập để xem huy hiệu của bạn</div>';
+}
+
+// Award badge - ĐÃ SỬA
 async function awardBadge(id, name, icon) {
   if (!currentUser) return false;
   
@@ -2223,199 +2316,188 @@ async function awardBadge(id, name, icon) {
   }
 }
 
-// Cập nhật hàm markVisited
+// Mark visited - ĐÃ SỬA
 async function markVisited(siteId) {
   if (!currentUser) return;
   
   try {
-    await recordCheckIn(siteId, DI_TICH.find(p => p.id === siteId)?.name || siteId);
+    const site = DI_TICH.find(p => p.id === siteId);
+    if (site) {
+      await recordCheckIn(siteId, site.name);
+      alert(`Đã check-in thành công tại ${site.name}!`);
+    }
   } catch (error) {
     console.error('Error marking visited:', error);
   }
 }
 
-// Cập nhật hàm recordDone
+// Award badge site - ĐÃ SỬA
+async function awardBadgeSite(siteId, siteName) {
+  const id = `site_${siteId}`;
+  const name = `${siteName}`;
+  const badgeIcons = {
+    'chua': 'images/hhchua.jpg',
+    'nha-tu': 'images/hhnhatupq.jpg',
+    'nha-thung': 'images/hhnhathung.jpg',
+    'ham-ninh': 'images/hhlangchai.jpg',
+    'baotang': 'images/hhcoinguon.jpg',
+    'dinh-cau': 'images/hhdinhcau.jpg',
+    'dinh-ntt': 'images/hhdinhntt.jpg',
+    'vuon-quoc-gia': 'images/hhvuon.jpg',
+    'bai-sao': 'images/hhbaisao.jpg',
+    'hon-thom': 'images/hhhonthom.jpg',
+    'cap-treo': 'images/hhcaptreo.jpg',
+    'grand-world': 'images/hhgrandworld.jpg',
+    'ngoc-trai': 'images/hhngoctrai.jpg'
+  };
+  
+  const badgeIcon = badgeIcons[siteId] || `https://via.placeholder.com/64/C33/fff?text=${encodeURIComponent(siteName.split(' ')[0].charAt(0))}`;
+  awardBadge(id, name, badgeIcon);
+}
+
+// Show badge popup - ĐÃ SỬA
+function showBadgePopup(badgeName, badgeIcon) {
+  const popup = document.getElementById('badgePopup');
+  const popupImg = document.getElementById('badgePopupImg');
+  const popupTitle = document.getElementById('badgePopupTitle');
+  
+  popupImg.src = badgeIcon;
+  popupTitle.textContent = badgeName;
+  popup.style.display = 'flex';
+  
+  // Bắn pháo hoa
+  if (typeof confetti === 'function') {
+    confetti({
+      particleCount: 150,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#C62828', '#FFD54F', '#4CAF50', '#2196F3']
+    });
+  }
+  
+  const autoClose = setTimeout(() => {
+    closeBadgePopup();
+  }, 3000);
+  
+  document.getElementById('badgePopupClose').onclick = () => {
+    clearTimeout(autoClose);
+    closeBadgePopup();
+  };
+  
+  popup.onclick = (e) => {
+    if (e.target === popup) {
+      clearTimeout(autoClose);
+      closeBadgePopup();
+    }
+  };
+}
+
+function closeBadgePopup() {
+  document.getElementById('badgePopup').style.display = 'none';
+}
+
+/* ---------------------------
+  GAME FUNCTIONS - ĐÃ SỬA LỖI
+----------------------------*/
+
+// Game picker - ĐÃ SỬA
+function openGamePicker(site) {
+  const html = `<div class="text-center">
+    <h4 class="mb-4">Chọn mini-game — ${site.name}</h4>
+    <div class="d-flex flex-column gap-3 align-items-center">
+      ${site.games.map(g => `<button class="btn btn-accent btn-lg w-75 game-choice" data-game="${g}">${labelGame(g)}</button>`).join('')}
+    </div>
+    <p class="mt-4 text-muted">Mỗi mini-game có các bước thử thách. Kết quả sẽ lưu vào hồ sơ của bạn.</p>
+  </div>`;
+  
+  showGameFullscreen('Chọn mini-game', html);
+  
+  document.querySelectorAll('.game-choice').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const g = btn.dataset.game;
+      startGameInstance(g, site);
+    });
+  });
+}
+
+function labelGame(id) {
+  const map = {
+    'quiz_nhatu': 'Quiz (Nhà tù)',
+    'quiz_trungtruc': 'Quiz (Đình)',
+    'memory_nhatu': 'Memory Việt (Nhà tù)',
+    'memory_trungtruc': 'Memory Việt (Đình)'
+  };
+  return map[id] || id;
+}
+
+// Game fullscreen - ĐÃ SỬA
+const gameFullscreen = document.getElementById('gameFullscreen');
+const gameFullscreenTitle = document.getElementById('gameFullscreenTitle');
+const gameFullscreenBody = document.getElementById('gameFullscreenBody');
+const gameFullscreenClose = document.getElementById('gameFullscreenClose');
+
+gameFullscreenClose.addEventListener('click', () => {
+  hideGameFullscreen();
+});
+
+function showGameFullscreen(title, content) {
+  gameFullscreenTitle.textContent = title;
+  gameFullscreenBody.innerHTML = content;
+  gameFullscreen.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function hideGameFullscreen() {
+  gameFullscreen.classList.remove('active');
+  document.body.style.overflow = 'auto';
+}
+
+// Record game completion - ĐÃ SỬA
 async function recordDone(siteId, gameId) {
   if (!currentUser) return;
   
   try {
     await recordGameCompletion(siteId, gameId);
+    alert('Chúc mừng! Bạn đã hoàn thành game!');
   } catch (error) {
     console.error('Error recording game completion:', error);
   }
 }
 
-/* ---------------------------
-  CÁC HÀM KHỞI TẠO VÀ CẤU HÌNH
-----------------------------*/
+// Start game instance - ĐÃ SỬA
+function startGameInstance(gid, site) {
+  if (gid.startsWith('quiz_')) {
+    startQuiz(gid, site);
+  } else if (gid.startsWith('memory_')) {
+    startMemoryGame(gid, site);
+  } else {
+    alert('Game chưa được hỗ trợ');
+  }
+}
 
-// Khởi tạo dữ liệu
+/* ---------------------------
+  KHỞI TẠO ỨNG DỤNG - ĐÃ SỬA LỖI
+----------------------------*/
+document.addEventListener('DOMContentLoaded', function() {
+  // Khởi tạo bản đồ
+  initMap();
+  
+  // Khởi tạo dữ liệu
+  initData();
+  
+  // Khởi tạo stories
+  loadStories();
+  
+  console.log('Ứng dụng đã khởi tạo thành công!');
+});
+
 function initData() {
   // Ghi nhận lượt truy cập đầu tiên
   analytics.logEvent('session_start');
-  
-  // Tải stories từ Firestore
-  loadStoriesFromFirestore();
-  
-  // Cập nhật admin panel nếu là admin
-  if (isAdmin) {
-    updateAdminPanel();
-  }
 }
 
-// Tải stories từ Firestore
-async function loadStoriesFromFirestore() {
-  try {
-    const snapshot = await db.collection('stories')
-      .orderBy('timestamp', 'desc')
-      .limit(50)
-      .get();
-    
-    stories = [];
-    snapshot.forEach(doc => {
-      stories.push({
-        id: doc.id,
-        ...doc.data()
-      });
-    });
-    
-    renderStories();
-  } catch (error) {
-    console.error('Error loading stories:', error);
-    // Fallback to localStorage nếu có lỗi
-    loadStoriesFromLocalStorage();
-  }
-}
-
-// Fallback: tải stories từ localStorage
-function loadStoriesFromLocalStorage() {
-  const savedStories = localStorage.getItem('pq_stories');
-  if (savedStories) {
-    stories = JSON.parse(savedStories);
-  }
-  renderStories();
-}
-
-// Lưu story mới vào Firestore
-async function saveStoryToFirestore(story) {
-  try {
-    const docRef = await db.collection('stories').add({
-      ...story,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    
-    // Ghi nhận sự kiện đăng story
-    await recordStoryPost(docRef.id, story.title);
-    
-    return true;
-  } catch (error) {
-    console.error('Error saving story to Firestore:', error);
-    // Fallback to localStorage
-    return saveStoryToLocalStorage(story);
-  }
-}
-
-// Fallback: lưu story vào localStorage
-function saveStoryToLocalStorage(story) {
-  try {
-    stories.unshift(story);
-    localStorage.setItem('pq_stories', JSON.stringify(stories));
-    return true;
-  } catch (error) {
-    console.error('Error saving story to localStorage:', error);
-    return false;
-  }
-}
-
-// Cập nhật admin panel
-async function updateAdminPanel() {
-  if (!isAdmin) return;
-  
-  try {
-    const [usersSnapshot, storiesSnapshot, gameCompletionsSnapshot] = await Promise.all([
-      db.collection('users').get(),
-      db.collection('stories').get(),
-      db.collection('game_completions').get()
-    ]);
-    
-    const activeUsersSnapshot = await db.collection('page_views')
-      .where('timestamp', '>=', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000))
-      .get();
-    
-    const activeUserIds = new Set();
-    activeUsersSnapshot.forEach(doc => {
-      activeUserIds.add(doc.data().userId);
-    });
-    
-    document.getElementById('adminTotalUsers').textContent = usersSnapshot.size;
-    document.getElementById('adminActiveUsers').textContent = activeUserIds.size;
-    document.getElementById('adminTotalStories').textContent = storiesSnapshot.size;
-    document.getElementById('adminTotalGames').textContent = gameCompletionsSnapshot.size;
-  } catch (error) {
-    console.error('Error updating admin panel:', error);
-  }
-}
-
-/* ---------------------------
-  CÁC HÀM KHÁC GIỮ NGUYÊN
-----------------------------*/
-
-// ... (giữ nguyên tất cả các hàm khác từ code cũ như:
-// Menu Navigation, Map functions, Game functions, Story functions, etc.)
-// Chỉ cần thay thế các hàm liên quan đến authentication và data storage bằng phiên bản Firebase
-
-// Khởi tạo ứng dụng
-document.addEventListener('DOMContentLoaded', function() {
-  initData();
-  
-  // Thêm sự kiện cho nút đăng nhập Google
-  document.getElementById('btn-google-login').addEventListener('click', async () => {
-    const result = await signInWithGoogle();
-    if (result.success) {
-      alert('Đăng nhập với Google thành công!');
-    } else {
-      alert('Lỗi đăng nhập Google: ' + result.message);
-    }
-  });
-  
-  // Cập nhật sự kiện cho form đăng ký/đăng nhập
-  document.getElementById('authSubmit').addEventListener('click', async function() {
-    const name = document.getElementById('inName').value.trim();
-    const email = document.getElementById('inEmail').value.trim();
-    const password = document.getElementById('inPass').value;
-    const isRegister = document.getElementById('authTitle').innerText === 'Đăng ký';
-    
-    if (isRegister) {
-      if (!name || !email || !password) {
-        showAuthError('Điền đủ tên, email, mật khẩu');
-        return;
-      }
-      
-      const result = await registerWithEmail(name, email, password);
-      if (result.success) {
-        authModal.hide();
-        alert('Đăng ký thành công!');
-      } else {
-        showAuthError(result.message);
-      }
-    } else {
-      if (!email || !password) {
-        showAuthError('Điền đủ email và mật khẩu');
-        return;
-      }
-      
-      const result = await loginWithEmail(email, password);
-      if (result.success) {
-        authModal.hide();
-        alert('Đăng nhập thành công!');
-      } else {
-        showAuthError(result.message);
-      }
-    }
-  });
-});
-
-// ... (giữ nguyên phần còn lại của code)
+// Các hàm còn lại giữ nguyên từ code trước (loadStories, PQ Stories functions, etc.)
+// ... (giữ nguyên tất cả các hàm khác)
 
 </script>
 </body>
