@@ -2505,61 +2505,6 @@ DI_TICH.forEach(p=>{
 /* modal instances */
 const diModal = new bootstrap.Modal(document.getElementById('diModal'));
 
-/* open di tích modal (with details) - SỬA LẠI HÀM NÀY */
-function openDiModal(p){
-  console.log('Opening modal for:', p.name); // Debug log
-  
-  document.getElementById('diTitle').innerText = p.name;
-  const extras = p.extra.map(x=>`<li>${x}</li>`).join('');
-  
-  // Sửa phần hiển thị ảnh - thêm fallback nếu ảnh không tồn tại
-  const imgHtml = p.img ? 
-    `<img src="${p.img}" alt="${p.name}" style="width:100%;border-radius:8px;object-fit:cover" onerror="this.style.display='none'">` :
-    `<div style="width:100%;height:200px;background:#f0f0f0;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#666;">Không có ảnh</div>`;
-  
-  const html = `
-    <div class="row">
-      <div class="col-md-5">${imgHtml}</div>
-      <div class="col-md-7">
-        <h5 class="diatic-title">${p.name}</h5>
-        <p style="margin:0">${p.address}</p>
-        <p style="margin-top:8px;color:#333">${p.note}</p>
-        ${extras ? `<ul>${extras}</ul>` : ''}
-      </div>
-    </div>
-  `;
-  
-  document.getElementById('diBody').innerHTML = html;
-  document.getElementById('diCoords').innerText = `${p.lat.toFixed(6)}, ${p.lng.toFixed(6)}`;
-  
-  const btnPlay = document.getElementById('btn-play');
-  if(p.games && p.games.length > 0){
-    btnPlay.style.display='inline-block';
-    btnPlay.onclick = ()=> { 
-      diModal.hide(); 
-      setTimeout(() => openGamePicker(p), 300); // Thêm delay để modal đóng hoàn toàn
-    };
-  } else { 
-    btnPlay.style.display='none'; 
-    btnPlay.onclick=null; 
-  }
-  
-  // check-in button
-  document.getElementById('btn-checkin').onclick = ()=> {
-    const u = getCurrentUser();
-    if(!u){ 
-      alert('Vui lòng đăng nhập trước khi check-in.'); 
-      return; 
-    }
-    markVisited(p.id);
-    awardBadgeSite(p.id,p.name);
-  };
-  
-  diModal.show();
-}
-/* modal instances */
-const diModal = new bootstrap.Modal(document.getElementById('diModal'));
-
 /* open di tích modal (with details) */
 function openDiModal(p){
   document.getElementById('diTitle').innerText = p.name;
@@ -2588,6 +2533,8 @@ function openDiModal(p){
     if(!u){ alert('Vui lòng đăng nhập trước khi check-in.'); return; }
     markVisited(p.id);
     awardBadgeSite(p.id,p.name);
+// Thêm vào cuối phần Map init để test
+console.log('Map initialized, markers created:', DI_TICH.length);
   };
   diModal.show();
 }
@@ -3192,5 +3139,3 @@ window.addEventListener('resize', ()=> {
 </script>
 </body>
 </html>
-
-
