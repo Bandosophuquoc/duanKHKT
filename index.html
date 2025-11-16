@@ -24,7 +24,7 @@
   }
   body{font-family: "Noto Sans", system-ui, sans-serif; background:var(--bg); color:#111;}
   .container-main{max-width:1100px;margin:auto;}
-<style>
+ /* LOGO MỚI - Bản đồ Phú Quốc chính xác */
   .logo {
     width: 60px;
     height: 60px;
@@ -34,35 +34,80 @@
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    position: relative;
   }
 
-  .logo-svg {
+  .phuquoc-map {
     width: 80%;
     height: 80%;
+    position: relative;
   }
-</style>
 
-<div class="logo">
-  <svg class="logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <!-- Hình dạng đảo Phú Quốc chính xác -->
-    <path d="M30 25 Q40 20 50 22 Q60 20 70 25 Q75 30 78 40 Q80 50 75 60 Q70 70 60 75 Q50 78 40 75 Q30 70 25 60 Q22 50 25 40 Q27 35 30 25 Z" 
-          fill="white" stroke="white" stroke-width="2"/>
-    
-    <!-- Hòn Thơm -->
-    <circle cx="75" cy="35" r="3" fill="white"/>
-    
-    <!-- Hòn Dừa -->
-    <circle cx="82" cy="50" r="2.5" fill="white"/>
-    
-    <!-- Hòn Móng Tay -->
-    <circle cx="70" cy="65" r="2" fill="white"/>
-    
-    <!-- Điểm Dương Đông (thành phố chính) -->
-    <circle cx="45" cy="45" r="1.5" fill="#C62828">
-      <animate attributeName="r" values="1.5;2.5;1.5" dur="2s" repeatCount="indefinite"/>
-    </circle>
-  </svg>
-</div>
+  /* Hình dạng đảo Phú Quốc chính xác */
+  .phuquoc-island {
+    width: 100%;
+    height: 100%;
+    background: white;
+    /* Clip-path tạo hình đảo Phú Quốc chính xác */
+    clip-path: polygon(
+      25% 15%, 35% 10%, 45% 12%, 
+      55% 8%, 65% 12%, 75% 18%, 
+      80% 28%, 82% 38%, 78% 48%, 
+      72% 58%, 62% 68%, 50% 72%, 
+      38% 70%, 28% 62%, 22% 52%, 
+      18% 42%, 20% 32%, 22% 25%
+    );
+    position: relative;
+  }
+
+  /* Các đảo nhỏ xung quanh */
+  .small-island {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+  }
+
+  /* Hòn Thơm */
+  .island-1 {
+    width: 8px;
+    height: 8px;
+    top: 25%;
+    left: 70%;
+  }
+
+  /* Hòn Dừa */
+  .island-2 {
+    width: 6px;
+    height: 6px;
+    top: 45%;
+    left: 78%;
+  }
+
+  /* Hòn Móng Tay */
+  .island-3 {
+    width: 5px;
+    height: 5px;
+    top: 60%;
+    left: 65%;
+  }
+
+  /* Điểm thành phố Dương Đông */
+  .city-dot {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: var(--accent);
+    border-radius: 50%;
+    top: 40%;
+    left: 35%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.5); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+  }
     .hero{background:linear-gradient(90deg, rgba(198,40,40,0.06), rgba(255,213,79,0.02));padding:22px;border-radius:12px;margin:18px 0}
   .btn-accent{background:linear-gradient(90deg,var(--accent),#EF5350);color:white;border:none}
   #map{height:64vh;border-radius:12px}
