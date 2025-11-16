@@ -1,6 +1,11 @@
 <!doctype html>
 <html lang="vi">
 <head>
+<!-- THÊM DÒNG NÀY NGAY SAĐY <head> -->
+  <meta http-equiv="Content-Security-Policy" 
+        content="default-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.gstatic.com;
+                 script-src 'self' 'unsafe-inline' https://*.gstatic.com https://*.googleapis.com;
+                 connect-src 'self' wss://*.firebaseio.com https://*.googleapis.com https://identitytoolkit.googleapis.com;">
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Bản đồ số Phú Quốc — Dự án KHKT: Tự hào quê hương</title>
@@ -3144,7 +3149,7 @@ window.addEventListener('resize', ()=> {
 // Firebase configuration - DÁN VÀO ĐÂY
 const firebaseConfig = {
   apiKey: "AIzaSyCB9Ff43rlcqrR8huhMk3Z-vVuSxL63TGI",
-  authDomain: "phuquoc-map-6bb91.firebaseapp.com",
+  authDomain:"bandosophuquoc.github.io",
   projectId: "phuquoc-map-6bb91",
   storageBucket: "phuquoc-map-6bb91.firebasestorage.app",
   messagingSenderId: "1035203802998",
@@ -3157,7 +3162,31 @@ firebase.initializeApp(firebaseConfig);
 const analytics = firebase.analytics();
 const auth = firebase.auth();
 const db = firebase.firestore();
+// Xử lý auth state
+auth.onAuthStateChanged(async (user) => {
+  console.log('🔥 Auth State Changed:', user ? user.email : 'No user');
+  currentUser = user;
+  
+  if (user) {
+    console.log('✅ User logged in:', user.email, user.uid);
+    await checkIfAdmin(user.uid);
+    await loadUserData();
+    refreshProfileAuthUI();
+  } else {
+    console.log('🚪 User logged out');
+    isAdmin = false;
+    refreshProfileAuthUI();
+  }
+});
 
+// Force auth persistence
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+  .then(() => {
+    console.log('🔐 Auth persistence set to LOCAL');
+  })
+  .catch((error) => {
+    console.error('❌ Auth persistence error:', error);
+  });
 // Enable offline persistence
 db.enablePersistence()
   .catch((err) => {
@@ -3171,9 +3200,7 @@ db.enablePersistence()
 let currentUser = null;
 let isAdmin = false;
 
-// Theo dõi trạng thái đăng nhập
-auth.onAuthStateChanged(async (user) => {
-  currentUser = user;
+// Theo dõi trạng thái đăng nhập auth.onAuthStateChanged(async (user) => { console.log('Auth state changed:', user ? user.email : 'No user'); currentUser = user; 
   
   if (user) {
     console.log('User logged in:', user.email);
@@ -3208,11 +3235,19 @@ async function checkIfAdmin(uid) {
 // Đăng ký với email/password
 async function registerWithEmail(name, email, password) {
   try {
+    console.log('🚀 Attempting registration:', email);
+    
     const userCredential = await auth.createUserWithEmailAndPassword(email, password);
     const user = userCredential.user;
     
-    await user.updateProfile({ displayName: name });
+    console.log('✅ User created:', user.uid);
     
+    // Update profile
+    await user.updateProfile({
+      displayName: name
+    });
+    
+    // Create user document in Firestore
     await db.collection('users').doc(user.uid).set({
       name: name,
       email: email,
@@ -3226,22 +3261,30 @@ async function registerWithEmail(name, email, password) {
       isActive: true
     });
     
+    console.log('✅ User data saved to Firestore');
     return { success: true, user: user };
+    
   } catch (error) {
-    return { success: false, message: error.message };
+    console.error('❌ Registration error:', error);
+    return { 
+      success: false, 
+      message: getAuthErrorMessage(error) 
+    };
   }
 }
-
 // Đăng nhập với email/password
 async function loginWithEmail(email, password) {
   try {
     const userCredential = await auth.signInWithEmailAndPassword(email, password);
     const user = userCredential.user;
+
+
     
     await db.collection('users').doc(user.uid).update({
       lastLogin: firebase.firestore.FieldValue.serverTimestamp()
     });
-    
+    // THÊM DÒNG NÀY ĐỂ ĐẢM BẢO LOAD DATA
+    await loadUserData();
     return { success: true, user: user };
   } catch (error) {
     return { success: false, message: error.message };
@@ -3423,17 +3466,51 @@ async function handleRegister() {
     showAuthError(result.message);
   }
 }
-
+function getAuthErrorMessage(error) {
+  const errorCode = error.code;
+  const errorMessage = error.message;
+  
+  console.log('🔍 Auth Error Code:', errorCode);
+  
+  switch (errorCode) {
+    case 'auth/email-already-in-use':
+      return 'Email đã được sử dụng. Vui lòng dùng email khác.';
+    case 'auth/invalid-email':
+      return 'Email không hợp lệ.';
+    case 'auth/operation-not-allowed':
+      return 'Phương thức đăng ký không được kích hoạt.';
+    case 'auth/weak-password':
+      return 'Mật khẩu quá yếu. Vui lòng dùng mật khẩu mạnh hơn.';
+    case 'auth/network-request-failed':
+      return 'Lỗi kết nối mạng. Vui lòng kiểm tra internet.';
+    case 'auth/user-not-found':
+      return 'Email không tồn tại.';
+    case 'auth/wrong-password':
+      return 'Sai mật khẩu. Vui lòng thử lại.';
+    case 'auth/too-many-requests':
+      return 'Quá nhiều lần thử. Vui lòng thử lại sau.';
+    default:
+      return errorMessage;
+  }
+}
 // Xử lý đăng nhập
 async function handleLogin() {
   const email = document.getElementById('inEmail').value.trim();
   const pass = document.getElementById('inPass').value;
-  
+  // THÊM LOG ĐỂ DEBUG
+  console.log('Login attempt:', email);
   const result = await loginWithEmail(email, pass);
+ // THÊM LOG KẾT QUẢ
+  console.log('Login result:', result);
   if (result.success) {
     bootstrap.Modal.getInstance(document.getElementById('authModal')).hide();
+// THÊM LOAD DATA SAU KHI LOGIN
+    await loadUserData();
+    refreshProfileAuthUI();
     alert('Đăng nhập thành công!');
   } else {
+    // HIỂN THỊ LỖI CỤ THỂ
+    console.error('Login error:', result.message);
     showAuthError(result.message);
   }
 }
