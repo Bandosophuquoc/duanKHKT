@@ -24,91 +24,8 @@
   }
   body{font-family: "Noto Sans", system-ui, sans-serif; background:var(--bg); color:#111;}
   .container-main{max-width:1100px;margin:auto;}
- /* LOGO MỚI - Bản đồ Phú Quốc chính xác */
-  .logo {
-    width: 60px;
-    height: 60px;
-    border-radius: 8px;
-    background: linear-gradient(135deg, var(--accent), #B71C1C);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    position: relative;
-  }
-
-  .phuquoc-map {
-    width: 80%;
-    height: 80%;
-    position: relative;
-  }
-
-  /* Hình dạng đảo Phú Quốc chính xác */
-  .phuquoc-island {
-    width: 100%;
-    height: 100%;
-    background: white;
-    /* Clip-path tạo hình đảo Phú Quốc chính xác */
-    clip-path: polygon(
-      25% 15%, 35% 10%, 45% 12%, 
-      55% 8%, 65% 12%, 75% 18%, 
-      80% 28%, 82% 38%, 78% 48%, 
-      72% 58%, 62% 68%, 50% 72%, 
-      38% 70%, 28% 62%, 22% 52%, 
-      18% 42%, 20% 32%, 22% 25%
-    );
-    position: relative;
-  }
-
-  /* Các đảo nhỏ xung quanh */
-  .small-island {
-    position: absolute;
-    background: white;
-    border-radius: 50%;
-  }
-
-  /* Hòn Thơm */
-  .island-1 {
-    width: 8px;
-    height: 8px;
-    top: 25%;
-    left: 70%;
-  }
-
-  /* Hòn Dừa */
-  .island-2 {
-    width: 6px;
-    height: 6px;
-    top: 45%;
-    left: 78%;
-  }
-
-  /* Hòn Móng Tay */
-  .island-3 {
-    width: 5px;
-    height: 5px;
-    top: 60%;
-    left: 65%;
-  }
-
-  /* Điểm thành phố Dương Đông */
-  .city-dot {
-    position: absolute;
-    width: 4px;
-    height: 4px;
-    background: var(--accent);
-    border-radius: 50%;
-    top: 40%;
-    left: 35%;
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.5); opacity: 0.7; }
-    100% { transform: scale(1); opacity: 1; }
-  }
-    .hero{background:linear-gradient(90deg, rgba(198,40,40,0.06), rgba(255,213,79,0.02));padding:22px;border-radius:12px;margin:18px 0}
+  .logo{width:60px;height:60px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#B71C1C);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:22px}
+  .hero{background:linear-gradient(90deg, rgba(198,40,40,0.06), rgba(255,213,79,0.02));padding:22px;border-radius:12px;margin:18px 0}
   .btn-accent{background:linear-gradient(90deg,var(--accent),#EF5350);color:white;border:none}
   #map{height:64vh;border-radius:12px}
   .badge-img{width:56px;height:56px;border-radius:8px;object-fit:cover}
@@ -2190,7 +2107,16 @@ function initMap() {
       extra:['Trưng bày lịch sử, văn hóa Phú Quốc', 'Bộ sưu tập cổ vật phong phú', 'Kiến trúc độc đáo'],
       lat:10.192500, lng:103.967000,
       games:[],
-      img:'images/coinguon.jpg',
+      img:[
+      'images/coinguon.jpg',
+      'images/coinguon2.jpg',
+      'images/coinguon3.jpg',
+      'images/coinguon4.jpg',
+      'images/coinguon5.jpg',
+      'images/coinguon6.jpg',
+      'images/coinguon7.jpg',
+       ],
+
       category: 'culture'
     },
     {
