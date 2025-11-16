@@ -3157,43 +3157,75 @@ db.enablePersistence()
   });
 /* ---------------------------
   FIREBASE AUTHENTICATION SYSTEM
+  Hệ thống đăng nhập đa thiết bị với Firebase
 ----------------------------*/
 
+// Firebase configuration - KIỂM TRA LẠI CẤU HÌNH NÀY
+const firebaseConfig = {
+  apiKey: "AIzaSyCB9Ff43rlcqrR8huhMk3Z-vVuSxL63TGI",
+  authDomain: "pqstorymap.xyz",
+  projectId: "phuquoc-map-6bb91",
+  storageBucket: "phuquoc-map-6bb91.firebasestorage.app",
+  messagingSenderId: "1035203802998",
+  appId: "1:1035203802998:web:1d509c4f2bb00dc341ec57",
+  measurementId: "G-YEYE6GKYVZ"
+};
 // Biến toàn cục
 let currentUser = null;
-let isAdmin = false;
+let stories = [];
+let auth, db;
 
-// Theo dõi trạng thái đăng nhập
-auth.onAuthStateChanged(async (user) => {
-  currentUser = user;
-  
-  if (user) {
-    console.log('User logged in:', user.email);
-    await checkIfAdmin(user.uid);
-    refreshProfileAuthUI();
-    await loadUserData();
-  } else {
-    console.log('User logged out');
-    isAdmin = false;
-    document.getElementById('analyticsMenuItem').style.display = 'none';
-    refreshProfileAuthUI();
-    clearLocalUserData();
+// Khởi tạo Firebase
+function initializeFirebase() {
+  try {
+    // Kiểm tra xem Firebase đã được khởi tạo chưa
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+      console.log('🔥 Firebase initialized successfully');
+    } else {
+      console.log('🔥 Firebase already initialized');
+    }
+    
+    // Khởi tạo services
+    auth = firebase.auth();
+    db = firebase.firestore();
+    
+    // Bật persistence để giữ đăng nhập
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+      .then(() => {
+        console.log('🔥 Auth persistence enabled');
+      })
+      .catch((error) => {
+        console.log('🔥 Auth persistence error:', error);
+      });
+      
+    return true;
+  } catch (error) {
+    console.error('🔥 Firebase initialization failed:', error);
+    return false;
   }
-});
+}
 
 /* ---------------------------
-  AUTH FUNCTIONS - THAY THẾ LOCALSTORAGE
+  FIREBASE AUTH FUNCTIONS
 ----------------------------*/
 
-// Đăng ký với email/password
-async function registerWithEmail(name, email, password) {
+// Đăng ký với Firebase
+async function registerWithFirebase(name, email, password) {
   try {
+    console.log('🔥 Registering user:', { name, email });
+    
     const userCredential = await auth.createUserWithEmailAndPassword(email, password);
     const user = userCredential.user;
     
-    await user.updateProfile({ displayName: name });
+    // Cập nhật display name
+    await user.updateProfile({
+      displayName: name
+    });
     
+    // Tạo user document trong Firestore
     await db.collection('users').doc(user.uid).set({
+      uid: user.uid,
       name: name,
       email: email,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -3201,99 +3233,199 @@ async function registerWithEmail(name, email, password) {
       badges: [],
       visitedSites: [],
       completedGames: {},
-      stories: [],
       role: 'user',
       isActive: true
     });
     
+    console.log('🔥 User registered successfully:', user);
     return { success: true, user: user };
+    
   } catch (error) {
-    return { success: false, message: error.message };
+    console.error('🔥 Registration error:', error);
+    let message = 'Lỗi đăng ký. Vui lòng thử lại.';
+    
+    // Xử lý lỗi cụ thể
+    switch (error.code) {
+      case 'auth/email-already-in-use':
+        message = 'Email đã được sử dụng.';
+        break;
+      case 'auth/invalid-email':
+        message = 'Email không hợp lệ.';
+        break;
+      case 'auth/weak-password':
+        message = 'Mật khẩu quá yếu (ít nhất 6 ký tự).';
+        break;
+      case 'auth/network-request-failed':
+        message = 'Lỗi kết nối mạng. Vui lòng kiểm tra internet.';
+        break;
+    }
+    
+    return { success: false, message: message };
   }
 }
 
-// Đăng nhập với email/password
-async function loginWithEmail(email, password) {
+// Đăng nhập với Firebase
+async function loginWithFirebase(email, password) {
   try {
+    console.log('🔥 Logging in user:', email);
+    
     const userCredential = await auth.signInWithEmailAndPassword(email, password);
     const user = userCredential.user;
     
+    // Cập nhật last login
     await db.collection('users').doc(user.uid).update({
       lastLogin: firebase.firestore.FieldValue.serverTimestamp()
     });
     
+    console.log('🔥 User logged in successfully:', user);
     return { success: true, user: user };
+    
   } catch (error) {
-    return { success: false, message: error.message };
+    console.error('🔥 Login error:', error);
+    let message = 'Lỗi đăng nhập. Vui lòng thử lại.';
+    
+    // Xử lý lỗi cụ thể
+    switch (error.code) {
+      case 'auth/user-not-found':
+        message = 'Email không tồn tại.';
+        break;
+      case 'auth/wrong-password':
+        message = 'Mật khẩu không đúng.';
+        break;
+      case 'auth/invalid-email':
+        message = 'Email không hợp lệ.';
+        break;
+      case 'auth/user-disabled':
+        message = 'Tài khoản đã bị vô hiệu hóa.';
+        break;
+      case 'auth/network-request-failed':
+        message = 'Lỗi kết nối mạng. Vui lòng kiểm tra internet.';
+        break;
+    }
+    
+    return { success: false, message: message };
   }
 }
 
 // Đăng xuất
-async function signOutUser() {
+async function logoutWithFirebase() {
   try {
     await auth.signOut();
+    console.log('🔥 User logged out successfully');
     return { success: true };
   } catch (error) {
+    console.error('🔥 Logout error:', error);
     return { success: false, message: error.message };
   }
 }
-/* ---------------------------
-  USER DATA MANAGEMENT
-----------------------------*/
 
-// Lấy thông tin user từ Firestore
+// Lấy user data từ Firestore
 async function getUserData(uid) {
   try {
     const userDoc = await db.collection('users').doc(uid).get();
-    return userDoc.exists ? userDoc.data() : null;
+    if (userDoc.exists) {
+      return userDoc.data();
+    }
+    return null;
   } catch (error) {
-    console.error('Error getting user data:', error);
+    console.error('🔥 Get user data error:', error);
     return null;
   }
 }
 
-// Cập nhật thông tin user
+// Cập nhật user data
 async function updateUserData(uid, data) {
   try {
     await db.collection('users').doc(uid).update(data);
     return true;
   } catch (error) {
-    console.error('Error updating user data:', error);
+    console.error('🔥 Update user data error:', error);
     return false;
   }
 }
 
-// Load dữ liệu người dùng
-async function loadUserData() {
-  if (!currentUser) return;
-  
-  try {
-    const userData = await getUserData(currentUser.uid);
-    if (userData) {
-      renderUserBadges(userData.badges || []);
+/* ---------------------------
+  AUTH STATE LISTENER
+  Theo dõi trạng thái đăng nhập
+----------------------------*/
+
+function setupAuthListener() {
+  auth.onAuthStateChanged(async (user) => {
+    console.log('🔥 Auth state changed:', user);
+    
+    if (user) {
+      // User đã đăng nhập
+      currentUser = user;
+      
+      // Lấy thêm thông tin user từ Firestore
+      const userData = await getUserData(user.uid);
+      if (userData) {
+        currentUser.data = userData;
+      }
+      
+      console.log('🔥 User authenticated:', currentUser);
+      refreshProfileAuthUI();
+      loadUserStories();
+      
+    } else {
+      // User đã đăng xuất
+      currentUser = null;
+      console.log('🔥 User signed out');
+      refreshProfileAuthUI();
+      loadStories();
     }
-  } catch (error) {
-    console.error('Error loading user data:', error);
+  });
+}
+
+/* ---------------------------
+  UI FUNCTIONS
+----------------------------*/
+
+function refreshProfileAuthUI() {
+  const profileInfo = document.getElementById('profile-info');
+  const btnLogin = document.getElementById('btn-profile-login');
+  const btnRegister = document.getElementById('btn-profile-register');
+  const btnLogout = document.getElementById('btn-profile-logout');
+  
+  if (!profileInfo) return;
+  
+  if (currentUser) {
+    // Đã đăng nhập
+    if (btnLogin) btnLogin.style.display = 'none';
+    if (btnRegister) btnRegister.style.display = 'none';
+    if (btnLogout) btnLogout.style.display = 'inline-block';
+    
+    const displayName = currentUser.displayName || currentUser.email;
+    profileInfo.innerHTML = `Xin chào <strong>${displayName}</strong> — ${currentUser.email}`;
+    profileInfo.className = 'alert alert-success';
+    
+    // Load badges từ Firestore
+    loadUserBadges();
+    
+  } else {
+    // Chưa đăng nhập
+    if (btnLogin) btnLogin.style.display = 'inline-block';
+    if (btnRegister) btnRegister.style.display = 'inline-block';
+    if (btnLogout) btnLogout.style.display = 'none';
+    
+    profileInfo.innerHTML = 'Bạn chưa đăng nhập. Vui lòng đăng nhập để lưu tiến trình và nhận huy hiệu.';
+    profileInfo.className = 'alert alert-info';
+    renderProfileBadges();
   }
 }
 
-// Xóa dữ liệu cục bộ khi đăng xuất
-function clearLocalUserData() {
-  const badgeArea = document.getElementById('profile-badge-area');
-  if (badgeArea) {
-    badgeArea.innerHTML = '<div class="text-muted">Đăng nhập để xem huy hiệu của bạn</div>';
-  }
-}
-
-// Render huy hiệu
-function renderUserBadges(badges) {
+async function loadUserBadges() {
+  if (!currentUser || !currentUser.data) return;
+  
   const wrap = document.getElementById('profile-badge-area');
   if (!wrap) return;
   
   wrap.innerHTML = '';
   
-  if (!badges || badges.length === 0) {
-    wrap.innerHTML = '<div class="text-muted">Chưa có huy hiệu nào. Hãy khám phá các địa điểm!</div>';
+  const badges = currentUser.data.badges || [];
+  
+  if (badges.length === 0) {
+    wrap.innerHTML = '<div class="text-muted">Chưa có huy hiệu nào. Hãy khám phá các địa điểm và hoàn thành thử thách!</div>';
     return;
   }
   
@@ -3307,111 +3439,96 @@ function renderUserBadges(badges) {
     wrap.appendChild(el);
   });
 }
+
+function renderProfileBadges() {
+  const wrap = document.getElementById('profile-badge-area');
+  if (!wrap) return;
+  
+  wrap.innerHTML = '<div class="text-muted">Đăng nhập để xem huy hiệu của bạn</div>';
+}
+
 /* ---------------------------
-  UI UPDATES & MIGRATION
+  AUTH MODAL HANDLING
 ----------------------------*/
 
-// Cập nhật UI đăng nhập
-function refreshProfileAuthUI() {
-  const profileInfo = document.getElementById('profile-info');
-  const btnLogin = document.getElementById('btn-profile-login');
-  const btnRegister = document.getElementById('btn-profile-register');
-  const btnLogout = document.getElementById('btn-profile-logout');
-  
-  if (!profileInfo) return;
-  
-  if (currentUser) {
-    if (btnLogin) btnLogin.style.display = 'none';
-    if (btnRegister) btnRegister.style.display = 'none';
-    if (btnLogout) btnLogout.style.display = 'inline-block';
-    profileInfo.innerHTML = `Xin chào <strong>${currentUser.displayName}</strong> — ${currentUser.email}`;
-    profileInfo.className = 'alert alert-success';
-  } else {
-    if (btnLogin) btnLogin.style.display = 'inline-block';
-    if (btnRegister) btnRegister.style.display = 'inline-block';
-    if (btnLogout) btnLogout.style.display = 'none';
-    profileInfo.innerHTML = 'Bạn chưa đăng nhập. Vui lòng đăng nhập để lưu tiến trình và nhận huy hiệu.';
-    profileInfo.className = 'alert alert-info';
-  }
-}
+const authModal = new bootstrap.Modal(document.getElementById('authModal'));
 
-// Migration dữ liệu từ localStorage cũ
-async function migrateLocalDataToFirebase() {
-  if (!currentUser) return;
-  
-  try {
-    const localUser = JSON.parse(localStorage.getItem('pq_user_v1'));
-    if (!localUser) return;
-    
-    const existingData = await getUserData(currentUser.uid);
-    if (!existingData.badges || existingData.badges.length === 0) {
-      // Migrate badges, visited sites, games
-      await updateUserData(currentUser.uid, {
-        badges: localUser.badges || [],
-        visitedSites: localUser.visitedSites || [],
-        completedGames: localUser.completedGames || {}
-      });
-      
-      console.log('Migration completed successfully');
-    }
-  } catch (error) {
-    console.error('Migration failed:', error);
-  }
-}
-
-// Cập nhật hàm auth trong modal
-document.addEventListener('DOMContentLoaded', function() {
-  // Cập nhật sự kiện cho nút đăng ký/đăng nhập
-  const authModal = new bootstrap.Modal(document.getElementById('authModal'));
-  
-  document.getElementById('btn-profile-register')?.addEventListener('click', () => {
-    document.getElementById('authTitle').innerText = 'Đăng ký';
-    document.getElementById('authSubmit').onclick = handleRegister;
-    document.getElementById('authAlert').classList.add('d-none');
-    authModal.show();
-  });
-  
-  document.getElementById('btn-profile-login')?.addEventListener('click', () => {
-    document.getElementById('authTitle').innerText = 'Đăng nhập';
-    document.getElementById('authSubmit').onclick = handleLogin;
-    document.getElementById('authAlert').classList.add('d-none');
-    authModal.show();
-  });
-  
-  document.getElementById('btn-profile-logout')?.addEventListener('click', () => {
-    signOutUser();
-    alert('Đăng xuất thành công.');
-  });
+document.getElementById('btn-profile-register').addEventListener('click', () => {
+  console.log('📝 Register button clicked');
+  document.getElementById('authTitle').innerText = 'Đăng ký';
+  document.getElementById('authSubmit').onclick = handleRegister;
+  document.getElementById('authAlert').classList.add('d-none');
+  document.getElementById('inName').value = '';
+  document.getElementById('inEmail').value = '';
+  document.getElementById('inPass').value = '';
+  authModal.show();
 });
 
-// Xử lý đăng ký
+document.getElementById('btn-profile-login').addEventListener('click', () => {
+  console.log('🔐 Login button clicked');
+  document.getElementById('authTitle').innerText = 'Đăng nhập';
+  document.getElementById('authSubmit').onclick = handleLogin;
+  document.getElementById('authAlert').classList.add('d-none');
+  document.getElementById('inName').value = '';
+  document.getElementById('inEmail').value = '';
+  document.getElementById('inPass').value = '';
+  authModal.show();
+});
+
+document.getElementById('btn-profile-logout').addEventListener('click', async () => {
+  console.log('🚪 Logout button clicked');
+  const result = await logoutWithFirebase();
+  if (result.success) {
+    alert('Đăng xuất thành công.');
+  } else {
+    alert('Lỗi đăng xuất: ' + result.message);
+  }
+});
+
 async function handleRegister() {
   const name = document.getElementById('inName').value.trim();
   const email = document.getElementById('inEmail').value.trim();
   const pass = document.getElementById('inPass').value;
   
+  console.log('📝 Register form submitted:', { name, email });
+  
   if (!name || !email || !pass) {
-    showAuthError('Điền đủ tên, email, mật khẩu');
+    showAuthError('Vui lòng điền đầy đủ tên, email và mật khẩu');
     return;
   }
   
-  const result = await registerWithEmail(name, email, pass);
+  if (pass.length < 6) {
+    showAuthError('Mật khẩu phải có ít nhất 6 ký tự');
+    return;
+  }
+  
+  const result = await registerWithFirebase(name, email, pass);
+  console.log('📝 Register result:', result);
+  
   if (result.success) {
-    bootstrap.Modal.getInstance(document.getElementById('authModal')).hide();
-    alert('Đăng ký thành công!');
+    authModal.hide();
+    alert('Đăng ký thành công! Chào mừng ' + name);
   } else {
     showAuthError(result.message);
   }
 }
 
-// Xử lý đăng nhập
 async function handleLogin() {
   const email = document.getElementById('inEmail').value.trim();
   const pass = document.getElementById('inPass').value;
   
-  const result = await loginWithEmail(email, pass);
+  console.log('🔐 Login form submitted:', { email });
+  
+  if (!email || !pass) {
+    showAuthError('Vui lòng điền đầy đủ email và mật khẩu');
+    return;
+  }
+  
+  const result = await loginWithFirebase(email, pass);
+  console.log('🔐 Login result:', result);
+  
   if (result.success) {
-    bootstrap.Modal.getInstance(document.getElementById('authModal')).hide();
+    authModal.hide();
     alert('Đăng nhập thành công!');
   } else {
     showAuthError(result.message);
@@ -3419,30 +3536,127 @@ async function handleLogin() {
 }
 
 function showAuthError(msg) {
+  console.log('❌ Auth error:', msg);
   const a = document.getElementById('authAlert');
   a.innerText = msg;
   a.classList.remove('d-none');
 }
 
+/* ---------------------------
+  STORIES WITH FIREBASE
+----------------------------*/
 
-// Enable offline persistence
-db.enablePersistence()
-  .catch((err) => {
-    console.log('Persistence failed: ', err);
-  });
-
-// Kiểm tra admin
-async function checkIfAdmin(uid) {
+async function loadUserStories() {
+  if (!currentUser) return;
+  
   try {
-    const userDoc = await db.collection('users').doc(uid).get();
-    if (userDoc.exists && userDoc.data().role === 'admin') {
-      isAdmin = true;
-      document.getElementById('analyticsMenuItem').style.display = 'block';
-    }
+    const storiesSnapshot = await db.collection('stories')
+      .where('authorId', '==', currentUser.uid)
+      .orderBy('timestamp', 'desc')
+      .get();
+    
+    stories = storiesSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    
+    renderStories();
   } catch (error) {
-    console.error('Error checking admin:', error);
+    console.error('🔥 Load stories error:', error);
+    loadStories(); // Fallback to localStorage
   }
 }
+
+async function saveStoryToFirebase(story) {
+  if (!currentUser) return null;
+  
+  try {
+    const docRef = await db.collection('stories').add({
+      ...story,
+      authorId: currentUser.uid,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    
+    return docRef.id;
+  } catch (error) {
+    console.error('🔥 Save story error:', error);
+    return null;
+  }
+}
+
+/* ---------------------------
+  BADGES WITH FIREBASE
+----------------------------*/
+
+async function awardBadgeToUser(badgeId, badgeName, badgeIcon) {
+  if (!currentUser) return false;
+  
+  try {
+    const userData = await getUserData(currentUser.uid);
+    if (!userData) return false;
+    
+    const badges = userData.badges || [];
+    
+    // Kiểm tra nếu đã có badge
+    if (badges.find(b => b.id === badgeId)) return false;
+    
+    // Thêm badge mới
+    badges.push({
+      id: badgeId,
+      name: badgeName,
+      icon: badgeIcon,
+      awardedAt: new Date().toISOString()
+    });
+    
+    // Cập nhật lên Firestore
+    await updateUserData(currentUser.uid, { badges: badges });
+    
+    // Reload user data
+    const updatedData = await getUserData(currentUser.uid);
+    if (updatedData) {
+      currentUser.data = updatedData;
+    }
+    
+    showBadgePopup(badgeName, badgeIcon);
+    return true;
+    
+  } catch (error) {
+    console.error('🔥 Award badge error:', error);
+    return false;
+  }
+}
+
+/* ---------------------------
+  INITIALIZATION
+----------------------------*/
+
+function initFirebaseApp() {
+  console.log('🚀 Initializing Firebase application...');
+  
+  // Khởi tạo Firebase
+  const firebaseInitialized = initializeFirebase();
+  
+  if (firebaseInitialized) {
+    // Thiết lập auth listener
+    setupAuthListener();
+    console.log('✅ Firebase app initialized successfully');
+  } else {
+    console.error('❌ Firebase app initialization failed');
+    // Có thể fallback về localStorage ở đây
+  }
+  
+  // Khởi tạo stories từ localStorage (fallback)
+  loadStories();
+}
+
+// Khởi tạo khi trang load
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('🎯 Website DOM loaded');
+  initFirebaseApp();
+});
 </script>
 </body>
 </html>
+
+
+
