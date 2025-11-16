@@ -36,6 +36,26 @@
   .correct{color:green;font-weight:700}
   .wrong{color:#c62828;font-weight:700}
   .explain{font-size:0.95rem;color:#444}
+/* Thêm vào phần style */
+ .carousel-control-prev, .carousel-control-next {
+  width: 40px;
+  height: 40px;
+  background: rgba(0,0,0,0.5);
+  border-radius: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.carousel-control-prev {
+  left: 10px;
+}
+.carousel-control-next {
+  right: 10px;
+}
+.carousel-control-prev-icon, 
+.carousel-control-next-icon {
+  width: 20px;
+  height: 20px;
+}
   
   /* Overlay khi mở menu */
   .menu-overlay {
@@ -2240,41 +2260,53 @@ function openDiModal(p){
   
   document.getElementById('diTitle').innerText = p.name;
   const extras = p.extra.map(x => `<li>${x}</li>`).join('');
-const html = `
-  <div class="row">
-    <div class="col-md-5">
-      ${Array.isArray(p.img) ? 
-        `<div id="carousel-${p.id}" class="carousel slide" data-bs-ride="carousel">
-          <div class="carousel-inner">
-            ${p.img.map((imgSrc, index) => `
-              <div class="carousel-item ${index === 0 ? 'active' : ''}">
-                <img src="${imgSrc}" class="d-block w-100" alt="${p.name} - Ảnh ${index + 1}" style="border-radius:8px;object-fit:cover;height:300px">
-              </div>
-            `).join('')}
-          </div>
-          ${p.img.length > 1 ? `
-            <button class="carousel-control-prev" type="button" data-bs-target="#carousel-${p.id}" data-bs-slide="prev">
-              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-              <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#carousel-${p.id}" data-bs-slide="next">
-              <span class="carousel-control-next-icon" aria-hidden="true"></span>
-              <span class="visually-hidden">Next</span>
-            </button>
-          ` : ''}
-        </div>` : 
-        `<img src="${p.img}" alt="${p.name}" style="width:100%;border-radius:8px;object-fit:cover;height:300px">`
-      }
+  
+  // Tạo HTML cho carousel nếu có nhiều ảnh
+  let imageHTML = '';
+  if (Array.isArray(p.img) && p.img.length > 0) {
+    imageHTML = `
+      <div id="carousel-${p.id}" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+          ${p.img.map((imgSrc, index) => `
+            <div class="carousel-item ${index === 0 ? 'active' : ''}">
+              <img src="${imgSrc}" class="d-block w-100" alt="${p.name} - Ảnh ${index + 1}" 
+                   style="border-radius:8px;object-fit:cover;height:300px">
+            </div>
+          `).join('')}
+        </div>
+        ${p.img.length > 1 ? `
+          <button class="carousel-control-prev" type="button" data-bs-target="#carousel-${p.id}" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#carousel-${p.id}" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+          </button>
+        ` : ''}
+      </div>
+    `;
+  } else {
+    // Nếu chỉ có 1 ảnh
+    const imgSrc = typeof p.img === 'string' ? p.img : (p.img && p.img[0] ? p.img[0] : '');
+    imageHTML = `<img src="${imgSrc}" alt="${p.name}" style="width:100%;border-radius:8px;object-fit:cover;height:300px">`;
+  }
+  
+  const html = `
+    <div class="row">
+      <div class="col-md-5">
+        ${imageHTML}
+      </div>
+      <div class="col-md-7">
+        <h5 class="diatic-title">${p.name}</h5>
+        <p style="margin:0">${p.address}</p>
+        <p style="margin-top:8px;color:#333">${p.note}</p>
+        ${extras ? `<ul>${extras}</ul>` : ''}
+      </div>
     </div>
-    <div class="col-md-7">
-      <h5 class="diatic-title">${p.name}</h5>
-      <p style="margin:0">${p.address}</p>
-      <p style="margin-top:8px;color:#333">${p.note}</p>
-      ${extras ? `<ul>${extras}</ul>` : ''}
-    </div>
-  </div>
-`;
-    document.getElementById('diBody').innerHTML = html;
+  `;
+  
+  document.getElementById('diBody').innerHTML = html;
   document.getElementById('diCoords').innerText = `${p.lat.toFixed(6)}, ${p.lng.toFixed(6)}`;
   
   const btnPlay = document.getElementById('btn-play');
@@ -2298,7 +2330,6 @@ const html = `
   
   diModal.show();
 }
-
 function awardBadgeSite(siteId, siteName) {
   const badgeIcons = {
     'chua': 'images/hhchua.jpg',
