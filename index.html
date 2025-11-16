@@ -8,7 +8,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Bản đồ số Phú Quốc — Dự án KHKT: Tự hào quê hương</title>
+<title>PQStoryMap — Dự án KHKT: Tự hào quê hương</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -24,8 +24,46 @@
   }
   body{font-family: "Noto Sans", system-ui, sans-serif; background:var(--bg); color:#111;}
   .container-main{max-width:1100px;margin:auto;}
-  .logo{width:60px;height:60px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#B71C1C);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:22px}
-  .hero{background:linear-gradient(90deg, rgba(198,40,40,0.06), rgba(255,213,79,0.02));padding:22px;border-radius:12px;margin:18px 0}
+<style>
+  .logo {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), #B71C1C);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .logo-svg {
+    width: 80%;
+    height: 80%;
+  }
+</style>
+
+<div class="logo">
+  <svg class="logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Hình dạng đảo Phú Quốc chính xác -->
+    <path d="M30 25 Q40 20 50 22 Q60 20 70 25 Q75 30 78 40 Q80 50 75 60 Q70 70 60 75 Q50 78 40 75 Q30 70 25 60 Q22 50 25 40 Q27 35 30 25 Z" 
+          fill="white" stroke="white" stroke-width="2"/>
+    
+    <!-- Hòn Thơm -->
+    <circle cx="75" cy="35" r="3" fill="white"/>
+    
+    <!-- Hòn Dừa -->
+    <circle cx="82" cy="50" r="2.5" fill="white"/>
+    
+    <!-- Hòn Móng Tay -->
+    <circle cx="70" cy="65" r="2" fill="white"/>
+    
+    <!-- Điểm Dương Đông (thành phố chính) -->
+    <circle cx="45" cy="45" r="1.5" fill="#C62828">
+      <animate attributeName="r" values="1.5;2.5;1.5" dur="2s" repeatCount="indefinite"/>
+    </circle>
+  </svg>
+</div>
+    .hero{background:linear-gradient(90deg, rgba(198,40,40,0.06), rgba(255,213,79,0.02));padding:22px;border-radius:12px;margin:18px 0}
   .btn-accent{background:linear-gradient(90deg,var(--accent),#EF5350);color:white;border:none}
   #map{height:64vh;border-radius:12px}
   .badge-img{width:56px;height:56px;border-radius:8px;object-fit:cover}
@@ -1106,7 +1144,7 @@
         <i class="fas fa-map" style="color:white; font-size: 24px;"></i>
       </div>
       <div>
-        <div style="font-weight:800;font-size:1.15rem">Bản đồ số Phú Quốc</div>
+        <div style="font-weight:800;font-size:1.15rem">PQStoryMap</div>
         <div style="color:#666;font-size:0.9rem">Dự án KHKT - Giáo dục lòng tự hào dân tộc và tình yêu quê hương đất nước cho tuổi trẻ trường THPT An Thới</div>
       </div>
     </div>
@@ -1140,12 +1178,12 @@
   <!-- HOME -->
   <section id="page-home">
     <div class="hero">
-      <h1 style="margin:0;color:var(--accent)">Bản đồ số Phú Quốc</h1>
+      <h1 style="margin:0;color:var(--accent)">PQStoryMap</h1>
       <p style="margin-top:10px;margin-bottom:8px; font-size: 1.1rem; line-height: 1.6;">
         <strong>Hành trình về nguồn chưa bao giờ sống động và cảm xúc đến thế!</strong>
       </p>
       <p style="margin:0 0 6px 0;color:#444; line-height: 1.6">
-        Bản Đồ Số Phú Quốc không chỉ là một website, đó là cây cầu kết nối thế hệ trẻ với hành trình đầy tự hào của cha ông. Chúng tôi mời bạn bước vào một thế giới nơi mỗi di tích là một câu chuyện chờ được kể, mỗi nhân vật lịch sử là một người hùng chờ được thấu hiểu.
+        PQStoryMap không chỉ là một website, đó là cây cầu kết nối thế hệ trẻ với hành trình đầy tự hào của cha ông. Chúng tôi mời bạn bước vào một thế giới nơi mỗi di tích là một câu chuyện chờ được kể, mỗi nhân vật lịch sử là một người hùng chờ được thấu hiểu.
       </p>
       <p style="margin:0 0 8px 0;color:#444; line-height: 1.6">
         Tại đây, bạn sẽ:<br>
