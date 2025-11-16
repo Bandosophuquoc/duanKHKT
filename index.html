@@ -1,6 +1,3 @@
-
-
-
 <!doctype html>
 <html lang="vi">
 <head>
@@ -1436,338 +1433,359 @@
     <button id="badgePopupClose" class="btn btn-accent">Tuyệt vời!</button>
   </div>
 </div>
+
 <!-- libs -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
 <script>
 /* ---------------------------
-  CẬP NHẬT: Sửa lỗi click không hoạt động
+  HỆ THỐNG ĐĂNG NHẬP ĐA THIẾT BỊ - ĐƠN GIẢN & ỔN ĐỊNH
 ----------------------------*/
 
-// Biến toàn cục mới
+// Biến toàn cục
 let currentPage = 'home';
 let stories = [];
 let currentUser = null;
 
-// Firebase configuration - ĐẶT Ở ĐẦU VÀ CHỈ MỘT LẦN
+// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyCB9Ff43rlcqrR8huhMk3Z-vVuSxL63TGI",
   authDomain: "pqstorymap.xyz",
-  projectId: "phuquoc-map-6bb91",
+  projectId: "phuquoc-map-6bb91", 
   storageBucket: "phuquoc-map-6bb91.firebasestorage.app",
   messagingSenderId: "1035203802998",
   appId: "1:1035203802998:web:1d509c4f2bb00dc341ec57",
   measurementId: "G-YEYE6GKYVZ"
 };
 
-// Khai báo biến Firebase (sẽ được khởi tạo sau)
-let auth, db, analytics;
+// Khai báo Firebase
+let auth, db;
 
-/* ---------- HỆ THỐNG ĐĂNG KÝ/ĐĂNG NHẬP ---------- */
-const STORAGE_USERS = 'pq_users_v2';
-const STORAGE_SESSIONS = 'pq_sessions_v1';
-const STORAGE_ANALYTICS = 'pq_analytics_v1';
-
-// Khởi tạo dữ liệu
-function initData() {
-  // Khởi tạo users nếu chưa có
-  if (!localStorage.getItem(STORAGE_USERS)) {
-    localStorage.setItem(STORAGE_USERS, JSON.stringify([]));
-  }
-  
-  // Khởi tạo analytics nếu chưa có
-  if (!localStorage.getItem(STORAGE_ANALYTICS)) {
-    const initialAnalytics = {
-      totalVisits: 0,
-      uniqueVisitors: new Set(),
-      pageViews: {
-        home: 0,
-        map: 0,
-        stories: 0,
-        profile: 0,
-        analytics: 0
-      },
-      devices: {
-        desktop: 0,
-        mobile: 0,
-        tablet: 0
-      },
-      userActions: [],
-      registeredUsers: 0
-    };
-    localStorage.setItem(STORAGE_ANALYTICS, JSON.stringify(initialAnalytics));
-  }
-  
-  // Ghi nhận lượt truy cập
-  recordVisit();
-}
-
-// Ghi nhận lượt truy cập
-function recordVisit() {
-  const analytics = getAnalytics();
-  analytics.totalVisits++;
-  
-  // Tạo visitor ID nếu chưa có
-  let visitorId = localStorage.getItem('pq_visitor_id');
-  if (!visitorId) {
-    visitorId = 'visitor_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-    localStorage.setItem('pq_visitor_id', visitorId);
-  }
-  
-  analytics.uniqueVisitors.add(visitorId);
-  
-  // Xác định thiết bị
-  const userAgent = navigator.userAgent.toLowerCase();
-  if (/mobile|android|iphone|ipad/.test(userAgent)) {
-    analytics.devices.mobile++;
-  } else if (/tablet|ipad/.test(userAgent)) {
-    analytics.devices.tablet++;
-  } else {
-    analytics.devices.desktop++;
-  }
-  
-  // Ghi nhận hành động
-  analytics.userActions.push({
-    type: 'page_visit',
-    page: currentPage,
-    timestamp: new Date().toISOString(),
-    visitorId: visitorId
-  });
-  
-  // Giới hạn số lượng hành động lưu trữ
-  if (analytics.userActions.length > 1000) {
-    analytics.userActions = analytics.userActions.slice(-500);
-  }
-  
-  saveAnalytics(analytics);
-}
-
-// Ghi nhận lượt xem trang
-function recordPageView(page) {
-  const analytics = getAnalytics();
-  if (analytics.pageViews[page] !== undefined) {
-    analytics.pageViews[page]++;
+/* ---------- FIREBASE ĐƠN GIẢN ---------- */
+function initFirebase() {
+  try {
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+      console.log('✅ Firebase initialized');
+    }
     
-    analytics.userActions.push({
-      type: 'page_view',
-      page: page,
-      timestamp: new Date().toISOString(),
-      visitorId: localStorage.getItem('pq_visitor_id')
+    auth = firebase.auth();
+    db = firebase.firestore();
+    
+    // Theo dõi trạng thái đăng nhập
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        console.log('🔥 User logged in:', user.email);
+        currentUser = {
+          id: user.uid,
+          name: user.displayName || user.email,
+          email: user.email,
+          badges: [],
+          visitedSites: [],
+          completedGames: {}
+        };
+        
+        // Load user data từ Firestore
+        loadUserData(user.uid);
+      } else {
+        console.log('🔥 User logged out');
+        currentUser = null;
+      }
+      refreshProfileAuthUI();
     });
     
-    saveAnalytics(analytics);
+    return true;
+  } catch (error) {
+    console.log('⚠️ Firebase failed, using localStorage');
+    return false;
   }
 }
 
-// Lấy dữ liệu analytics
-function getAnalytics() {
-  const data = JSON.parse(localStorage.getItem(STORAGE_ANALYTICS) || '{}');
-  // Khôi phục Set từ Array
-  if (data.uniqueVisitors && Array.isArray(data.uniqueVisitors)) {
-    data.uniqueVisitors = new Set(data.uniqueVisitors);
-  }
-  return data;
-}
-
-// Lưu dữ liệu analytics
-function saveAnalytics(analytics) {
-  // Chuyển Set thành Array để lưu trữ
-  const dataToSave = {
-    ...analytics,
-    uniqueVisitors: Array.from(analytics.uniqueVisitors)
-  };
-  localStorage.setItem(STORAGE_ANALYTICS, JSON.stringify(dataToSave));
-}
-
-// Hiển thị analytics
-function renderAnalytics() {
-  const analytics = getAnalytics();
-  
-  // Cập nhật số liệu
-  document.getElementById('totalVisitors').textContent = analytics.totalVisits;
-  document.getElementById('uniqueVisitors').textContent = analytics.uniqueVisitors.size;
-  document.getElementById('registeredUsers').textContent = analytics.registeredUsers || 0;
-  document.getElementById('totalStories').textContent = stories.length;
-  
-  // Hiển thị lượt xem trang
-  const pageViewsHtml = Object.entries(analytics.pageViews).map(([page, views]) => `
-    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
-      <span>${getPageName(page)}</span>
-      <span class="badge bg-primary">${views}</span>
-    </div>
-  `).join('');
-  document.getElementById('pageViewsChart').innerHTML = pageViewsHtml || '<p class="text-muted">Chưa có dữ liệu</p>';
-  
-  // Hiển thị thiết bị
-  const deviceHtml = Object.entries(analytics.devices).map(([device, count]) => `
-    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
-      <span>${getDeviceName(device)}</span>
-      <span class="badge bg-info">${count}</span>
-    </div>
-  `).join('');
-  document.getElementById('deviceChart').innerHTML = deviceHtml || '<p class="text-muted">Chưa có dữ liệu</p>';
-  
-  // Hiển thị hoạt động gần đây
-  const recentActions = analytics.userActions.slice(-10).reverse();
-  const activityHtml = recentActions.map(action => `
-    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
-      <div>
-        <small class="text-muted">${formatTimeAgo(action.timestamp)}</small>
-        <div>${getActionDescription(action)}</div>
-      </div>
-    </div>
-  `).join('');
-  document.getElementById('recentActivity').innerHTML = activityHtml || '<p class="text-muted">Chưa có hoạt động nào</p>';
-}
-
-function getPageName(page) {
-  const pages = {
-    home: 'Trang chủ',
-    map: 'Bản đồ',
-    stories: 'PQ Stories',
-    profile: 'Trang cá nhân',
-    analytics: 'Thống kê'
-  };
-  return pages[page] || page;
-}
-
-function getDeviceName(device) {
-  const devices = {
-    desktop: 'Máy tính',
-    mobile: 'Điện thoại',
-    tablet: 'Máy tính bảng'
-  };
-  return devices[device] || device;
-}
-
-function getActionDescription(action) {
-  switch (action.type) {
-    case 'page_visit':
-      return `Truy cập ${getPageName(action.page)}`;
-    case 'page_view':
-      return `Xem ${getPageName(action.page)}`;
-    case 'user_register':
-      return 'Đăng ký tài khoản mới';
-    case 'user_login':
-      return 'Đăng nhập';
-    case 'story_post':
-      return 'Đăng câu chuyện mới';
-    default:
-      return action.type;
+// Load user data từ Firestore
+async function loadUserData(uid) {
+  try {
+    const userDoc = await db.collection('users').doc(uid).get();
+    if (userDoc.exists) {
+      const userData = userDoc.data();
+      currentUser.badges = userData.badges || [];
+      currentUser.visitedSites = userData.visitedSites || [];
+      currentUser.completedGames = userData.completedGames || {};
+      console.log('✅ User data loaded');
+    }
+  } catch (error) {
+    console.log('⚠️ Cannot load user data');
   }
 }
 
-/* ---------- HỆ THỐNG NGƯỜI DÙNG ---------- */
-function getUsers() {
-  return JSON.parse(localStorage.getItem(STORAGE_USERS) || '[]');
-}
-
-function saveUsers(users) {
-  localStorage.setItem(STORAGE_USERS, JSON.stringify(users));
-}
-
-function findUserByEmail(email) {
-  const users = getUsers();
-  return users.find(user => user.email === email);
-}
-
-function registerUser(name, email, password) {
-  const users = getUsers();
+// Save user data lên Firestore
+async function saveUserData() {
+  if (!currentUser || !auth.currentUser) return;
   
-  // Kiểm tra email đã tồn tại
-  if (findUserByEmail(email)) {
-    return { success: false, message: 'Email đã được sử dụng' };
+  try {
+    await db.collection('users').doc(auth.currentUser.uid).set({
+      badges: currentUser.badges,
+      visitedSites: currentUser.visitedSites,
+      completedGames: currentUser.completedGames,
+      lastUpdate: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+    console.log('✅ User data saved');
+  } catch (error) {
+    console.log('⚠️ Cannot save user data');
+  }
+}
+
+/* ---------- ĐĂNG KÝ/ĐĂNG NHẬP ĐƠN GIẢN ---------- */
+async function authRegister(){
+  const name = document.getElementById('inName').value.trim();
+  const email = document.getElementById('inEmail').value.trim();
+  const pass = document.getElementById('inPass').value;
+  
+  if(!name || !email || !pass){ 
+    showAuthError('Điền đủ tên, email, mật khẩu'); 
+    return; 
   }
   
-  // Tạo user mới
-  const newUser = {
-    id: 'user_' + Date.now(),
-    name: name,
-    email: email,
-    password: password, // Trong thực tế nên mã hóa password
-    createdAt: new Date().toISOString(),
-    badges: [],
-    visitedSites: [],
-    completedGames: {}
-  };
+  if (pass.length < 6) {
+    showAuthError('Mật khẩu phải có ít nhất 6 ký tự');
+    return;
+  }
   
-  users.push(newUser);
-  saveUsers(users);
-  
-  // Cập nhật analytics
-  const analytics = getAnalytics();
-  analytics.registeredUsers = users.length;
-  analytics.userActions.push({
-    type: 'user_register',
-    email: email,
-    timestamp: new Date().toISOString()
-  });
-  saveAnalytics(analytics);
-  
-  return { success: true, user: newUser };
+  try {
+    const userCredential = await auth.createUserWithEmailAndPassword(email, pass);
+    const user = userCredential.user;
+    
+    // Cập nhật tên hiển thị
+    await user.updateProfile({ displayName: name });
+    
+    // Tạo user document
+    await db.collection('users').doc(user.uid).set({
+      name: name,
+      email: email,
+      badges: [],
+      visitedSites: [],
+      completedGames: {},
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    
+    authModal.hide();
+    alert('🎉 Đăng ký thành công! Chào mừng ' + name);
+    
+  } catch (error) {
+    let message = 'Lỗi đăng ký';
+    if (error.code === 'auth/email-already-in-use') {
+      message = 'Email đã được sử dụng';
+    } else if (error.code === 'auth/weak-password') {
+      message = 'Mật khẩu quá yếu';
+    }
+    showAuthError(message);
+  }
 }
 
-function loginUser(email, password) {
-  const user = findUserByEmail(email);
+async function authLogin(){
+  const email = document.getElementById('inEmail').value.trim();
+  const pass = document.getElementById('inPass').value;
   
-  if (!user) {
-    return { success: false, message: 'Email không tồn tại' };
+  if(!email || !pass){ 
+    showAuthError('Điền đủ email và mật khẩu'); 
+    return; 
   }
   
-  if (user.password !== password) {
-    return { success: false, message: 'Mật khẩu không đúng' };
+  try {
+    await auth.signInWithEmailAndPassword(email, pass);
+    authModal.hide();
+    alert('✅ Đăng nhập thành công!');
+    
+  } catch (error) {
+    let message = 'Lỗi đăng nhập';
+    if (error.code === 'auth/user-not-found') {
+      message = 'Email không tồn tại';
+    } else if (error.code === 'auth/wrong-password') {
+      message = 'Mật khẩu không đúng';
+    }
+    showAuthError(message);
   }
-  
-  // Tạo session
-  const session = {
-    userId: user.id,
-    token: 'token_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 ngày
-  };
-  
-  localStorage.setItem(STORAGE_SESSIONS, JSON.stringify(session));
-  
-  // Cập nhật analytics
-  const analytics = getAnalytics();
-  analytics.userActions.push({
-    type: 'user_login',
-    email: email,
-    timestamp: new Date().toISOString()
-  });
-  saveAnalytics(analytics);
-  
-  return { success: true, user: user };
 }
+
+async function logoutUser(){
+  try {
+    await auth.signOut();
+    alert('Đăng xuất thành công');
+  } catch (error) {
+    console.log('Logout error:', error);
+  }
+}
+
+function showAuthError(msg){ 
+  const a = document.getElementById('authAlert'); 
+  if (a) {
+    a.innerText = msg; 
+    a.classList.remove('d-none'); 
+  }
+}
+
+/* ---------- LOCALSTORAGE FALLBACK (Đơn giản) ---------- */
+const STORAGE_USERS = 'pq_users';
+const STORAGE_SESSION = 'pq_session';
 
 function getCurrentUser() {
-  const session = JSON.parse(localStorage.getItem(STORAGE_SESSIONS) || 'null');
+  // Ưu tiên Firebase user
+  if (currentUser) return currentUser;
   
-  if (!session || new Date(session.expiresAt) < new Date()) {
-    // Session hết hạn
-    localStorage.removeItem(STORAGE_SESSIONS);
-    return null;
+  // Fallback localStorage
+  const session = JSON.parse(localStorage.getItem(STORAGE_SESSION) || 'null');
+  if (session && new Date(session.expiresAt) > new Date()) {
+    const users = JSON.parse(localStorage.getItem(STORAGE_USERS) || '[]');
+    const user = users.find(u => u.id === session.userId);
+    if (user) {
+      console.log('📱 Using localStorage user');
+      return user;
+    }
   }
-  
-  const users = getUsers();
-  return users.find(user => user.id === session.userId) || null;
-}
-
-function logoutUser() {
-  localStorage.removeItem(STORAGE_SESSIONS);
-  return { success: true };
+  return null;
 }
 
 function updateUser(user) {
-  const users = getUsers();
+  // Nếu dùng Firebase
+  if (currentUser && auth.currentUser) {
+    saveUserData();
+    return true;
+  }
+  
+  // Fallback localStorage
+  const users = JSON.parse(localStorage.getItem(STORAGE_USERS) || '[]');
   const index = users.findIndex(u => u.id === user.id);
   if (index !== -1) {
     users[index] = user;
-    saveUsers(users);
+    localStorage.setItem(STORAGE_USERS, JSON.stringify(users));
     return true;
   }
   return false;
 }
+
+/* ---------- PROFILE UI ---------- */
+function refreshProfileAuthUI(){
+  const user = getCurrentUser();
+  const profileInfo = document.getElementById('profile-info');
+  const btnLogin = document.getElementById('btn-profile-login');
+  const btnRegister = document.getElementById('btn-profile-register');
+  const btnLogout = document.getElementById('btn-profile-logout');
+  
+  if (user) {
+    btnLogin.style.display = 'none';
+    btnRegister.style.display = 'none';
+    btnLogout.style.display = 'inline-block';
+    
+    const source = currentUser ? '🔥 Firebase' : '📱 LocalStorage';
+    profileInfo.innerHTML = `Xin chào <strong>${user.name}</strong> — ${user.email}<br><small>${source}</small>`;
+    profileInfo.className = 'alert alert-success';
+    
+    renderUserBadges(user);
+  } else {
+    btnLogin.style.display = 'inline-block';
+    btnRegister.style.display = 'inline-block';
+    btnLogout.style.display = 'none';
+    
+    profileInfo.innerHTML = 'Bạn chưa đăng nhập. Vui lòng đăng nhập để lưu tiến trình.';
+    profileInfo.className = 'alert alert-info';
+    
+    renderProfileBadges();
+  }
+}
+
+function renderUserBadges(user) {
+  const wrap = document.getElementById('profile-badge-area');
+  if (!wrap) return;
+  
+  wrap.innerHTML = '';
+  
+  if (!user.badges || user.badges.length === 0) {
+    wrap.innerHTML = '<div class="text-muted">Chưa có huy hiệu nào. Hãy khám phá các địa điểm!</div>';
+    return;
+  }
+  
+  user.badges.forEach(badge => {
+    const el = document.createElement('div');
+    el.className = 'text-center';
+    el.innerHTML = `
+      <img src="${badge.icon}" class="badge-img" alt="${badge.name}">
+      <div style="font-size:12px; max-width:80px">${badge.name}</div>
+    `;
+    wrap.appendChild(el);
+  });
+}
+
+function renderProfileBadges() {
+  const wrap = document.getElementById('profile-badge-area');
+  if (!wrap) return;
+  
+  wrap.innerHTML = '<div class="text-muted">Đăng nhập để xem huy hiệu của bạn</div>';
+}
+
+/* ---------- BADGES & GAME SYSTEM ---------- */
+function awardBadge(id, name, icon) {
+  const user = getCurrentUser();
+  if (!user) {
+    alert('Vui lòng đăng nhập để nhận huy hiệu');
+    return false;
+  }
+  
+  if (!user.badges) user.badges = [];
+  if (user.badges.find(b => b.id === id)) return false;
+  
+  user.badges.push({ id, name, icon });
+  
+  // Cập nhật user data
+  if (updateUser(user)) {
+    showBadgePopup(name, icon);
+    return true;
+  }
+  return false;
+}
+
+function markVisited(siteId) {
+  const user = getCurrentUser();
+  if (!user) return;
+  
+  if (!user.visitedSites) user.visitedSites = [];
+  if (!user.visitedSites.includes(siteId)) {
+    user.visitedSites.push(siteId);
+    updateUser(user);
+  }
+}
+
+function recordDone(siteId, gameId) {
+  const user = getCurrentUser();
+  if (!user) return;
+  
+  if (!user.completedGames) user.completedGames = {};
+  if (!user.completedGames[siteId]) user.completedGames[siteId] = [];
+  if (!user.completedGames[siteId].includes(gameId)) {
+    user.completedGames[siteId].push(gameId);
+    updateUser(user);
+  }
+}
+
+/* ---------- KHỞI TẠO ỨNG DỤNG ---------- */
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('🚀 Starting application...');
+  
+  // Khởi tạo Firebase
+  const firebaseOK = initFirebase();
+  
+  if (!firebaseOK) {
+    console.log('⚠️ Using localStorage mode only');
+  }
+  
+  // Khởi tạo các component
+  initData();
+  refreshProfileAuthUI();
+  loadStories();
+  initMap();
+  
+  console.log('✅ Application started successfully');
+});
 
 /* ---------- Menu Navigation ---------- */
 const menuBtn = document.getElementById('nav-menu');
@@ -1775,52 +1793,38 @@ const menuDropdown = document.getElementById('menuDropdown');
 const menuOverlay = document.getElementById('menuOverlay');
 const menuItems = document.querySelectorAll('.menu-item');
 
-// Toggle menu
 menuBtn.addEventListener('click', (e) => {
   e.stopPropagation();
   menuDropdown.classList.toggle('active');
   menuOverlay.classList.toggle('active');
 });
 
-// Đóng menu khi click overlay
 menuOverlay.addEventListener('click', () => {
   menuDropdown.classList.remove('active');
   menuOverlay.classList.remove('active');
 });
 
-// Xử lý chọn menu item
 menuItems.forEach(item => {
   item.addEventListener('click', () => {
     const page = item.dataset.page;
     showPage(page);
     menuDropdown.classList.remove('active');
     menuOverlay.classList.remove('active');
-    
-    // Cập nhật active state
     menuItems.forEach(i => i.classList.remove('active'));
     item.classList.add('active');
   });
 });
 
-// Hàm hiển thị trang
 function showPage(page) {
-  // Ẩn tất cả các trang
   document.querySelectorAll('section[id^="page-"]').forEach(section => {
     section.style.display = 'none';
   });
   
-  // Hiển thị trang được chọn
   document.getElementById(`page-${page}`).style.display = 'block';
   
-  // Ghi nhận lượt xem trang
-  recordPageView(page);
-  
-  // Xử lý đặc biệt cho từng trang
   if (page === 'map') {
     setTimeout(() => {
-      if (typeof map !== 'undefined') {
-        map.invalidateSize();
-      }
+      if (typeof map !== 'undefined') map.invalidateSize();
     }, 300);
   } else if (page === 'stories') {
     loadStories();
@@ -1831,194 +1835,7 @@ function showPage(page) {
   currentPage = page;
 }
 
-/* ---------- NEW PQ STORIES FUNCTIONALITY ---------- */
-const addStoryBtn = document.getElementById('addStoryBtn');
-const storyModalOverlay = document.getElementById('storyModalOverlay');
-const storyModalClose = document.getElementById('storyModalClose');
-const storyFormNew = document.getElementById('storyFormNew');
-const uploadAreaNew = document.getElementById('uploadAreaNew');
-const fileInputNew = document.getElementById('fileInputNew');
-const filePreviewNew = document.getElementById('filePreviewNew');
-const storiesWallNew = document.getElementById('storiesWallNew');
-const storyContentNew = document.getElementById('storyContentNew');
-const wordCount = document.getElementById('wordCount');
-const btnPostStory = document.getElementById('btnPostStory');
-const successMessage = document.getElementById('successMessage');
-const successClose = document.getElementById('successClose');
-
-// Mở modal khi click nút thêm story
-if (addStoryBtn) {
-  addStoryBtn.addEventListener('click', () => {
-    const user = getCurrentUser();
-    if (!user) {
-      alert('Vui lòng đăng nhập để chia sẻ câu chuyện.');
-      showPage('profile');
-      return;
-    }
-    storyModalOverlay.classList.add('active');
-  });
-}
-
-// Đóng modal
-if (storyModalClose) {
-  storyModalClose.addEventListener('click', () => {
-    storyModalOverlay.classList.remove('active');
-  });
-}
-
-// Đóng modal khi click bên ngoài
-if (storyModalOverlay) {
-  storyModalOverlay.addEventListener('click', (e) => {
-    if (e.target === storyModalOverlay) {
-      storyModalOverlay.classList.remove('active');
-    }
-  });
-}
-
-// Upload area click
-if (uploadAreaNew) {
-  uploadAreaNew.addEventListener('click', () => {
-    fileInputNew.click();
-  });
-}
-
-// File input change
-if (fileInputNew) {
-  fileInputNew.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        let previewHTML = '';
-        
-        if (file.type.startsWith('image/')) {
-          previewHTML = `<img src="${e.target.result}" alt="Preview">`;
-        } else if (file.type.startsWith('video/')) {
-          previewHTML = `<video controls><source src="${e.target.result}" type="${file.type}">Trình duyệt của bạn không hỗ trợ video.</video>`;
-        } else if (file.type.startsWith('audio/')) {
-          previewHTML = `<audio controls><source src="${e.target.result}" type="${file.type}">Trình duyệt của bạn không hỗ trợ audio.</audio>`;
-        } else {
-          previewHTML = `<p>File: ${file.name}</p>`;
-        }
-        
-        previewHTML += `<button class="remove-file" onclick="removeFile()">Xóa</button>`;
-        filePreviewNew.innerHTML = previewHTML;
-        filePreviewNew.style.display = 'block';
-      };
-      reader.readAsDataURL(file);
-    }
-  });
-}
-
-// Xóa file preview
-function removeFile() {
-  if (filePreviewNew) {
-    filePreviewNew.style.display = 'none';
-    fileInputNew.value = '';
-  }
-}
-
-// Đếm số từ
-if (storyContentNew) {
-  storyContentNew.addEventListener('input', () => {
-    const content = storyContentNew.value;
-    const words = content.trim() === '' ? 0 : content.trim().split(/\s+/).length;
-    wordCount.textContent = `${words}/200 từ`;
-    
-    if (words > 200) {
-      wordCount.classList.add('warning');
-      btnPostStory.disabled = true;
-    } else {
-      wordCount.classList.remove('warning');
-      btnPostStory.disabled = false;
-    }
-  });
-}
-
-// Story form submit
-if (btnPostStory) {
-  btnPostStory.addEventListener('click', (e) => {
-    e.preventDefault();
-    
-    const title = document.getElementById('storyTitleNew').value;
-    const content = document.getElementById('storyContentNew').value;
-    const user = getCurrentUser();
-    
-    if (!user) {
-      alert('Vui lòng đăng nhập để chia sẻ câu chuyện.');
-      return;
-    }
-    
-    if (!title || !content) {
-      alert('Vui lòng điền tiêu đề và nội dung câu chuyện.');
-      return;
-    }
-    
-    const words = content.trim().split(/\s+/).length;
-    if (words > 200) {
-      alert('Nội dung câu chuyện vượt quá 200 từ. Vui lòng rút gọn.');
-      return;
-    }
-    
-    const newStory = {
-      id: Date.now(),
-      title: title,
-      content: content,
-      author: user.name,
-      authorId: user.id,
-      timestamp: new Date().toISOString(),
-      likes: 0,
-      comments: [],
-      liked: false,
-      media: fileInputNew.files[0] ? URL.createObjectURL(fileInputNew.files[0]) : null,
-      mediaType: fileInputNew.files[0] ? fileInputNew.files[0].type : null,
-      colorClass: `note-color-${Math.floor(Math.random() * 8) + 1}`
-    };
-    
-    // Thêm story vào mảng
-    stories.unshift(newStory);
-    
-    // Lưu vào localStorage
-    saveStories();
-    
-    // Cập nhật giao diện
-    renderStories();
-    
-    // Đóng modal
-    storyModalOverlay.classList.remove('active');
-    
-    // Reset form
-    storyFormNew.reset();
-    filePreviewNew.style.display = 'none';
-    fileInputNew.value = '';
-    wordCount.textContent = '0/200 từ';
-    wordCount.classList.remove('warning');
-    
-    // Hiển thị thông báo thành công
-    showSuccessMessage();
-  });
-}
-
-// Hiển thị thông báo thành công
-function showSuccessMessage() {
-  if (successMessage) {
-    successMessage.classList.add('show');
-    
-    // Tự động ẩn sau 5 giây
-    setTimeout(() => {
-      successMessage.classList.remove('show');
-    }, 5000);
-  }
-}
-
-// Đóng thông báo thành công
-if (successClose) {
-  successClose.addEventListener('click', () => {
-    successMessage.classList.remove('show');
-  });
-}
-
-// Load stories từ localStorage
+/* ---------- STORIES SYSTEM ---------- */
 function loadStories() {
   const savedStories = localStorage.getItem('pq_stories');
   if (savedStories) {
@@ -2027,13 +1844,12 @@ function loadStories() {
   renderStories();
 }
 
-// Save stories to localStorage
 function saveStories() {
   localStorage.setItem('pq_stories', JSON.stringify(stories));
 }
 
-// Render stories
 function renderStories() {
+  const storiesWallNew = document.getElementById('storiesWallNew');
   if (!storiesWallNew) return;
   
   storiesWallNew.innerHTML = '';
@@ -2099,7 +1915,6 @@ function renderStories() {
   });
 }
 
-// Like story function
 function likeStory(storyId) {
   const user = getCurrentUser();
   if (!user) {
@@ -2121,19 +1936,13 @@ function likeStory(storyId) {
   }
 }
 
-// Toggle comments
 function toggleComments(storyId) {
   const commentsDiv = document.getElementById(`comments-${storyId}`);
   if (commentsDiv) {
-    if (commentsDiv.style.display === 'block') {
-      commentsDiv.style.display = 'none';
-    } else {
-      commentsDiv.style.display = 'block';
-    }
+    commentsDiv.style.display = commentsDiv.style.display === 'block' ? 'none' : 'block';
   }
 }
 
-// Add comment
 function addComment(storyId) {
   const user = getCurrentUser();
   if (!user) {
@@ -2145,7 +1954,6 @@ function addComment(storyId) {
   if (!commentInput) return;
   
   const content = commentInput.value.trim();
-  
   if (!content) {
     alert('Vui lòng nhập nội dung bình luận.');
     return;
@@ -2164,7 +1972,6 @@ function addComment(storyId) {
   }
 }
 
-// Format time ago
 function formatTimeAgo(timestamp) {
   const now = new Date();
   const storyTime = new Date(timestamp);
@@ -2176,347 +1983,7 @@ function formatTimeAgo(timestamp) {
   return `${Math.floor(diffInSeconds / 86400)} ngày trước`;
 }
 
-/* ---------------------------
-  Dữ liệu điểm (đã cập nhật với tọa độ chính xác của bạn)
-----------------------------*/
-const DI_TICH = [
-  // Nhóm Thiên Nhiên (Xanh Lá pastel)
-  {
-    id:'vuon-quoc-gia',
-    name:'Vườn quốc gia Phú Quốc',
-    address:'Vườn quốc gia Phú Quốc, Kiên Giang, Việt Nam',
-    note:'Vườn quốc gia với hệ sinh thái rừng nhiệt đới phong phú, nơi bảo tồn nhiều loài động thực vật quý hiếm.',
-    extra:['Diện tích: 31.422 ha', 'Có nhiều loài động thực vật quý hiếm', 'Hệ sinh thái rừng nhiệt đới đa dạng'],
-    lat:10.3645, lng:103.9919,
-    games:[],
-    img: 'images/vuon.jpg',
-    category: 'nature'
-  },
-  {
-    id:'bai-sao',
-    name:'Bãi Sao',
-    address:'Bãi Sao, Phú Quốc, Kiên Giang, Việt Nam',
-    note:'Bãi biển đẹp với cát trắng mịn, nước biển trong xanh, hình lưỡi liềm đặc trưng.',
-    extra:['Cát trắng mịn', 'Nước biển trong xanh', 'Hình dạng lưỡi liềm độc đáo'],
-    lat:10.0572, lng:104.0360,
-    games:[],
-    img:'images/baisao.jpg',
-    category: 'nature'
-  },
-  {
-    id:'hon-thom',
-    name:'Hòn Thơm',
-    address:'Hòn Thơm, Phú Quốc, Kiên Giang, Việt Nam',
-    note:'Hòn đảo lớn thứ hai trong quần đảo An Thới, nổi tiếng với cảnh quan thiên nhiên hoang sơ.',
-    extra:['Đảo lớn thứ hai quần đảo An Thới', 'Cảnh quan thiên nhiên hoang sơ', 'Nhiều bãi biển đẹp'],
-    lat:9.9560, lng:104.0179,
-    games:[],
-    img:'images/honthom.jpg',
-    category: 'nature'
-  },
-  
-  // Nhóm Văn Hóa - Lịch Sử (Cam pastel)
-  {
-    id:'nha-tu',
-    name:'Nhà tù Phú Quốc',
-    address:'350 Đ. Nguyễn Văn Cừ, An Thới, Phú Quốc, Kiên Giang, Việt Nam',
-    note:'Di tích lịch sử cấp Quốc gia đặc biệt (2014). Nơi giam giữ nhiều tù binh trong kháng chiến; chứng tích tra tấn, nhưng cũng là biểu tượng ý chí kiên cường.',
-    extra:[
-      'Năm xây dựng: 01/06/1967',
-      'Còn gọi: Nhà lao Cây Dừa',
-      'Khoảng 40.000 tù binh từng bị giam; nhiều tù nhân bị tra tấn dã man. Có 45 cuộc vượt ngục ghi nhận.'
-    ],
-    lat:10.044417, lng:104.017639,
-    games:['quiz_nhatu', 'memory_nhatu'],
-    img: 'images/nhatupq3.jpg',
-    category: 'culture'
-  },
-  {
-    id:'chua',
-    name:'Chùa Hộ Quốc',
-    address:'426H+GVQ, Dương Tơ, Phú Quốc, Kiên Giang, Việt Nam',
-    note:'Thiền viện Trúc Lâm Hộ Quốc — kiến trúc tâm linh lớn, phong cách cổ truyền Việt.',
-    extra:['Ngôi chùa lớn nhất Phú Quốc', 'Kiến trúc truyền thống Việt Nam', 'Không gian tâm linh thanh tịnh'],
-    lat:10.110028, lng:104.029056,
-    games:[],
-    img: 'images/chua.jpg',
-    category: 'culture'
-  },
-  {
-    id:'dinh-ntt',
-    name:'Đình Thần Nguyễn Trung Trực',
-    address:'9RFV+848, Gành Dầu, Phú Quốc, Kiên Giang, Việt Nam',
-    note:'Di tích lịch sử văn hóa. Đình thờ Anh hùng dân tộc Nguyễn Trung Trực (1839-1868).',
-    extra:[
-      'Đình được xây dựng từ năm 1882',
-      'Lễ giỗ tổ chức hàng năm (âm lịch) — hoạt động truyền thống hơn 100 năm',
-      'Nguyễn Trung Trực nổi tiếng với chiến công đốt tàu Pháp trên sông Nhật Tảo.'
-    ],
-    lat:10.373306, lng:103.842972,
-    games:['quiz_trungtruc', 'memory_trungtruc'],
-    img:'images/dinhntt.jpg',
-    category: 'culture'
-  },
-  {
-    id:'baotang',
-    name:'Bảo tàng Cội Nguồn',
-    address:'Phú Quốc, Kiên Giang',
-    note:'Bảo tàng trưng bày lịch sử-văn hóa địa phương',
-    extra:['Trưng bày lịch sử, văn hóa Phú Quốc', 'Bộ sưu tập cổ vật phong phú', 'Kiến trúc độc đáo'],
-    lat:10.192500, lng:103.967000,
-    games:[],
-    img:'images/coinguon.jpg',
-    category: 'culture'
-  },
-  {
-    id:'dinh-cau',
-    name:'Dinh Cậu',
-    address:'Khu phố 2, Tp. Phú Quốc, Kiên Giang 92500, Việt Nam',
-    note:'Di tích thắng cảnh; tín ngưỡng của ngư dân, có lễ hội hàng năm (15–16/10 âm lịch).',
-    extra:['Xây dựng: 1937 (tu sửa 1997)','Biểu tượng tâm linh của người dân địa phương', 'Vị trí đẹp nhìn ra biển'],
-    lat:10.217194, lng:103.956500,
-    games:[],
-    img:'images/dinhcau.jpg',
-    category: 'culture'
-  },
-  
-  // Nhóm Giải Trí & Hiện Đại (Tím pastel)
-  {
-    id:'cap-treo',
-    name:'Cáp treo Hòn Thơm',
-    address:'Cáp treo Hòn Thơm, Phú Quốc, Kiên Giang, Việt Nam',
-    note:'Tuyến cáp treo vượt biển dài nhất thế giới, kết nối đảo Phú Quốc với đảo Hòn Thơm.',
-    extra:['Tuyến cáp treo vượt biển dài nhất thế giới', 'Kết nối đảo Phú Quốc với Hòn Thơm', 'Cung đường ngắm cảnh tuyệt đẹp'],
-    lat:10.0269, lng:104.0073,
-    games:[],
-    img:'images/captreo.jpg',
-    category: 'entertainment'
-  },
-  {
-    id:'grand-world',
-    name:'Grand World Phú Quốc',
-    address:'Grand World Phú Quốc, Bãi Dài, Phú Quốc, Kiên Giang, Việt Nam',
-    note:'Khu phức hợp giải trí, mua sắm và ẩm thực với kiến trúc châu Âu độc đáo.',
-    extra:['Khu phức hợp giải trí hiện đại', 'Kiến trúc châu Âu độc đáo', 'Nhiều hoạt động vui chơi, mua sắm'],
-    lat:10.3289, lng:103.8629,
-    games:[],
-    img:'images/grandworld.jpg',
-    category: 'entertainment'
-  },
-  
-  // Nhóm Ẩm Thực & Làng Nghề (Đỏ pastel)
-  {
-    id:'nha-thung',
-    name:'Nhà thùng nước mắm Phú Quốc (Phụng Hưng)',
-    address:'471 Đ. Nguyễn Văn Cừ, Khu 2, Phú Quốc, Kiên Giang',
-    note:'Nhà thùng nước mắm truyền thống; nghề truyền thống của đảo.',
-    extra:['Lịch sử: hàng trăm năm, phương thức ủ muối truyền thống', 'Nước mắm Phú Quốc nổi tiếng thơm ngon'],
-    lat:10.044917, lng:104.017444,
-    games:[],
-    img:'images/nhathung.jpg',
-    category: 'craft'
-  },
-  {
-    id:'ngoc-trai',
-    name:'Cơ sở nuôi cấy ngọc trai (Ngọc Hiền Pearl)',
-    address:'Cơ sở nuôi cấy ngọc trai Ngọc Hiền Pearl, Phú Quốc, Kiên Giang',
-    note:'Cơ sở nuôi cấy và chế tác ngọc trai nổi tiếng tại Phú Quốc.',
-    extra:['Nuôi cấy và chế tác ngọc trai', 'Sản phẩm ngọc trai chất lượng cao', 'Quy trình nuôi cấy công phu'],
-    lat:10.1701, lng:103.9703, // Cập nhật tọa độ mới
-    games:[],
-    img:'images/ngoctrai.jpg',
-    category: 'craft'
-  },
-  {
-    id:'ham-ninh',
-    name:'Làng chài Hàm Ninh',
-    address:'52JV+6XX, TL47, Rạch Hàm, Phú Quốc, Kiên Giang, Việt Nam',
-    note:'Làng chài cổ, nổi tiếng hải sản tươi, ghẹ Hàm Ninh.',
-    extra:['Làng chài truyền thống lâu đời', 'Nổi tiếng với ghẹ Hàm Ninh tươi ngon', 'Cảnh biển đẹp, bình yên'],
-    lat:10.180917, lng:104.048472,
-    games:[],
-    img:'images/langchai.jpg',
-    category: 'craft'
-  }
-];
-
-/* -----------------------
-  Local storage keys
-------------------------*/
-const STORAGE_USER = 'pq_user_v1';
-const STORAGE_BADGES = 'pq_badges_v1';
-const STORAGE_DONE = 'pq_done_games_v1';
-const STORAGE_VISIT = 'pq_visited_v1';
-const STORAGE_STORIES = 'pq_stories';
-
-/* --------- Helpers ------------- */
-function saveUser(u){ localStorage.setItem(STORAGE_USER, JSON.stringify(u)) }
-function loadUser(){ return JSON.parse(localStorage.getItem(STORAGE_USER) || 'null') }
-function loadBadges(){ return JSON.parse(localStorage.getItem(STORAGE_BADGES) || '[]') }
-function saveBadges(a){ localStorage.setItem(STORAGE_BADGES, JSON.stringify(a)) }
-function loadDone(){ return JSON.parse(localStorage.getItem(STORAGE_DONE) || '{}') }
-function saveDone(o){ localStorage.setItem(STORAGE_DONE, JSON.stringify(o)) }
-function loadVisited(){ return JSON.parse(localStorage.getItem(STORAGE_VISIT) || '[]') }
-function saveVisited(a){ localStorage.setItem(STORAGE_VISIT, JSON.stringify(a)) }
-
-/* ---------- UI & Navigation ---------- */
-const pageHome = document.getElementById('page-home');
-const pageMap = document.getElementById('page-map');
-const pageProfile = document.getElementById('page-profile');
-const btnStart = document.getElementById('btn-start');
-
-// Cập nhật sự kiện cho nút Bắt đầu khám phá
-if (btnStart) {
-  btnStart.onclick = () => { 
-    showPage('map'); 
-    window.scrollTo(0,0); 
-  };
-}
-
-/* Auth modal */
-const authModal = new bootstrap.Modal(document.getElementById('authModal'));
-const btnProfileRegister = document.getElementById('btn-profile-register');
-const btnProfileLogin = document.getElementById('btn-profile-login');
-
-if (btnProfileRegister) {
-  btnProfileRegister.addEventListener('click', ()=> {
-    document.getElementById('authTitle').innerText = 'Đăng ký'; 
-    document.getElementById('authSubmit').onclick = authRegister; 
-    document.getElementById('authAlert').classList.add('d-none');
-    authModal.show();
-  });
-}
-
-if (btnProfileLogin) {
-  btnProfileLogin.addEventListener('click', ()=> {
-    document.getElementById('authTitle').innerText = 'Đăng nhập'; 
-    document.getElementById('authSubmit').onclick = authLogin; 
-    document.getElementById('authAlert').classList.add('d-none');
-    authModal.show();
-  });
-}
-
-const btnProfileLogout = document.getElementById('btn-profile-logout');
-if (btnProfileLogout) {
-  btnProfileLogout.addEventListener('click', ()=> {
-    logoutUser();
-    refreshProfileAuthUI();
-    alert('Đăng xuất thành công.');
-  });
-}
-
-/* auth functions */
-function authRegister(){
-  const name = document.getElementById('inName').value.trim();
-  const email = document.getElementById('inEmail').value.trim();
-  const pass = document.getElementById('inPass').value;
-  if(!name || !email || !pass){ showAuthError('Điền đủ tên, email, mật khẩu'); return; }
-  
-  const result = registerUser(name, email, pass);
-  if (result.success) {
-    alert('Đăng ký thành công. Vui lòng đăng nhập.');
-    authModal.hide();
-  } else {
-    showAuthError(result.message);
-  }
-}
-
-function authLogin(){
-  const email = document.getElementById('inEmail').value.trim();
-  const pass = document.getElementById('inPass').value;
-  
-  const result = loginUser(email, pass);
-  if (result.success) {
-    authModal.hide();
-    refreshProfileAuthUI();
-    alert('Đăng nhập thành công. Xin chào ' + result.user.name);
-  } else {
-    showAuthError(result.message);
-  }
-}
-
-function showAuthError(msg){ 
-  const a=document.getElementById('authAlert'); 
-  if (a) {
-    a.innerText=msg; 
-    a.classList.remove('d-none'); 
-  }
-}
-
-function refreshProfileAuthUI(){
-  const u = getCurrentUser();
-  const profileInfo = document.getElementById('profile-info');
-  const btnLogin = document.getElementById('btn-profile-login');
-  const btnRegister = document.getElementById('btn-profile-register');
-  const btnLogout = document.getElementById('btn-profile-logout');
-  
-  if(u){ 
-    if (btnLogin) btnLogin.style.display='none'; 
-    if (btnRegister) btnRegister.style.display='none'; 
-    if (btnLogout) btnLogout.style.display='inline-block'; 
-    if (profileInfo) {
-      profileInfo.innerHTML = `Xin chào <strong>${u.name}</strong> — ${u.email}`;
-      profileInfo.className = 'alert alert-success';
-    }
-    renderUserBadges(u);
-  } else { 
-    if (btnLogin) btnLogin.style.display='inline-block'; 
-    if (btnRegister) btnRegister.style.display='inline-block'; 
-    if (btnLogout) btnLogout.style.display='none'; 
-    if (profileInfo) {
-      profileInfo.innerHTML = 'Bạn chưa đăng nhập. Vui lòng đăng nhập để lưu tiến trình và nhận huy hiệu.';
-      profileInfo.className = 'alert alert-info';
-    }
-    renderProfileBadges();
-  }
-}
-
-function renderUserBadges(user) {
-  const wrap = document.getElementById('profile-badge-area');
-  if (!wrap) return;
-  
-  wrap.innerHTML = '';
-  
-  if(!user.badges || user.badges.length === 0) {
-    wrap.innerHTML = '<div class="text-muted">Chưa có huy hiệu nào. Hãy khám phá các địa điểm và hoàn thành thử thách!</div>';
-    return;
-  }
-  
-  user.badges.forEach(b=>{
-    const el = document.createElement('div');
-    el.className = 'text-center';
-    el.innerHTML = `
-      <img src="${b.icon}" class="badge-img" alt="${b.name}">
-      <div style="font-size:12px; max-width:80px">${b.name}</div>
-    `;
-    wrap.appendChild(el);
-  });
-}
-
-function renderProfileBadges(){
-  const wrap = document.getElementById('profile-badge-area');
-  if (!wrap) return;
-  
-  wrap.innerHTML = '';
-  const arr = loadBadges();
-  
-  if(arr.length === 0) {
-    wrap.innerHTML = '<div class="text-muted">Chưa có huy hiệu nào. Hãy khám phá các địa điểm và hoàn thành thử thách!</div>';
-    return;
-  }
-  
-  arr.forEach(b=>{
-    const el = document.createElement('div');
-    el.className = 'text-center';
-    el.innerHTML = `
-      <img src="${b.icon}" class="badge-img" alt="${b.name}">
-      <div style="font-size:12px; max-width:80px">${b.name}</div>
-    `;
-    wrap.appendChild(el);
-  });
-}
-
-    /* ---------- Map init ---------- */
+/* ---------- MAP SYSTEM ---------- */
 let map;
 let currentTooltip = null;
 
@@ -2526,15 +1993,12 @@ function initMap() {
   map = L.map('map', {zoomControl:true}).setView([10.28,103.98], 11);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19, attribution:'© OpenStreetMap'}).addTo(map);
 
-  // Tạo tooltip cho marker
-  currentTooltip = null;
-
-  function createCustomIcon(category, hasGame) {
+  function createCustomIcon(category) {
     const colorMap = {
-      'nature': '#A5D6A7', // Xanh lá pastel
-      'culture': '#FFCC80', // Cam pastel
-      'entertainment': '#CE93D8', // Tím pastel
-      'craft': '#EF9A9A' // Đỏ pastel
+      'nature': '#A5D6A7',
+      'culture': '#FFCC80', 
+      'entertainment': '#CE93D8',
+      'craft': '#EF9A9A'
     };
     
     const color = colorMap[category] || '#90CAF9';
@@ -2556,11 +2020,171 @@ function initMap() {
     });
   }
 
-  /* render markers */
-  DI_TICH.forEach(p=>{
-    const m = L.marker([p.lat,p.lng], {icon: createCustomIcon(p.category, p.games.length>0)}).addTo(map);
+  // Dữ liệu địa điểm
+  const DI_TICH = [
+    // Nhóm Thiên Nhiên (Xanh Lá pastel)
+    {
+      id:'vuon-quoc-gia',
+      name:'Vườn quốc gia Phú Quốc',
+      address:'Vườn quốc gia Phú Quốc, Kiên Giang, Việt Nam',
+      note:'Vườn quốc gia với hệ sinh thái rừng nhiệt đới phong phú, nơi bảo tồn nhiều loài động thực vật quý hiếm.',
+      extra:['Diện tích: 31.422 ha', 'Có nhiều loài động thực vật quý hiếm', 'Hệ sinh thái rừng nhiệt đới đa dạng'],
+      lat:10.3645, lng:103.9919,
+      games:[],
+      img: 'images/vuon.jpg',
+      category: 'nature'
+    },
+    {
+      id:'bai-sao',
+      name:'Bãi Sao',
+      address:'Bãi Sao, Phú Quốc, Kiên Giang, Việt Nam',
+      note:'Bãi biển đẹp với cát trắng mịn, nước biển trong xanh, hình lưỡi liềm đặc trưng.',
+      extra:['Cát trắng mịn', 'Nước biển trong xanh', 'Hình dạng lưỡi liềm độc đáo'],
+      lat:10.0572, lng:104.0360,
+      games:[],
+      img:'images/baisao.jpg',
+      category: 'nature'
+    },
+    {
+      id:'hon-thom',
+      name:'Hòn Thơm',
+      address:'Hòn Thơm, Phú Quốc, Kiên Giang, Việt Nam',
+      note:'Hòn đảo lớn thứ hai trong quần đảo An Thới, nổi tiếng với cảnh quan thiên nhiên hoang sơ.',
+      extra:['Đảo lớn thứ hai quần đảo An Thới', 'Cảnh quan thiên nhiên hoang sơ', 'Nhiều bãi biển đẹp'],
+      lat:9.9560, lng:104.0179,
+      games:[],
+      img:'images/honthom.jpg',
+      category: 'nature'
+    },
     
-    // Thêm tooltip khi hover
+    // Nhóm Văn Hóa - Lịch Sử (Cam pastel)
+    {
+      id:'nha-tu',
+      name:'Nhà tù Phú Quốc',
+      address:'350 Đ. Nguyễn Văn Cừ, An Thới, Phú Quốc, Kiên Giang, Việt Nam',
+      note:'Di tích lịch sử cấp Quốc gia đặc biệt (2014). Nơi giam giữ nhiều tù binh trong kháng chiến; chứng tích tra tấn, nhưng cũng là biểu tượng ý chí kiên cường.',
+      extra:[
+        'Năm xây dựng: 01/06/1967',
+        'Còn gọi: Nhà lao Cây Dừa',
+        'Khoảng 40.000 tù binh từng bị giam; nhiều tù nhân bị tra tấn dã man. Có 45 cuộc vượt ngục ghi nhận.'
+      ],
+      lat:10.044417, lng:104.017639,
+      games:['quiz_nhatu', 'memory_nhatu'],
+      img: 'images/nhatupq3.jpg',
+      category: 'culture'
+    },
+    {
+      id:'chua',
+      name:'Chùa Hộ Quốc',
+      address:'426H+GVQ, Dương Tơ, Phú Quốc, Kiên Giang, Việt Nam',
+      note:'Thiền viện Trúc Lâm Hộ Quốc — kiến trúc tâm linh lớn, phong cách cổ truyền Việt.',
+      extra:['Ngôi chùa lớn nhất Phú Quốc', 'Kiến trúc truyền thống Việt Nam', 'Không gian tâm linh thanh tịnh'],
+      lat:10.110028, lng:104.029056,
+      games:[],
+      img: 'images/chua.jpg',
+      category: 'culture'
+    },
+    {
+      id:'dinh-ntt',
+      name:'Đình Thần Nguyễn Trung Trực',
+      address:'9RFV+848, Gành Dầu, Phú Quốc, Kiên Giang, Việt Nam',
+      note:'Di tích lịch sử văn hóa. Đình thờ Anh hùng dân tộc Nguyễn Trung Trực (1839-1868).',
+      extra:[
+        'Đình được xây dựng từ năm 1882',
+        'Lễ giỗ tổ chức hàng năm (âm lịch) — hoạt động truyền thống hơn 100 năm',
+        'Nguyễn Trung Trực nổi tiếng với chiến công đốt tàu Pháp trên sông Nhật Tảo.'
+      ],
+      lat:10.373306, lng:103.842972,
+      games:['quiz_trungtruc', 'memory_trungtruc'],
+      img:'images/dinhntt.jpg',
+      category: 'culture'
+    },
+    {
+      id:'baotang',
+      name:'Bảo tàng Cội Nguồn',
+      address:'Phú Quốc, Kiên Giang',
+      note:'Bảo tàng trưng bày lịch sử-văn hóa địa phương',
+      extra:['Trưng bày lịch sử, văn hóa Phú Quốc', 'Bộ sưu tập cổ vật phong phú', 'Kiến trúc độc đáo'],
+      lat:10.192500, lng:103.967000,
+      games:[],
+      img:'images/coinguon.jpg',
+      category: 'culture'
+    },
+    {
+      id:'dinh-cau',
+      name:'Dinh Cậu',
+      address:'Khu phố 2, Tp. Phú Quốc, Kiên Giang 92500, Việt Nam',
+      note:'Di tích thắng cảnh; tín ngưỡng của ngư dân, có lễ hội hàng năm (15–16/10 âm lịch).',
+      extra:['Xây dựng: 1937 (tu sửa 1997)','Biểu tượng tâm linh của người dân địa phương', 'Vị trí đẹp nhìn ra biển'],
+      lat:10.217194, lng:103.956500,
+      games:[],
+      img:'images/dinhcau.jpg',
+      category: 'culture'
+    },
+    
+    // Nhóm Giải Trí & Hiện Đại (Tím pastel)
+    {
+      id:'cap-treo',
+      name:'Cáp treo Hòn Thơm',
+      address:'Cáp treo Hòn Thơm, Phú Quốc, Kiên Giang, Việt Nam',
+      note:'Tuyến cáp treo vượt biển dài nhất thế giới, kết nối đảo Phú Quốc với đảo Hòn Thơm.',
+      extra:['Tuyến cáp treo vượt biển dài nhất thế giới', 'Kết nối đảo Phú Quốc với Hòn Thơm', 'Cung đường ngắm cảnh tuyệt đẹp'],
+      lat:10.0269, lng:104.0073,
+      games:[],
+      img:'images/captreo.jpg',
+      category: 'entertainment'
+    },
+    {
+      id:'grand-world',
+      name:'Grand World Phú Quốc',
+      address:'Grand World Phú Quốc, Bãi Dài, Phú Quốc, Kiên Giang, Việt Nam',
+      note:'Khu phức hợp giải trí, mua sắm và ẩm thực với kiến trúc châu Âu độc đáo.',
+      extra:['Khu phức hợp giải trí hiện đại', 'Kiến trúc châu Âu độc đáo', 'Nhiều hoạt động vui chơi, mua sắm'],
+      lat:10.3289, lng:103.8629,
+      games:[],
+      img:'images/grandworld.jpg',
+      category: 'entertainment'
+    },
+    
+    // Nhóm Ẩm Thực & Làng Nghề (Đỏ pastel)
+    {
+      id:'nha-thung',
+      name:'Nhà thùng nước mắm Phú Quốc (Phụng Hưng)',
+      address:'471 Đ. Nguyễn Văn Cừ, Khu 2, Phú Quốc, Kiên Giang',
+      note:'Nhà thùng nước mắm truyền thống; nghề truyền thống của đảo.',
+      extra:['Lịch sử: hàng trăm năm, phương thức ủ muối truyền thống', 'Nước mắm Phú Quốc nổi tiếng thơm ngon'],
+      lat:10.044917, lng:104.017444,
+      games:[],
+      img:'images/nhathung.jpg',
+      category: 'craft'
+    },
+    {
+      id:'ngoc-trai',
+      name:'Cơ sở nuôi cấy ngọc trai (Ngọc Hiền Pearl)',
+      address:'Cơ sở nuôi cấy ngọc trai Ngọc Hiền Pearl, Phú Quốc, Kiên Giang',
+      note:'Cơ sở nuôi cấy và chế tác ngọc trai nổi tiếng tại Phú Quốc.',
+      extra:['Nuôi cấy và chế tác ngọc trai', 'Sản phẩm ngọc trai chất lượng cao', 'Quy trình nuôi cấy công phu'],
+      lat:10.1701, lng:103.9703,
+      games:[],
+      img:'images/ngoctrai.jpg',
+      category: 'craft'
+    },
+    {
+      id:'ham-ninh',
+      name:'Làng chài Hàm Ninh',
+      address:'52JV+6XX, TL47, Rạch Hàm, Phú Quốc, Kiên Giang, Việt Nam',
+      note:'Làng chài cổ, nổi tiếng hải sản tươi, ghẹ Hàm Ninh.',
+      extra:['Làng chài truyền thống lâu đời', 'Nổi tiếng với ghẹ Hàm Ninh tươi ngon', 'Cảnh biển đẹp, bình yên'],
+      lat:10.180917, lng:104.048472,
+      games:[],
+      img:'images/langchai.jpg',
+      category: 'craft'
+    }
+  ];
+
+  DI_TICH.forEach(p => {
+    const m = L.marker([p.lat,p.lng], {icon: createCustomIcon(p.category)}).addTo(map);
+    
     m.on('mouseover', function(e) {
       if (currentTooltip) {
         document.body.removeChild(currentTooltip);
@@ -2584,9 +2208,7 @@ function initMap() {
       }
     });
     
-    // SỬA LẠI PHẦN NÀY - Đảm bảo sự kiện click được xử lý đúng
     m.on('click', function(e) {
-      // Đóng tooltip nếu đang mở
       if (currentTooltip) {
         document.body.removeChild(currentTooltip);
         currentTooltip = null;
@@ -2594,26 +2216,21 @@ function initMap() {
       openDiModal(p);
     });
     
-    // Thêm popup cơ bản để test
-    m.bindPopup(`<strong>${p.name}</strong><br>${p.address}`, {
-      closeButton: true,
-      autoClose: false
-    });
+    m.bindPopup(`<strong>${p.name}</strong><br>${p.address}`);
   });
 }
 
-/* modal instances */
+/* ---------- MODAL & GAME SYSTEMS ---------- */
 let diModal;
 if (document.getElementById('diModal')) {
   diModal = new bootstrap.Modal(document.getElementById('diModal'));
 }
 
-/* open di tích modal (with details) */
 function openDiModal(p){
   if (!diModal) return;
   
   document.getElementById('diTitle').innerText = p.name;
-  const extras = p.extra.map(x=>`<li>${x}</li>`).join('');
+  const extras = p.extra.map(x => `<li>${x}</li>`).join('');
   const html = `
     <div class="row">
       <div class="col-md-5"><img src="${p.img}" alt="${p.name}" style="width:100%;border-radius:8px;object-fit:cover"></div>
@@ -2627,56 +2244,30 @@ function openDiModal(p){
   `;
   document.getElementById('diBody').innerHTML = html;
   document.getElementById('diCoords').innerText = `${p.lat.toFixed(6)}, ${p.lng.toFixed(6)}`;
+  
   const btnPlay = document.getElementById('btn-play');
   if(p.games && p.games.length){
-    btnPlay.style.display='inline-block';
-    btnPlay.onclick = ()=> { diModal.hide(); openGamePicker(p); };
-  } else { btnPlay.style.display='none'; btnPlay.onclick=null; }
-  // check-in button
-  document.getElementById('btn-checkin').onclick = ()=> {
-    const u = getCurrentUser();
-    if(!u){ alert('Vui lòng đăng nhập trước khi check-in.'); return; }
+    btnPlay.style.display = 'inline-block';
+    btnPlay.onclick = () => { diModal.hide(); openGamePicker(p); };
+  } else { 
+    btnPlay.style.display = 'none'; 
+    btnPlay.onclick = null; 
+  }
+  
+  document.getElementById('btn-checkin').onclick = () => {
+    const user = getCurrentUser();
+    if(!user){ 
+      alert('Vui lòng đăng nhập trước khi check-in.'); 
+      return; 
+    }
     markVisited(p.id);
-    awardBadgeSite(p.id,p.name);
+    awardBadgeSite(p.id, p.name);
   };
+  
   diModal.show();
 }
 
-/* ---------- Badges & check-in logic ---------- */
-function getBadges(){ return loadBadges(); }
-
-function awardBadge(id,name,icon){
-  const user = getCurrentUser();
-  if (!user) return false;
-  
-  if(!user.badges) user.badges = [];
-  if(user.badges.find(b=>b.id===id)) return false;
-  
-  user.badges.push({id,name,icon:icon || `https://via.placeholder.com/64/FFD54F/000?text=${encodeURIComponent(name.charAt(0))}`});
-  updateUser(user);
-  renderUserBadges(user);
-  
-  // Hiển thị popup huy hiệu
-  showBadgePopup(name, icon);
-  return true;
-}
-
-/* mark visited and award site badge */
-function markVisited(siteId){
-  const user = getCurrentUser();
-  if (!user) return;
-  
-  if(!user.visitedSites) user.visitedSites = [];
-  if(!user.visitedSites.includes(siteId)){ 
-    user.visitedSites.push(siteId); 
-    updateUser(user);
-    renderUserBadges(user);
-  }
-}
-
-function awardBadgeSite(siteId, siteName){
-  const id = `site_${siteId}`;
-  const name = `${siteName}`;
+function awardBadgeSite(siteId, siteName) {
   const badgeIcons = {
     'chua': 'images/hhchua.jpg',
     'nha-tu': 'images/hhnhatupq.jpg',
@@ -2693,11 +2284,10 @@ function awardBadgeSite(siteId, siteName){
     'ngoc-trai': 'images/hhngoctrai.jpg'
   };
   
-  const badgeIcon = badgeIcons[siteId] || `https://via.placeholder.com/64/C33/fff?text=${encodeURIComponent(siteName.split(' ')[0].charAt(0))}`;
-  awardBadge(id, name, badgeIcon);
+  const badgeIcon = badgeIcons[siteId] || `https://via.placeholder.com/64/C33/fff?text=${siteName.charAt(0)}`;
+  awardBadge(`site_${siteId}`, siteName, badgeIcon);
 }
 
-/* Hiển thị popup huy hiệu lớn */
 function showBadgePopup(badgeName, badgeIcon) {
   const popup = document.getElementById('badgePopup');
   const popupImg = document.getElementById('badgePopupImg');
@@ -2709,7 +2299,6 @@ function showBadgePopup(badgeName, badgeIcon) {
   popupTitle.textContent = badgeName;
   popup.style.display = 'flex';
   
-  // Bắn pháo hoa
   if (typeof confetti === 'function') {
     confetti({
       particleCount: 150,
@@ -2719,48 +2308,81 @@ function showBadgePopup(badgeName, badgeIcon) {
     });
   }
   
-  const autoClose = setTimeout(() => {
+  setTimeout(() => {
     closeBadgePopup();
   }, 3000);
   
-  const badgePopupClose = document.getElementById('badgePopupClose');
-  if (badgePopupClose) {
-    badgePopupClose.onclick = () => {
-      clearTimeout(autoClose);
-      closeBadgePopup();
-    };
-  }
-  
-  popup.onclick = (e) => {
-    if (e.target === popup) {
-      clearTimeout(autoClose);
-      closeBadgePopup();
-    }
-  };
+  document.getElementById('badgePopupClose').onclick = closeBadgePopup;
 }
 
 function closeBadgePopup() {
   const popup = document.getElementById('badgePopup');
-  if (popup) {
-    popup.style.display = 'none';
-  }
+  if (popup) popup.style.display = 'none';
 }
 
-/* record game completion */
-function recordDone(siteId, gameId){
-  const user = getCurrentUser();
-  if (!user) return;
-  
-  if(!user.completedGames) user.completedGames = {};
-  if(!user.completedGames[siteId]) user.completedGames[siteId] = [];
-  if(!user.completedGames[siteId].includes(gameId)){ 
-    user.completedGames[siteId].push(gameId); 
-    updateUser(user);
-    renderUserBadges(user);
+/* ---------- GAME SYSTEMS ---------- */
+const QUIZZES = {
+  'quiz_nhatu': {
+    title:'Quiz Nhà tù Phú Quốc',
+    items:[
+      {
+        q:'Di tích Trại giam Phú Quốc được chính thức xếp hạng Di tích Quốc gia đặc biệt vào thời điểm nào?',
+        opts:['Ngày 30/4/1975','Ngày 27/7/2013','Ngày 31/12/2014','Ngày 20/10/2016'],
+        ans:2,
+        explain:'Đáp án đúng là C. Căn cứ theo Quyết định số 2408/QĐ-TTg ngày 31/12/2014 của Thủ tướng Chính phủ.'
+      },
+      {
+        q:'"Địa ngục trần gian" Phú Quốc chính thức tồn tại trong khoảng thời gian nào?',
+        opts:['Từ năm 1949 đến năm 1954','Từ tháng 6/1967 đến tháng 3/1973','Từ năm 1965 đến năm 1975','Từ năm 1954 đến năm 1975'],
+        ans:1,
+        explain:'Đáp án đúng là B. Theo tư liệu, trại giam tồn tại chưa đầy 6 năm trong giai đoạn này dưới sự quản lý của chính quyền Mỹ - Ngụy.'
+      }
+    ]
+  },
+  'quiz_trungtruc': {
+    title:'Quiz Đình Nguyễn Trung Trực',
+    items:[
+      {
+        q:'Nguyễn Trung Trực là thủ lĩnh nổi tiếng của phong trào kháng chiến chống?',
+        opts:['Chống Pháp','Chống Pháp và chống Mỹ','Chống Mỹ','Chống Nhật'],
+        ans:0,
+        explain:'Đáp án đúng là A. Nguyễn Trung Trực là thủ lĩnh nghĩa quân chống lại thực dân Pháp xâm lược ở Nam Kỳ vào nửa cuối thế kỷ 19 (từ 1861-1868).'
+      },
+      {
+        q:'Nguyễn Trung Trực đã chỉ huy nghĩa quân đốt cháy tàu chiến nào của Pháp trên sông Vàm Cỏ Đông vào năm 1861, gây tiếng vang lớn?',
+        opts:['Tàu Hy Vọng (L\'Espérance)','Tàu Hằng Tâm (La Persévérance)','Tàu Jaccaré','Tàu Avalanche'],
+        ans:0,
+        explain:'Đáp án đúng là A. Chiến công nổi tiếng nhất của ông là chỉ huy nghĩa quân đốt cháy tiểu hạm L\'Espérance (có tên Việt là "Hy Vọng") của Pháp trên sông Vàm Cỏ Đông năm 1861.'
+      }
+    ]
   }
-}
+};
 
-/* ---------- Game picker & implementations ---------- */
+const MEMORY_GAMES = {
+  'memory_nhatu': {
+    title: 'Memory Việt - Nhà tù Phú Quốc',
+    cards: [
+      { id: 1, image: 'images/nhatucard1.jpg', matchId: 2 },
+      { id: 2, image: 'images/nhatutext1.jpg', matchId: 1 },
+      { id: 3, image: 'images/nhatucard2.jpg', matchId: 4 },
+      { id: 4, image: 'images/nhatutext2.jpg', matchId: 3 }
+    ]
+  },
+  'memory_trungtruc': {
+    title: 'Memory Việt - Đình Nguyễn Trung Trực',
+    cards: [
+      { id: 1, image: 'images/dinhcard1.jpg', matchId: 2 },
+      { id: 2, image: 'images/dinhtext1.jpg', matchId: 1 },
+      { id: 3, image: 'images/dinhcard2.jpg', matchId: 4 },
+      { id: 4, image: 'images/dinhtext2.jpg', matchId: 3 }
+    ]
+  }
+};
+
+let currentQuiz = null;
+let currentQIndex = 0;
+let selectedOption = null;
+
 function openGamePicker(site){
   const html = `<div class="text-center">
     <h4 class="mb-4">Chọn mini-game — ${site.name}</h4>
@@ -2788,372 +2410,11 @@ function labelGame(id){
   return map[id]||id;
 }
 
-/* ---------- GAME FULLSCREEN MODE ---------- */
-const gameFullscreen = document.getElementById('gameFullscreen');
-const gameFullscreenTitle = document.getElementById('gameFullscreenTitle');
-const gameFullscreenBody = document.getElementById('gameFullscreenBody');
-const gameFullscreenClose = document.getElementById('gameFullscreenClose');
-
-if (gameFullscreenClose) {
-  gameFullscreenClose.addEventListener('click', () => {
-    hideGameFullscreen();
-  });
+function startGameInstance(gid, site){
+  if(gid.startsWith('quiz_')) startQuiz(gid, site);
+  else if(gid.startsWith('memory_')) startMemoryGame(gid, site);
+  else { alert('Game chưa được hỗ trợ'); }
 }
-
-function showGameFullscreen(title, content) {
-  if (!gameFullscreenTitle || !gameFullscreenBody) return;
-  
-  gameFullscreenTitle.textContent = title;
-  gameFullscreenBody.innerHTML = content;
-  gameFullscreen.classList.add('active');
-  document.body.style.overflow = 'hidden';
-}
-
-function hideGameFullscreen() {
-  if (gameFullscreen) {
-    gameFullscreen.classList.remove('active');
-    document.body.style.overflow = 'auto';
-  }
-}
-
-/* ---------- Victory Popup ---------- */
-const victoryPopup = document.getElementById('victoryPopup');
-const victoryMessage = document.getElementById('victoryMessage');
-const victoryClose = document.getElementById('victoryClose');
-
-if (victoryClose) {
-  victoryClose.addEventListener('click', () => {
-    if (victoryPopup) {
-      victoryPopup.style.display = 'none';
-    }
-  });
-}
-
-function showVictory(message) {
-  if (!victoryMessage || !victoryPopup) return;
-  
-  victoryMessage.textContent = message;
-  victoryPopup.style.display = 'flex';
-  
-  // Bắn pháo hoa ở phía trước
-  if (typeof confetti === 'function') {
-    confetti({
-      particleCount: 200,
-      spread: 100,
-      origin: { y: 0.3 },
-      colors: ['#C62828', '#FFD54F', '#4CAF50', '#2196F3'],
-      startVelocity: 30,
-      gravity: 0.8
-    });
-    
-    // Thêm hiệu ứng pháo hoa từ hai bên
-    setTimeout(() => {
-      confetti({
-        particleCount: 100,
-        angle: 60,
-        spread: 80,
-        origin: { x: 0, y: 0.5 },
-        colors: ['#C62828', '#FFD54F']
-      });
-      confetti({
-        particleCount: 100,
-        angle: 120,
-        spread: 80,
-        origin: { x: 1, y: 0.5 },
-        colors: ['#4CAF50', '#2196F3']
-      });
-    }, 500);
-  }
-}
-
-/* ---------- GAME LẬT THẺ (MEMORY CARD) ---------- */
-const MEMORY_GAMES = {
-  'memory_nhatu': {
-    title: 'Memory Việt - Nhà tù Phú Quốc',
-    cards: [
-      { id: 1, image: 'images/nhatucard1.jpg', matchId: 2 },
-      { id: 2, image: 'images/nhatutext1.jpg', matchId: 1 },
-      { id: 3, image: 'images/nhatucard2.jpg', matchId: 4 },
-      { id: 4, image: 'images/nhatutext2.jpg', matchId: 3 },
-      { id: 5, image: 'images/nhatucard3.jpg', matchId: 6 },
-      { id: 6, image: 'images/nhatutext3.jpg', matchId: 5 },
-      { id: 7, image: 'images/nhatucard4.jpg', matchId: 8 },
-      { id: 8, image: 'images/nhatutext4.jpg', matchId: 7 }
-    ]
-  },
-  'memory_trungtruc': {
-    title: 'Memory Việt - Đình Nguyễn Trung Trực',
-    cards: [
-      { id: 1, image: 'images/dinhcard1.jpg', matchId: 2 },
-      { id: 2, image: 'images/dinhtext1.jpg', matchId: 1 },
-      { id: 3, image: 'images/dinhcard2.jpg', matchId: 4 },
-      { id: 4, image: 'images/dinhtext2.jpg', matchId: 3 },
-      { id: 5, image: 'images/dinhcard3.jpg', matchId: 6 },
-      { id: 6, image: 'images/dinhtext3.jpg', matchId: 5 },
-      { id: 7, image: 'images/dinhcard4.jpg', matchId: 8 },
-      { id: 8, image: 'images/dinhtext4.jpg', matchId: 7 }
-    ]
-  }
-};
-
-let currentMemoryGame = null;
-let flippedCards = [];
-let matchedPairs = 0;
-let canFlip = true;
-let flipCount = 0;
-
-function startMemoryGame(gameId, site) {
-  const gameData = MEMORY_GAMES[gameId];
-  if (!gameData) {
-    alert('Game Memory Việt chưa có nội dung.');
-    return;
-  }
-  currentMemoryGame = { id: gameId, site: site, gameData: gameData };
-  flippedCards = [];
-  matchedPairs = 0;
-  canFlip = true;
-  flipCount = 0;
-  const html = `
-    <div class="memory-container text-center">
-      <h4 class="mb-3">${gameData.title}</h4>
-      <div class="memory-stats mb-3">
-        <span class="badge bg-primary">Cặp đã tìm: <span id="matchedCount">0</span>/4</span>
-        <span class="badge bg-secondary ms-2">Lượt lật: <span id="flipCount">0</span></span>
-      </div>
-      
-      <div class="memory-board" id="memoryBoard">
-        <!-- Cards will be generated here -->
-      </div>
-      
-      <div class="memory-controls mt-4">
-        <button class="btn btn-accent" onclick="finishMemoryGame()">Hoàn thành</button>
-        <button class="btn btn-outline-secondary" onclick="resetMemoryGame()">Chơi lại</button>
-      </div>
-      
-      <div class="memory-complete mt-3" id="memoryComplete" style="display: none;">
-        <div class="alert alert-success">
-          <h5>🎉 Chúc mừng!</h5>
-          <p>Bạn đã hoàn thành game Memory Việt!</p>
-        </div>
-      </div>
-    </div>
-  `;
-  showGameFullscreen(gameData.title, html);
-  initializeMemoryGame();
-}
-
-function initializeMemoryGame() {
-  const board = document.getElementById('memoryBoard');
-  const gameData = currentMemoryGame.gameData;
-  
-  const shuffledCards = [...gameData.cards].sort(() => Math.random() - 0.5);
-  
-  board.innerHTML = shuffledCards.map(card => `
-    <div class="memory-card" data-card-id="${card.id}" data-match-id="${card.matchId}">
-      <div class="card-inner">
-        <div class="card-front">
-          <div class="card-content">
-            <i class="fas fa-question"></i>
-          </div>
-        </div>
-        <div class="card-back">
-          <div class="card-content">
-            <img src="${card.image}" alt="Memory card" onerror="this.style.display='none'">
-          </div>
-        </div>
-      </div>
-    </div>
-  `).join('');
-  document.querySelectorAll('.memory-card').forEach(card => {
-    card.addEventListener('click', handleCardClick);
-  });
-  flipCount = 0;
-  updateFlipCount();
-}
-
-function handleCardClick() {
-  if (!canFlip) return;
-  if (this.classList.contains('flipped') || this.classList.contains('matched')) return;
-  if (flippedCards.length >= 2) return;
-  this.classList.add('flipped');
-  flippedCards.push(this);
-  flipCount++;
-  updateFlipCount();
-  if (flippedCards.length === 2) {
-    canFlip = false;
-    setTimeout(checkForMatch, 800);
-  }
-}
-
-function checkForMatch() {
-  const [card1, card2] = flippedCards;
-  const matchId1 = card1.dataset.matchId;
-  const matchId2 = card2.dataset.matchId;
-  if (card1.dataset.cardId === matchId2 && card2.dataset.cardId === matchId1) {
-    card1.classList.add('matched');
-    card2.classList.add('matched');
-    matchedPairs++;
-    updateMatchedCount();
-    if (matchedPairs === 4) {
-      setTimeout(() => {
-        const memoryComplete = document.getElementById('memoryComplete');
-        if (memoryComplete) {
-          memoryComplete.style.display = 'block';
-        }
-        showVictory('🎉 Xuất sắc! Bạn đã hoàn thành Memory Việt!');
-      }, 500);
-    }
-  } else {
-    card1.classList.remove('flipped');
-    card2.classList.remove('flipped');
-  }
-  flippedCards = [];
-  canFlip = true;
-}
-
-function updateMatchedCount() {
-  const matchedCount = document.getElementById('matchedCount');
-  if (matchedCount) {
-    matchedCount.textContent = matchedPairs;
-  }
-}
-
-function updateFlipCount() {
-  const flipCountElement = document.getElementById('flipCount');
-  if (flipCountElement) {
-    flipCountElement.textContent = flipCount;
-  }
-}
-
-function resetMemoryGame() {
-  flippedCards = [];
-  matchedPairs = 0;
-  canFlip = true;
-  flipCount = 0;
-  
-  document.querySelectorAll('.memory-card').forEach(card => {
-    card.classList.remove('flipped', 'matched');
-  });
-  
-  const memoryComplete = document.getElementById('memoryComplete');
-  if (memoryComplete) {
-    memoryComplete.style.display = 'none';
-  }
-  
-  updateMatchedCount();
-  updateFlipCount();
-  
-  const board = document.getElementById('memoryBoard');
-  const cards = Array.from(board.children);
-  cards.sort(() => Math.random() - 0.5);
-  cards.forEach(card => board.appendChild(card));
-}
-
-function finishMemoryGame() {
-  if (matchedPairs === 4) {
-    recordDone(currentMemoryGame.site.id, currentMemoryGame.id);
-    hideGameFullscreen();
-  } else {
-    alert(`Bạn đã tìm được ${matchedPairs}/4 cặp thẻ. Hãy tiếp tục!`);
-  }
-}
-
-/* ---------- GAME QUIZ ---------- */
-const QUIZZES = {
-  'quiz_nhatu': {
-    title:'Quiz Nhà tù Phú Quốc',
-    items:[
-      {
-        q:'Di tích Trại giam Phú Quốc được chính thức xếp hạng Di tích Quốc gia đặc biệt vào thời điểm nào?',
-        opts:['Ngày 30/4/1975','Ngày 27/7/2013','Ngày 31/12/2014','Ngày 20/10/2016'],
-        ans:2,
-        explain:'Đáp án đúng là C. Căn cứ theo Quyết định số 2408/QĐ-TTg ngày 31/12/2014 của Thủ tướng Chính phủ.'
-      },
-      {
-        q:'"Địa ngục trần gian" Phú Quốc chính thức tồn tại trong khoảng thời gian nào?',
-        opts:['Từ năm 1949 đến năm 1954','Từ tháng 6/1967 đến tháng 3/1973','Từ năm 1965 đến năm 1975','Từ năm 1954 đến năm 1975'],
-        ans:1,
-        explain:'Đáp án đúng là B. Theo tư liệu, trại giam tồn tại chưa đầy 6 năm trong giai đoạn này dưới sự quản lý của chính quyền Mỹ - Ngụy.'
-      },
-      {
-        q:'Ước tính có bao nhiêu tù binh đã bị giết hại tại Trại giam Phú Quốc?',
-        opts:['Khoảng 1.000 người','Khoảng 2.000 người','Khoảng 4.000 người','Khoảng 10.000 người'],
-        ans:2,
-        explain:'Đáp án đúng là C. Tư liệu ghi rõ con số khoảng 4.000 tù binh đã bị giết hại tại đây.'
-      },
-      {
-        q:'Một trong những hình thức tra tấn đặc biệt dã man, nơi tù binh bị nhốt trong các công-ten-nơ nhỏ được gọi là gì?',
-        opts:['Chuồng cọp xi măng','Thùng cat-xô','Hầm đá vôi','Ngục tối'],
-        ans:1,
-        explain:'Đáp án đúng là B. Đây là một kiểu giam giữ được mô tả trong tư liệu, sử dụng các công-ten-nơ nhỏ, trên đỉnh đục lỗ thông hơi, rất chật hẹp và ngột ngạt.'
-      },
-      {
-        q:'Các tù binh tại Trại giam Phú Quốc đã tổ chức bao nhiêu cuộc vượt ngục với nhiều hình thức khác nhau?',
-        opts:['12 cuộc','25 cuộc','45 cuộc','52 cuộc'],
-        ans:2,
-        explain:'Đáp án đúng là C. Thể hiện tinh thần đấu tranh bất khuất, các tù binh đã tổ chức thành công 45 cuộc vượt ngục.'
-      },
-      {
-        q:'Khu vực nào sau đây KHÔNG phải là một phần của Di tích Trại giam Phú Quốc ngày nay?',
-        opts:['Phân khu B2 (được phục dựng)','Nghĩa địa tù binh (Đồi 100)','Nhà tù Côn Sơn','Đài tưởng niệm liệt sĩ tại Đồi Sim'],
-        ans:2,
-        explain:'Đáp án đúng là C. Nhà tù Côn Sơn là một di tích lịch sử hoàn toàn khác, nằm ở Côn Đảo, tỉnh Bà Rịa - Vũng Tàu.'
-      },
-      {
-        q:'Tổng diện tích của Trại giam Phú Quốc trong lịch sử lên đến bao nhiêu?',
-        opts:['100 hecta','200 hecta','400 hecta','500 hecta'],
-        ans:2,
-        explain:'Đáp án đúng là C. Trại giam có quy mô rất lớn, với tổng diện tích lên đến 400 hecta, được chia thành 12 khu vực.'
-      }
-    ]
-  },
-  'quiz_trungtruc': {
-    title:'Quiz Đình Nguyễn Trung Trực',
-    items:[
-      {
-        q:'Nguyễn Trung Trực là thủ lĩnh nổi tiếng của phong trào kháng chiến chống?',
-        opts:['Chống Pháp','Chống Pháp và chống Mỹ','Chống Mỹ','Chống Nhật'],
-        ans:0,
-        explain:'Đáp án đúng là A. Nguyễn Trung Trực là thủ lĩnh nghĩa quân chống lại thực dân Pháp xâm lược ở Nam Kỳ vào nửa cuối thế kỷ 19 (từ 1861-1868).'
-      },
-      {
-        q:'Nguyễn Trung Trực đã chỉ huy nghĩa quân đốt cháy tàu chiến nào của Pháp trên sông Vàm Cỏ Đông vào năm 1861, gây tiếng vang lớn?',
-        opts:['Tàu Hy Vọng (L\'Espérance)','Tàu Hằng Tâm (La Persévérance)','Tàu Jaccaré','Tàu Avalanche'],
-        ans:0,
-        explain:'Đáp án đúng là A. Chiến công nổi tiếng nhất của ông là chỉ huy nghĩa quân đốt cháy tiểu hạm L\'Espérance (có tên Việt là "Hy Vọng") của Pháp trên sông Vàm Cỏ Đông năm 1861.'
-      },
-      {
-        q:'Câu nói bất hủ "Bao giờ người Tây nhổ hết cỏ nước Nam thì mới hết người Nam đánh Tây" được Nguyễn Trung Trực nói trong hoàn cảnh nào?',
-        opts:['Khi động viên nghĩa quân trước trận đánh','Khi bị thực dân Pháp dụ hàng và kết án tử hình','Khi trả lời phỏng vấn của một nhà báo Pháp','Trong một bức thư gửi cho Triều đình Huế'],
-        ans:1,
-        explain:'Đáp án đúng là B. Câu nói bất hủ này thể hiện khí phách kiên cường của ông, được ông thốt lên khi đối diện với cái chết, trước sự dụ dỗ của kẻ thù.'
-      },
-      {
-        q:'Nguyễn Trung Trực bị thực dân Pháp xử chém tại đâu?',
-        opts:['Sài Gòn','Bến Tre','Rạch Giá','Cần Thơ'],
-        ans:2,
-        explain:'Đáp án đúng là C. Sau khi kháng chiến ở Hòn Chông thất bại và bị bắt, ông bị thực dân Pháp xử chém tại chợ Rạch Giá vào ngày 27/10/1868 (16/9 năm Mậu Thìn).'
-      },
-      {
-        q:'Lễ hội tưởng niệm Nguyễn Trung Trực được tổ chức hằng năm vào những ngày nào?',
-        opts:['Chỉ ngày 27 tháng 10 Dương lịch','Từ ngày 26 đến 28 tháng 8 Âm lịch','Chỉ ngày 16 tháng 9 Âm lịch','Từ ngày 1 đến 3 tháng 1 Dương lịch'],
-        ans:1,
-        explain:'Đáp án đúng là B. Lễ hội chính Kỳ yên tại Đình thần Nguyễn Trung Trực ở Rạch Giá, Kiên Giang được tổ chức trang trọng trong 3 ngày từ 26 đến 28 tháng 8 Âm lịch hằng năm, với ngày chánh giỗ (ngày hy sinh) là 27/8 Âm lịch.'
-      },
-      {
-        q:'Anh hùng dân tộc Nguyễn Trung Trực đã bị thực dân Pháp hành quyết vào ngày nào?',
-        opts:['Ngày 27 tháng 10 năm 1868','Ngày 16 tháng 9 năm 1868','Ngày 25 tháng 10 năm 1868','Ngày 16 tháng 9 năm 1869'],
-        ans:0,
-        explain:'Đáp án đúng là A. Nguyễn Trung Trực hy sinh vào ngày 27 tháng 10 năm 1868.'
-      }
-    ]
-  }
-};
-
-/* Start quiz run: show one question at a time with explanation */
-let currentQuiz = null;
-let currentQIndex = 0;
-let selectedOption = null;
 
 function startQuiz(quizId, site){
   const qset = QUIZZES[quizId];
@@ -3239,44 +2500,433 @@ function handleAnswerAndNext(){
   }, 1500);
 }
 
-/* startGameInstance wrapper called from picker */
-function startGameInstance(gid, site){
-  if(gid.startsWith('quiz_')) startQuiz(gid, site);
-  else if(gid.startsWith('memory_')) startMemoryGame(gid, site);
-  else { alert('Game chưa được hỗ trợ'); }
+let currentMemoryGame = null;
+let flippedCards = [];
+let matchedPairs = 0;
+let canFlip = true;
+let flipCount = 0;
+
+function startMemoryGame(gameId, site) {
+  const gameData = MEMORY_GAMES[gameId];
+  if (!gameData) {
+    alert('Game Memory Việt chưa có nội dung.');
+    return;
+  }
+  currentMemoryGame = { id: gameId, site: site, gameData: gameData };
+  flippedCards = [];
+  matchedPairs = 0;
+  canFlip = true;
+  flipCount = 0;
+  const html = `
+    <div class="memory-container text-center">
+      <h4 class="mb-3">${gameData.title}</h4>
+      <div class="memory-stats mb-3">
+        <span class="badge bg-primary">Cặp đã tìm: <span id="matchedCount">0</span>/2</span>
+        <span class="badge bg-secondary ms-2">Lượt lật: <span id="flipCount">0</span></span>
+      </div>
+      
+      <div class="memory-board" id="memoryBoard">
+        <!-- Cards will be generated here -->
+      </div>
+      
+      <div class="memory-controls mt-4">
+        <button class="btn btn-accent" onclick="finishMemoryGame()">Hoàn thành</button>
+        <button class="btn btn-outline-secondary" onclick="resetMemoryGame()">Chơi lại</button>
+      </div>
+      
+      <div class="memory-complete mt-3" id="memoryComplete" style="display: none;">
+        <div class="alert alert-success">
+          <h5>🎉 Chúc mừng!</h5>
+          <p>Bạn đã hoàn thành game Memory Việt!</p>
+        </div>
+      </div>
+    </div>
+  `;
+  showGameFullscreen(gameData.title, html);
+  initializeMemoryGame();
 }
 
-/* ---------- initial UI state ---------- */
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('🎯 Website DOM loaded');
-  initData();
-  refreshProfileAuthUI();
-  renderProfileBadges();
-  loadStories();
-  initMap(); // Khởi tạo bản đồ sau khi DOM đã sẵn sàng
+function initializeMemoryGame() {
+  const board = document.getElementById('memoryBoard');
+  const gameData = currentMemoryGame.gameData;
+  
+  const shuffledCards = [...gameData.cards].sort(() => Math.random() - 0.5);
+  
+  board.innerHTML = shuffledCards.map(card => `
+    <div class="memory-card" data-card-id="${card.id}" data-match-id="${card.matchId}">
+      <div class="card-inner">
+        <div class="card-front">
+          <div class="card-content">
+            <i class="fas fa-question"></i>
+          </div>
+        </div>
+        <div class="card-back">
+          <div class="card-content">
+            <img src="${card.image}" alt="Memory card" onerror="this.style.display='none'">
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  document.querySelectorAll('.memory-card').forEach(card => {
+    card.addEventListener('click', handleCardClick);
+  });
+  flipCount = 0;
+  updateFlipCount();
+}
+
+function handleCardClick() {
+  if (!canFlip) return;
+  if (this.classList.contains('flipped') || this.classList.contains('matched')) return;
+  if (flippedCards.length >= 2) return;
+  this.classList.add('flipped');
+  flippedCards.push(this);
+  flipCount++;
+  updateFlipCount();
+  if (flippedCards.length === 2) {
+    canFlip = false;
+    setTimeout(checkForMatch, 800);
+  }
+}
+
+function checkForMatch() {
+  const [card1, card2] = flippedCards;
+  const matchId1 = card1.dataset.matchId;
+  const matchId2 = card2.dataset.matchId;
+  if (card1.dataset.cardId === matchId2 && card2.dataset.cardId === matchId1) {
+    card1.classList.add('matched');
+    card2.classList.add('matched');
+    matchedPairs++;
+    updateMatchedCount();
+    if (matchedPairs === 2) {
+      setTimeout(() => {
+        const memoryComplete = document.getElementById('memoryComplete');
+        if (memoryComplete) {
+          memoryComplete.style.display = 'block';
+        }
+        showVictory('🎉 Xuất sắc! Bạn đã hoàn thành Memory Việt!');
+      }, 500);
+    }
+  } else {
+    card1.classList.remove('flipped');
+    card2.classList.remove('flipped');
+  }
+  flippedCards = [];
+  canFlip = true;
+}
+
+function updateMatchedCount() {
+  const matchedCount = document.getElementById('matchedCount');
+  if (matchedCount) {
+    matchedCount.textContent = matchedPairs;
+  }
+}
+
+function updateFlipCount() {
+  const flipCountElement = document.getElementById('flipCount');
+  if (flipCountElement) {
+    flipCountElement.textContent = flipCount;
+  }
+}
+
+function resetMemoryGame() {
+  flippedCards = [];
+  matchedPairs = 0;
+  canFlip = true;
+  flipCount = 0;
+  
+  document.querySelectorAll('.memory-card').forEach(card => {
+    card.classList.remove('flipped', 'matched');
+  });
+  
+  const memoryComplete = document.getElementById('memoryComplete');
+  if (memoryComplete) {
+    memoryComplete.style.display = 'none';
+  }
+  
+  updateMatchedCount();
+  updateFlipCount();
+  
+  const board = document.getElementById('memoryBoard');
+  const cards = Array.from(board.children);
+  cards.sort(() => Math.random() - 0.5);
+  cards.forEach(card => board.appendChild(card));
+}
+
+function finishMemoryGame() {
+  if (matchedPairs === 2) {
+    recordDone(currentMemoryGame.site.id, currentMemoryGame.id);
+    hideGameFullscreen();
+  } else {
+    alert(`Bạn đã tìm được ${matchedPairs}/2 cặp thẻ. Hãy tiếp tục!`);
+  }
+}
+
+/* ---------- GAME FULLSCREEN MODE ---------- */
+const gameFullscreen = document.getElementById('gameFullscreen');
+const gameFullscreenTitle = document.getElementById('gameFullscreenTitle');
+const gameFullscreenBody = document.getElementById('gameFullscreenBody');
+const gameFullscreenClose = document.getElementById('gameFullscreenClose');
+
+if (gameFullscreenClose) {
+  gameFullscreenClose.addEventListener('click', () => {
+    hideGameFullscreen();
+  });
+}
+
+function showGameFullscreen(title, content) {
+  if (!gameFullscreenTitle || !gameFullscreenBody) return;
+  
+  gameFullscreenTitle.textContent = title;
+  gameFullscreenBody.innerHTML = content;
+  gameFullscreen.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function hideGameFullscreen() {
+  if (gameFullscreen) {
+    gameFullscreen.classList.remove('active');
+    document.body.style.overflow = 'auto';
+  }
+}
+
+/* ---------- Victory Popup ---------- */
+const victoryPopup = document.getElementById('victoryPopup');
+const victoryMessage = document.getElementById('victoryMessage');
+const victoryClose = document.getElementById('victoryClose');
+
+if (victoryClose) {
+  victoryClose.addEventListener('click', () => {
+    if (victoryPopup) {
+      victoryPopup.style.display = 'none';
+    }
+  });
+}
+
+function showVictory(message) {
+  if (!victoryMessage || !victoryPopup) return;
+  
+  victoryMessage.textContent = message;
+  victoryPopup.style.display = 'flex';
+  
+  if (typeof confetti === 'function') {
+    confetti({
+      particleCount: 200,
+      spread: 100,
+      origin: { y: 0.3 },
+      colors: ['#C62828', '#FFD54F', '#4CAF50', '#2196F3'],
+      startVelocity: 30,
+      gravity: 0.8
+    });
+    
+    setTimeout(() => {
+      confetti({
+        particleCount: 100,
+        angle: 60,
+        spread: 80,
+        origin: { x: 0, y: 0.5 },
+        colors: ['#C62828', '#FFD54F']
+      });
+      confetti({
+        particleCount: 100,
+        angle: 120,
+        spread: 80,
+        origin: { x: 1, y: 0.5 },
+        colors: ['#4CAF50', '#2196F3']
+      });
+    }, 500);
+  }
+}
+
+/* ---------- KHỞI TẠO DATA ---------- */
+function initData() {
+  // Khởi tạo stories nếu chưa có
+  if (!localStorage.getItem('pq_stories')) {
+    localStorage.setItem('pq_stories', JSON.stringify([]));
+  }
+}
+
+/* ---------- EVENT LISTENERS ---------- */
+const authModal = new bootstrap.Modal(document.getElementById('authModal'));
+
+document.getElementById('btn-profile-register').addEventListener('click', () => {
+  document.getElementById('authTitle').innerText = 'Đăng ký';
+  document.getElementById('authSubmit').onclick = authRegister;
+  document.getElementById('authAlert').classList.add('d-none');
+  authModal.show();
 });
 
-/* ensure map resizes when switching pages */
-window.addEventListener('resize', ()=> {
-  if (currentPage === 'map' && typeof map !== 'undefined') {
-    map.invalidateSize();
+document.getElementById('btn-profile-login').addEventListener('click', () => {
+  document.getElementById('authTitle').innerText = 'Đăng nhập';
+  document.getElementById('authSubmit').onclick = authLogin;
+  document.getElementById('authAlert').classList.add('d-none');
+  authModal.show();
+});
+
+document.getElementById('btn-profile-logout').addEventListener('click', logoutUser);
+
+document.getElementById('btn-start').addEventListener('click', () => {
+  showPage('map');
+  window.scrollTo(0,0);
+});
+
+// Stories event listeners
+document.getElementById('addStoryBtn').addEventListener('click', () => {
+  const user = getCurrentUser();
+  if (!user) {
+    alert('Vui lòng đăng nhập để chia sẻ câu chuyện.');
+    showPage('profile');
+    return;
+  }
+  document.getElementById('storyModalOverlay').classList.add('active');
+});
+
+document.getElementById('storyModalClose').addEventListener('click', () => {
+  document.getElementById('storyModalOverlay').classList.remove('active');
+});
+
+document.getElementById('storyModalOverlay').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('storyModalOverlay')) {
+    document.getElementById('storyModalOverlay').classList.remove('active');
   }
 });
 
-// Tạm thời comment Firebase để tránh lỗi
-/*
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const analytics = firebase.analytics();
-const auth = firebase.auth();
-const db = firebase.firestore();
+document.getElementById('uploadAreaNew').addEventListener('click', () => {
+  document.getElementById('fileInputNew').click();
+});
 
-// Enable offline persistence
-db.enablePersistence()
-  .catch((err) => {
-    console.log('Persistence failed: ', err);
-  });
-*/
+document.getElementById('fileInputNew').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      let previewHTML = '';
+      
+      if (file.type.startsWith('image/')) {
+        previewHTML = `<img src="${e.target.result}" alt="Preview">`;
+      } else if (file.type.startsWith('video/')) {
+        previewHTML = `<video controls><source src="${e.target.result}" type="${file.type}">Trình duyệt của bạn không hỗ trợ video.</video>`;
+      } else if (file.type.startsWith('audio/')) {
+        previewHTML = `<audio controls><source src="${e.target.result}" type="${file.type}">Trình duyệt của bạn không hỗ trợ audio.</audio>`;
+      } else {
+        previewHTML = `<p>File: ${file.name}</p>`;
+      }
+      
+      previewHTML += `<button class="remove-file" onclick="removeFile()">Xóa</button>`;
+      document.getElementById('filePreviewNew').innerHTML = previewHTML;
+      document.getElementById('filePreviewNew').style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+function removeFile() {
+  document.getElementById('filePreviewNew').style.display = 'none';
+  document.getElementById('fileInputNew').value = '';
+}
+
+document.getElementById('storyContentNew').addEventListener('input', () => {
+  const content = document.getElementById('storyContentNew').value;
+  const words = content.trim() === '' ? 0 : content.trim().split(/\s+/).length;
+  document.getElementById('wordCount').textContent = `${words}/200 từ`;
+  
+  if (words > 200) {
+    document.getElementById('wordCount').classList.add('warning');
+    document.getElementById('btnPostStory').disabled = true;
+  } else {
+    document.getElementById('wordCount').classList.remove('warning');
+    document.getElementById('btnPostStory').disabled = false;
+  }
+});
+
+document.getElementById('btnPostStory').addEventListener('click', (e) => {
+  e.preventDefault();
+  
+  const title = document.getElementById('storyTitleNew').value;
+  const content = document.getElementById('storyContentNew').value;
+  const user = getCurrentUser();
+  
+  if (!user) {
+    alert('Vui lòng đăng nhập để chia sẻ câu chuyện.');
+    return;
+  }
+  
+  if (!title || !content) {
+    alert('Vui lòng điền tiêu đề và nội dung câu chuyện.');
+    return;
+  }
+  
+  const words = content.trim().split(/\s+/).length;
+  if (words > 200) {
+    alert('Nội dung câu chuyện vượt quá 200 từ. Vui lòng rút gọn.');
+    return;
+  }
+  
+  const newStory = {
+    id: Date.now(),
+    title: title,
+    content: content,
+    author: user.name,
+    authorId: user.id,
+    timestamp: new Date().toISOString(),
+    likes: 0,
+    comments: [],
+    liked: false,
+    media: document.getElementById('fileInputNew').files[0] ? URL.createObjectURL(document.getElementById('fileInputNew').files[0]) : null,
+    mediaType: document.getElementById('fileInputNew').files[0] ? document.getElementById('fileInputNew').files[0].type : null,
+    colorClass: `note-color-${Math.floor(Math.random() * 8) + 1}`
+  };
+  
+  // Thêm story vào mảng
+  stories.unshift(newStory);
+  
+  // Lưu vào localStorage
+  saveStories();
+  
+  // Cập nhật giao diện
+  renderStories();
+  
+  // Đóng modal
+  document.getElementById('storyModalOverlay').classList.remove('active');
+  
+  // Reset form
+  document.getElementById('storyFormNew').reset();
+  document.getElementById('filePreviewNew').style.display = 'none';
+  document.getElementById('fileInputNew').value = '';
+  document.getElementById('wordCount').textContent = '0/200 từ';
+  document.getElementById('wordCount').classList.remove('warning');
+  
+  // Hiển thị thông báo thành công
+  showSuccessMessage();
+});
+
+function showSuccessMessage() {
+  const successMessage = document.getElementById('successMessage');
+  if (successMessage) {
+    successMessage.classList.add('show');
+    
+    setTimeout(() => {
+      successMessage.classList.remove('show');
+    }, 5000);
+  }
+}
+
+document.getElementById('successClose').addEventListener('click', () => {
+  document.getElementById('successMessage').classList.remove('show');
+});
+
+/* ---------- ANALYTICS ---------- */
+function renderAnalytics() {
+  // Placeholder for analytics functionality
+  document.getElementById('totalVisitors').textContent = '0';
+  document.getElementById('uniqueVisitors').textContent = '0';
+  document.getElementById('registeredUsers').textContent = '0';
+  document.getElementById('totalStories').textContent = stories.length;
+  
+  document.getElementById('pageViewsChart').innerHTML = '<p class="text-muted">Chưa có dữ liệu</p>';
+  document.getElementById('deviceChart').innerHTML = '<p class="text-muted">Chưa có dữ liệu</p>';
+  document.getElementById('recentActivity').innerHTML = '<p class="text-muted">Chưa có hoạt động nào</p>';
+}
 </script>
 </body>
 </html>
