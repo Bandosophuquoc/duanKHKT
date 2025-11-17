@@ -8,7 +8,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Bản đồ số Phú Quốc — Dự án KHKT: Tự hào quê hương</title>
+<title>PQStoryMap — Dự án KHKT: Tự hào quê hương</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -36,6 +36,26 @@
   .correct{color:green;font-weight:700}
   .wrong{color:#c62828;font-weight:700}
   .explain{font-size:0.95rem;color:#444}
+/* Thêm vào phần style */
+ .carousel-control-prev, .carousel-control-next {
+  width: 40px;
+  height: 40px;
+  background: rgba(0,0,0,0.5);
+  border-radius: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.carousel-control-prev {
+  left: 10px;
+}
+.carousel-control-next {
+  right: 10px;
+}
+.carousel-control-prev-icon, 
+.carousel-control-next-icon {
+  width: 20px;
+  height: 20px;
+}
   
   /* Overlay khi mở menu */
   .menu-overlay {
@@ -1106,7 +1126,7 @@
         <i class="fas fa-map" style="color:white; font-size: 24px;"></i>
       </div>
       <div>
-        <div style="font-weight:800;font-size:1.15rem">Bản đồ số Phú Quốc</div>
+        <div style="font-weight:800;font-size:1.15rem">PQStoryMap</div>
         <div style="color:#666;font-size:0.9rem">Dự án KHKT - Giáo dục lòng tự hào dân tộc và tình yêu quê hương đất nước cho tuổi trẻ trường THPT An Thới</div>
       </div>
     </div>
@@ -1140,12 +1160,12 @@
   <!-- HOME -->
   <section id="page-home">
     <div class="hero">
-      <h1 style="margin:0;color:var(--accent)">Bản đồ số Phú Quốc</h1>
+      <h1 style="margin:0;color:var(--accent)">PQStoryMap</h1>
       <p style="margin-top:10px;margin-bottom:8px; font-size: 1.1rem; line-height: 1.6;">
         <strong>Hành trình về nguồn chưa bao giờ sống động và cảm xúc đến thế!</strong>
       </p>
       <p style="margin:0 0 6px 0;color:#444; line-height: 1.6">
-        Bản Đồ Số Phú Quốc không chỉ là một website, đó là cây cầu kết nối thế hệ trẻ với hành trình đầy tự hào của cha ông. Chúng tôi mời bạn bước vào một thế giới nơi mỗi di tích là một câu chuyện chờ được kể, mỗi nhân vật lịch sử là một người hùng chờ được thấu hiểu.
+        PQStoryMap không chỉ là một website, đó là cây cầu kết nối thế hệ trẻ với hành trình đầy tự hào của cha ông. Chúng tôi mời bạn bước vào một thế giới nơi mỗi di tích là một câu chuyện chờ được kể, mỗi nhân vật lịch sử là một người hùng chờ được thấu hiểu.
       </p>
       <p style="margin:0 0 8px 0;color:#444; line-height: 1.6">
         Tại đây, bạn sẽ:<br>
@@ -2107,7 +2127,16 @@ function initMap() {
       extra:['Trưng bày lịch sử, văn hóa Phú Quốc', 'Bộ sưu tập cổ vật phong phú', 'Kiến trúc độc đáo'],
       lat:10.192500, lng:103.967000,
       games:[],
-      img:'images/coinguon.jpg',
+      img:[
+      'images/coinguon.jpg',
+      'images/coinguon2.jpg',
+      'images/coinguon3.jpg',
+      'images/coinguon4.jpg',
+      'images/coinguon5.jpg',
+      'images/coinguon6.jpg',
+      'images/coinguon7.jpg',
+       ],
+
       category: 'culture'
     },
     {
@@ -2231,9 +2260,43 @@ function openDiModal(p){
   
   document.getElementById('diTitle').innerText = p.name;
   const extras = p.extra.map(x => `<li>${x}</li>`).join('');
+  
+  // Tạo HTML cho carousel nếu có nhiều ảnh
+  let imageHTML = '';
+  if (Array.isArray(p.img) && p.img.length > 0) {
+    imageHTML = `
+      <div id="carousel-${p.id}" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+          ${p.img.map((imgSrc, index) => `
+            <div class="carousel-item ${index === 0 ? 'active' : ''}">
+              <img src="${imgSrc}" class="d-block w-100" alt="${p.name} - Ảnh ${index + 1}" 
+                   style="border-radius:8px;object-fit:cover;height:300px">
+            </div>
+          `).join('')}
+        </div>
+        ${p.img.length > 1 ? `
+          <button class="carousel-control-prev" type="button" data-bs-target="#carousel-${p.id}" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#carousel-${p.id}" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+          </button>
+        ` : ''}
+      </div>
+    `;
+  } else {
+    // Nếu chỉ có 1 ảnh
+    const imgSrc = typeof p.img === 'string' ? p.img : (p.img && p.img[0] ? p.img[0] : '');
+    imageHTML = `<img src="${imgSrc}" alt="${p.name}" style="width:100%;border-radius:8px;object-fit:cover;height:300px">`;
+  }
+  
   const html = `
     <div class="row">
-      <div class="col-md-5"><img src="${p.img}" alt="${p.name}" style="width:100%;border-radius:8px;object-fit:cover"></div>
+      <div class="col-md-5">
+        ${imageHTML}
+      </div>
       <div class="col-md-7">
         <h5 class="diatic-title">${p.name}</h5>
         <p style="margin:0">${p.address}</p>
@@ -2242,6 +2305,7 @@ function openDiModal(p){
       </div>
     </div>
   `;
+  
   document.getElementById('diBody').innerHTML = html;
   document.getElementById('diCoords').innerText = `${p.lat.toFixed(6)}, ${p.lng.toFixed(6)}`;
   
@@ -2266,7 +2330,6 @@ function openDiModal(p){
   
   diModal.show();
 }
-
 function awardBadgeSite(siteId, siteName) {
   const badgeIcons = {
     'chua': 'images/hhchua.jpg',
