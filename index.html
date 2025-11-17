@@ -2126,7 +2126,7 @@ function initMap() {
       note:'Bảo tàng tư nhân nhưng sở hữu nhiều hiện vật quý giá về văn hoá - lịch sử của Phú Quốc',
       extra:['Năm khởi công xây dựng: 2009', 'Quy mô lớn với nhiều hạng mục như nhà trưng bày, nhà sàn truyền thống, khu quà lưu niệm,..(rộng khoảng 6 ha)', 'Sở hữu nhiều bộ sưu tập gốm, đá, sứ,..Ngoài ra còn có bộ sưu tập biển, rừng Phú Quốc'],
       lat:10.192500, lng:103.967000,
-      games:['quiz_baotang'], // THÊM GAME VÀO ĐÂY
+      games:[],
       img:[
       'images/coinguon.jpg',
       'images/coinguon2.jpg',
@@ -2345,8 +2345,6 @@ function awardBadgeSite(siteId, siteName) {
     'cap-treo': 'images/hhcaptreo.jpg',
     'grand-world': 'images/hhgrandworld.jpg',
     'ngoc-trai': 'images/hhngoctrai.jpg'
-    'quiz_master': 'images/hhnhasuhoctapsu.jpg'
-
   };
   
   const badgeIcon = badgeIcons[siteId] || `https://via.placeholder.com/64/C33/fff?text=${siteName.charAt(0)}`;
@@ -2387,30 +2385,6 @@ function closeBadgePopup() {
 
 /* ---------- GAME SYSTEMS ---------- */
 const QUIZZES = {
-  'quiz_baotang': {
-    title:'Quiz Bảo tàng Cội Nguồn',
-    items:[
-      {
-        q:'Bảo tàng Cội Nguồn được khởi công xây dựng vào năm nào?',
-        opts:['2005','2007','2009','2011'],
-        ans:2,
-        explain:'Đáp án đúng là C. Bảo tàng Cội Nguồn được khởi công xây dựng vào năm 2009.'
-      },
-      {
-        q:'Bảo tàng Cội Nguồn có tổng diện tích khoảng bao nhiêu?',
-        opts:['2 ha','4 ha','6 ha','8 ha'],
-        ans:2,
-        explain:'Đáp án đúng là C. Bảo tàng có tổng diện tích khoảng 6 ha với nhiều hạng mục công trình.'
-      },
-      {
-        q:'Bộ sưu tập nào KHÔNG có tại Bảo tàng Cội Nguồn?',
-        opts:['Bộ sưu tập gốm sứ','Bộ sưu tập đá quý','Bộ sưu tập tiền cổ','Bộ sưu tập về biển và rừng Phú Quốc'],
-        ans:2,
-        explain:'Đáp án đúng là C. Bảo tàng có các bộ sưu tập về gốm, đá, sứ và về biển, rừng Phú Quốc, nhưng không có bộ sưu tập tiền cổ.'
-      }
-    ]
-  }
-};
   'quiz_nhatu': {
     title:'Quiz Nhà tù Phú Quốc',
     items:[
@@ -2493,7 +2467,6 @@ function labelGame(id){
   const map = {
     'quiz_nhatu':'Quiz (Nhà tù)',
     'quiz_trungtruc':'Quiz (Đình)',
-    'quiz_baotang':'Quiz (Bảo tàng)', // THÊM DÒNG NÀY
     'memory_nhatu':'Memory Việt (Nhà tù)',
     'memory_trungtruc':'Memory Việt (Đình)'
   };
@@ -2559,6 +2532,7 @@ function renderCurrentQuestion(){
     });
   });
 }
+
 function handleAnswerAndNext(){
   if(selectedOption === null){ 
     alert('Vui lòng chọn 1 đáp án'); 
@@ -2583,19 +2557,12 @@ function handleAnswerAndNext(){
       renderCurrentQuestion();
     } else {
       recordDone(currentQuiz.site.id, currentQuiz.id);
-      
-      // THÊM ĐOẠN NÀY - Trao huy hiệu khi hoàn thành quiz bảo tàng
-      if (currentQuiz.id === 'quiz_baotang') {
-        awardBadgeSite('quiz_master', 'Nhà sử học tập sự');
-      }
-      
       showVictory('🎉 Xuất sắc! Bạn đã hoàn thành quiz!');
       hideGameFullscreen();
     }
   }, 1500);
 }
 
-// Hàm startMemoryGame GIỮ NGUYÊN như cũ
 let currentMemoryGame = null;
 let flippedCards = [];
 let matchedPairs = 0;
@@ -2641,6 +2608,7 @@ function startMemoryGame(gameId, site) {
   showGameFullscreen(gameData.title, html);
   initializeMemoryGame();
 }
+
 function initializeMemoryGame() {
   const board = document.getElementById('memoryBoard');
   const gameData = currentMemoryGame.gameData;
