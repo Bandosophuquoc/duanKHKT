@@ -2162,8 +2162,8 @@ function renderStories() {
     storyElement.className = `story-note-new ${story.colorClass}`;
     
     // Kiểm tra user đã like chưa
-    const currentUser = getCurrentUser();
-    const userLiked = currentUser && story.likes && story.likes.includes(currentUser.id);
+    const currentUserObj = getCurrentUser();
+    const userLiked = currentUserObj && story.likes && story.likes.includes(currentUserObj.id);
     const likeCount = story.likes ? story.likes.length : 0;
     
     storyElement.innerHTML = `
@@ -2573,6 +2573,41 @@ style.textContent = `
   }
 `;
 document.head.appendChild(style);
+
+// ==================== FIXES ====================
+
+// 1. Hàm saveStories (cho tương thích)
+function saveStories() {
+  saveStoriesToLocal();
+}
+
+// 2. Hàm countWords cho modal
+function countWords(text) {
+  return text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+}
+
+// 3. Cập nhật event listener cho post story
+document.getElementById('btnPostStory').addEventListener('click', (e) => {
+  e.preventDefault();
+  postNewStory();
+});
+
+// 4. Hàm showSuccessMessage
+function showSuccessMessage() {
+  const successMessage = document.getElementById('successMessage');
+  if (successMessage) {
+    successMessage.classList.add('show');
+    
+    setTimeout(() => {
+      successMessage.classList.remove('show');
+    }, 5000);
+  }
+}
+
+// 5. Cập nhật initFirebase để gọi real-time listener
+// TÌM HÀM initFirebase() và THÊM DÒNG NÀY vào cuối hàm, trước return:
+initStoriesRealTime();
+
 /* ---------- MAP SYSTEM ---------- */
 let map;
 let currentTooltip = null;
