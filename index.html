@@ -1485,19 +1485,25 @@ let auth, db;
 
 /* ---------- FIREBASE ĐƠN GIẢN ---------- */
 function initFirebase() {
+  console.log('🔧 INITIALIZING FIREBASE...');
+  
   try {
     if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
-      console.log('✅ Firebase initialized');
+      console.log('✅ Firebase App initialized');
+    } else {
+      console.log('✅ Firebase App already initialized');
     }
     
     auth = firebase.auth();
     db = firebase.firestore();
     
-    // Theo dõi trạng thái đăng nhập
-    auth.onAuthStateChanged((user) => {
+    console.log('✅ Auth and Firestore services initialized');
+    
+    // THEO DÕI ĐĂNG NHẬP
+    auth.onAuthStateChanged(async (user) => {
       if (user) {
-        console.log('🔥 User logged in:', user.email);
+        console.log('🔥 USER LOGGED IN:', user.email, user.uid);
         currentUser = {
           id: user.uid,
           name: user.displayName || user.email,
@@ -1506,6 +1512,31 @@ function initFirebase() {
           visitedSites: [],
           completedGames: {}
         };
+        
+        // LOAD USER DATA
+        await loadUserData(user.uid);
+        
+        // CHẠY DATA GENERATOR SAU 3 GIÂY
+        setTimeout(() => {
+          console.log('🎯 STARTING DATA GENERATION...');
+          dataGenerator.initializeUserData(user.uid)
+            .then(() => console.log('✅ Data generation completed'))
+            .catch(err => console.log('❌ Data generation failed:', err));
+        }, 3000);
+        
+      } else {
+        console.log('🔥 USER LOGGED OUT');
+        currentUser = null;
+      }
+      refreshProfileAuthUI();
+    });
+    
+    return true;
+  } catch (error) {
+    console.log('❌ FIREBASE INIT ERROR:', error);
+    return false;
+  }
+}
         // TỰ ĐỘNG khởi tạo dữ liệu analytics
     setTimeout(() => {
       dataGenerator.initializeUserData(user.uid);
@@ -1794,39 +1825,61 @@ function recordDone(siteId, gameId) {
 class SmartDataGenerator {
   constructor() {
     this.isInitialized = false;
+    console.log('🔄 SmartDataGenerator constructor called');
   }
   
   async initializeUserData(userId) {
-    if (this.isInitialized) return;
+    console.log('🚀 initializeUserData called for user:', userId);
+    
+    if (this.isInitialized) {
+      console.log('⚠️ Already initialized, skipping');
+      return;
+    }
     
     // Kiểm tra xem user đã có dữ liệu chưa
     const hasExistingData = await this.checkExistingData(userId);
     if (hasExistingData) {
+      console.log('✅ User already has data, skipping generation');
       this.isInitialized = true;
       return;
     }
     
-    console.log('🚀 Initializing smart user data...');
+    console.log('🎯 Starting data generation for new user...');
     await this.generateNaturalUserJourney(userId);
     this.isInitialized = true;
+    console.log('✅ Data generation completed');
   }
   
   async checkExistingData(userId) {
-    if (!db) return false;
+    console.log('🔍 Checking existing data for user:', userId);
+    
+    if (!db) {
+      console.log('❌ db is not defined - Firestore not connected');
+      return false;
+    }
     
     try {
+      console.log('📡 Querying Firestore...');
       const snapshot = await db.collection('analytics_events')
         .where('userId', '==', userId)
         .limit(1)
         .get();
+      
+      console.log('📊 Query result:', snapshot.size, 'documents found');
       return !snapshot.empty;
     } catch (error) {
+      console.log('❌ Error checking existing data:', error);
       return false;
     }
   }
   
   async generateNaturalUserJourney(userId) {
-    if (!db) return;
+    console.log('📅 Generating natural user journey...');
+    
+    if (!db) {
+      console.log('❌ Firestore not connected - db is undefined');
+      return;
+    }
     
     const events = [];
     const baseDate = new Date();
@@ -1834,6 +1887,8 @@ class SmartDataGenerator {
     // Tạo dữ liệu 45-60 ngày trước
     const startDaysAgo = 45 + Math.floor(Math.random() * 16);
     baseDate.setDate(baseDate.getDate() - startDaysAgo);
+    
+    console.log(`📆 Generating data for ${startDaysAgo} days starting from`, baseDate.toDateString());
     
     // Mô hình hành vi người dùng
     const userBehavior = this.generateUserBehaviorPattern();
@@ -1851,11 +1906,51 @@ class SmartDataGenerator {
       }
     }
     
+    console.log(`✅ Generated ${events.length} events, now inserting to Firestore...`);
+    
     // Thêm vào Firestore - KHÔNG có field simulated
     await this.batchInsertEvents(events);
-    console.log(`✅ Generated ${events.length} natural events`);
+    console.log(`🎉 Successfully inserted ${events.length} natural events`);
   }
   
+  async batchInsertEvents(events) {
+    if (!db) {
+      console.log('❌ Cannot batch insert - db is undefined');
+      return;
+    }
+    
+    console.log(`📦 Starting batch insert of ${events.length} events...`);
+    
+    const batchSize = 100;
+    let successCount = 0;
+    
+    for (let i = 0; i < events.length; i += batchSize) {
+      const batch = db.batch();
+      const chunk = events.slice(i, i + batchSize);
+      
+      chunk.forEach(event => {
+        const docRef = db.collection('analytics_events').doc();
+        batch.set(docRef, event);
+      });
+      
+      try {
+        await batch.commit();
+        successCount += chunk.length;
+        console.log(`✅ Batch ${Math.floor(i/batchSize) + 1} completed: ${successCount}/${events.length} events`);
+        
+        if (i + batchSize < events.length) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+      } catch (error) {
+        console.log('❌ Batch insert error:', error);
+        break;
+      }
+    }
+    
+    console.log(`🎉 Batch insert finished: ${successCount} events inserted`);
+  }
+  
+  // ... CÁC HÀM KHÁC GIỮ NGUYÊN ...
   generateUserBehaviorPattern() {
     const patterns = ['explorer', 'regular', 'binger', 'casual'];
     const pattern = patterns[Math.floor(Math.random() * patterns.length)];
@@ -1969,32 +2064,10 @@ class SmartDataGenerator {
     const sizes = [1920, 1366, 1536, 1440, 1280, 375, 414, 768, 1024];
     return sizes[Math.floor(Math.random() * sizes.length)];
   }
-  
-  async batchInsertEvents(events) {
-    if (!db) return;
-    
-    const batchSize = 100;
-    for (let i = 0; i < events.length; i += batchSize) {
-      const batch = db.batch();
-      const chunk = events.slice(i, i + batchSize);
-      
-      chunk.forEach(event => {
-        const docRef = db.collection('analytics_events').doc();
-        batch.set(docRef, event);
-      });
-      
-      await batch.commit();
-      
-      if (i + batchSize < events.length) {
-        await new Promise(resolve => setTimeout(resolve, 100));
-      }
-    }
-  }
 }
 
 // Khởi tạo generator
 const dataGenerator = new SmartDataGenerator();
-
 /* ---------- KHỞI TẠO ỨNG DỤNG ---------- */
 document.addEventListener('DOMContentLoaded', function() {
   console.log('🚀 Starting application...');
