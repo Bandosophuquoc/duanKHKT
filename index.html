@@ -1,5 +1,3 @@
-GIẢI PHÁP: BẢN ĐỒ SỐ - PQStoryMap
-
 <!doctype html>
 <html lang="vi">
 <head>
@@ -2012,9 +2010,32 @@ let currentTooltip = null;
 function initMap() {
   if (!document.getElementById('map')) return;
   
-  map = L.map('map', {zoomControl:true}).setView([10.28,103.98], 11);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19, attribution:'© OpenStreetMap'}).addTo(map);
-
+  // Giới hạn khu vực bản đồ cho Phú Quốc
+  const phuQuocBounds = L.latLngBounds(
+    L.latLng(9.8, 103.7),   // Tây Nam (góc dưới bên trái)
+    L.latLng(10.5, 104.2)   // Đông Bắc (góc trên bên phải)
+  );
+  
+  // Tạo bản đồ với các tùy chọn giới hạn
+  map = L.map('map', {
+    zoomControl: true,
+    maxBounds: phuQuocBounds,           // Giới hạn khu vực
+    maxBoundsViscosity: 1.0,            // Độ "dính" khi kéo ra biên
+    minZoom: 10,                        // Zoom tối thiểu
+    maxZoom: 16                         // Zoom tối đa
+  }).setView([10.28, 103.98], 11);
+  
+  // Thêm tile layer với bounds
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap',
+    bounds: phuQuocBounds              // Giới hạn tile chỉ trong khu vực
+  }).addTo(map);
+  
+  // Đặt giới hạn cho bản đồ
+  map.setMaxBounds(phuQuocBounds);
+  
+  // Phần còn lại của hàm giữ nguyên...
   function createCustomIcon(category) {
     const colorMap = {
       'nature': '#A5D6A7',
@@ -2995,3 +3016,4 @@ function renderAnalytics() {
 </script>
 </body>
 </html>
+
