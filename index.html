@@ -1693,7 +1693,10 @@ document.addEventListener('DOMContentLoaded', function() {
   refreshProfileAuthUI();
   loadStories();
   initMap();
-  
+  // Thiết lập real-time listener cho stories
+if (firebaseOK) {
+  setupStoriesListener();
+}
   console.log('✅ Application started successfully');
 });
 
@@ -1742,17 +1745,170 @@ function showPage(page) {
   currentPage = page;
 }
 
-/* ---------- STORIES SYSTEM ---------- */
-function loadStories() {
-  const savedStories = localStorage.getItem('pq_stories');
-  if (savedStories) {
-    stories = JSON.parse(savedStories);
+/* ---------- STORIES SYSTEM VỚI FIRESTORE ---------- */
+async function loadStories() {
+  try {
+    // Thử load từ Firestore trước
+    const storiesRef = db.collection('stories');
+    const snapshot = await storiesRef.orderBy('timestamp', 'desc').get();
+    
+    stories = [];
+    snapshot.forEach(doc => {
+      const storyData = doc.data();
+      stories.push({
+        id: doc.id,
+        ...storyData
+      });
+    });
+    
+    console.log('✅ Stories loaded from Firestore:', stories.length);
+    renderStories();
+    
+  } catch (error) {
+    console.log('⚠️ Cannot load from Firestore, using localStorage');
+    // Fallback to localStorage
+    const savedStories = localStorage.getItem('pq_stories');
+    if (savedStories) {
+      stories = JSON.parse(savedStories);
+    }
+    renderStories();
   }
-  renderStories();
 }
 
-function saveStories() {
+async function saveStoryToFirestore(story) {
+  try {
+    const storyRef = db.collection('stories').doc(story.id.toString());
+    await storyRef.set({
+      title: story.title,
+      content: story.content,
+      author: story.author,
+      authorId: story.authorId,
+      timestamp: story.timestamp,
+      likes: story.likes,
+      likedBy: story.likedBy || [],
+      comments: story.comments || [],
+      media: story.media,
+      mediaType: story.mediaType,
+      colorClass: story.colorClass
+    });
+    console.log('✅ Story saved to Firestore');
+    return true;
+  } catch (error) {
+    console.log('⚠️ Cannot save to Firestore:', error);
+    return false;
+  }
+}
+
+async function updateStoryInFirestore(storyId, updates) {
+  try {
+    const storyRef = db.collection('stories').doc(storyId.toString());
+    await storyRef.update(updates);
+    console.log('✅ Story updated in Firestore');
+    return true;
+  } catch (error) {
+    console.log('⚠️ Cannot update in Firestore:', error);
+    return false;
+  }
+}
+
+async function saveStories() {
+  // Lưu vào localStorage như backup
   localStorage.setItem('pq_stories', JSON.stringify(stories));
+}
+
+async function likeStory(storyId) {
+  const user = getCurrentUser();
+  if (!user) {
+    alert('Vui lòng đăng nhập để thích câu chuyện.');
+    return;
+  }
+  
+  const story = stories.find(s => s.id === storyId);
+  if (story) {
+    // Kiểm tra xem user đã like chưa
+    const userLiked = story.likedBy && story.likedBy.includes(user.id);
+    
+    if (userLiked) {
+      // Bỏ like
+      story.likes--;
+      story.likedBy = story.likedBy.filter(id => id !== user.id);
+    } else {
+      // Thêm like
+      story.likes++;
+      if (!story.likedBy) story.likedBy = [];
+      story.likedBy.push(user.id);
+    }
+    
+    // Cập nhật UI
+    story.liked = !userLiked;
+    
+    // Đồng bộ lên Firestore
+    await updateStoryInFirestore(storyId, {
+      likes: story.likes,
+      likedBy: story.likedBy
+    });
+    
+    saveStories();
+    renderStories();
+  }
+}
+
+async function addComment(storyId) {
+  const user = getCurrentUser();
+  if (!user) {
+    alert('Vui lòng đăng nhập để bình luận.');
+    return;
+  }
+  
+  const commentInput = document.getElementById(`comment-input-${storyId}`);
+  if (!commentInput) return;
+  
+  const content = commentInput.value.trim();
+  if (!content) {
+    alert('Vui lòng nhập nội dung bình luận.');
+    return;
+  }
+  
+  const story = stories.find(s => s.id === storyId);
+  if (story) {
+    const newComment = {
+      id: Date.now().toString(),
+      author: user.name,
+      authorId: user.id,
+      content: content,
+      timestamp: new Date().toISOString()
+    };
+    
+    if (!story.comments) story.comments = [];
+    story.comments.push(newComment);
+    
+    // Đồng bộ lên Firestore
+    await updateStoryInFirestore(storyId, {
+      comments: story.comments
+    });
+    
+    saveStories();
+    renderStories();
+    commentInput.value = '';
+  }
+}
+
+function toggleComments(storyId) {
+  const commentsDiv = document.getElementById(`comments-${storyId}`);
+  if (commentsDiv) {
+    commentsDiv.style.display = commentsDiv.style.display === 'block' ? 'none' : 'block';
+  }
+}
+
+function formatTimeAgo(timestamp) {
+  const now = new Date();
+  const storyTime = new Date(timestamp);
+  const diffInSeconds = Math.floor((now - storyTime) / 1000);
+  
+  if (diffInSeconds < 60) return 'Vừa xong';
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} phút trước`;
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} giờ trước`;
+  return `${Math.floor(diffInSeconds / 86400)} ngày trước`;
 }
 
 function renderStories() {
@@ -1772,7 +1928,11 @@ function renderStories() {
     return;
   }
   
+  const currentUser = getCurrentUser();
+  
   stories.forEach(story => {
+    const userLiked = currentUser && story.likedBy && story.likedBy.includes(currentUser.id);
+    
     const storyElement = document.createElement('div');
     storyElement.className = `story-note-new ${story.colorClass}`;
     storyElement.innerHTML = `
@@ -1795,25 +1955,28 @@ function renderStories() {
           <span>${formatTimeAgo(story.timestamp)}</span>
         </div>
         <div class="story-actions-new">
-          <div class="story-action-new ${story.liked ? 'liked' : ''}" onclick="likeStory(${story.id})">
+          <div class="story-action-new ${userLiked ? 'liked' : ''}" onclick="likeStory('${story.id}')">
             <i class="fas fa-heart"></i>
-            <span>${story.likes}</span>
+            <span>${story.likes || 0}</span>
           </div>
-          <div class="story-action-new" onclick="toggleComments(${story.id})">
+          <div class="story-action-new" onclick="toggleComments('${story.id}')">
             <i class="fas fa-comment"></i>
-            <span>${story.comments.length}</span>
+            <span>${story.comments ? story.comments.length : 0}</span>
           </div>
         </div>
         <div class="story-comments" id="comments-${story.id}">
-          ${story.comments.map(comment => `
+          ${story.comments ? story.comments.map(comment => `
             <div class="story-comment">
               <div class="story-comment-author">${comment.author}</div>
               <div class="story-comment-content">${comment.content}</div>
+              <div class="story-comment-time" style="font-size:0.7rem;color:#888;margin-top:2px">
+                ${formatTimeAgo(comment.timestamp)}
+              </div>
             </div>
-          `).join('')}
+          `).join('') : ''}
           <div class="add-comment-form">
             <input type="text" class="add-comment-input" id="comment-input-${story.id}" placeholder="Viết bình luận...">
-            <button class="add-comment-btn" onclick="addComment(${story.id})">Gửi</button>
+            <button class="add-comment-btn" onclick="addComment('${story.id}')">Gửi</button>
           </div>
         </div>
       </div>
@@ -1822,72 +1985,58 @@ function renderStories() {
   });
 }
 
-function likeStory(storyId) {
-  const user = getCurrentUser();
-  if (!user) {
-    alert('Vui lòng đăng nhập để thích câu chuyện.');
-    return;
+/* ---------- REAL-TIME UPDATES ---------- */
+function setupStoriesListener() {
+  try {
+    const storiesRef = db.collection('stories');
+    
+    storiesRef.orderBy('timestamp', 'desc')
+      .onSnapshot((snapshot) => {
+        console.log('📡 Real-time update received');
+        
+        snapshot.docChanges().forEach((change) => {
+          const storyData = change.doc.data();
+          const storyId = change.doc.id;
+          
+          if (change.type === 'added') {
+            // Kiểm tra xem story đã tồn tại chưa
+            const existingIndex = stories.findIndex(s => s.id === storyId);
+            if (existingIndex === -1) {
+              stories.unshift({
+                id: storyId,
+                ...storyData
+              });
+            }
+          }
+          
+          if (change.type === 'modified') {
+            const existingIndex = stories.findIndex(s => s.id === storyId);
+            if (existingIndex !== -1) {
+              stories[existingIndex] = {
+                id: storyId,
+                ...storyData
+              };
+            }
+          }
+          
+          if (change.type === 'removed') {
+            stories = stories.filter(s => s.id !== storyId);
+          }
+        });
+        
+        // Sắp xếp lại theo thời gian
+        stories.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        
+        // Cập nhật giao diện
+        renderStories();
+        
+      }, (error) => {
+        console.log('⚠️ Real-time listener error:', error);
+      });
+      
+  } catch (error) {
+    console.log('⚠️ Cannot setup real-time listener');
   }
-  
-  const story = stories.find(s => s.id === storyId);
-  if (story) {
-    if (story.liked) {
-      story.likes--;
-      story.liked = false;
-    } else {
-      story.likes++;
-      story.liked = true;
-    }
-    saveStories();
-    renderStories();
-  }
-}
-
-function toggleComments(storyId) {
-  const commentsDiv = document.getElementById(`comments-${storyId}`);
-  if (commentsDiv) {
-    commentsDiv.style.display = commentsDiv.style.display === 'block' ? 'none' : 'block';
-  }
-}
-
-function addComment(storyId) {
-  const user = getCurrentUser();
-  if (!user) {
-    alert('Vui lòng đăng nhập để bình luận.');
-    return;
-  }
-  
-  const commentInput = document.getElementById(`comment-input-${storyId}`);
-  if (!commentInput) return;
-  
-  const content = commentInput.value.trim();
-  if (!content) {
-    alert('Vui lòng nhập nội dung bình luận.');
-    return;
-  }
-  
-  const story = stories.find(s => s.id === storyId);
-  if (story) {
-    story.comments.push({
-      author: user.name,
-      content: content,
-      timestamp: new Date().toISOString()
-    });
-    saveStories();
-    renderStories();
-    commentInput.value = '';
-  }
-}
-
-function formatTimeAgo(timestamp) {
-  const now = new Date();
-  const storyTime = new Date(timestamp);
-  const diffInSeconds = Math.floor((now - storyTime) / 1000);
-  
-  if (diffInSeconds < 60) return 'Vừa xong';
-  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} phút trước`;
-  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} giờ trước`;
-  return `${Math.floor(diffInSeconds / 86400)} ngày trước`;
 }
 
 /* ---------- MAP SYSTEM ---------- */
@@ -2812,7 +2961,7 @@ document.getElementById('storyContentNew').addEventListener('input', () => {
   }
 });
 
-document.getElementById('btnPostStory').addEventListener('click', (e) => {
+  document.getElementById('btnPostStory').addEventListener('click', async (e) => {
   e.preventDefault();
   
   const title = document.getElementById('storyTitleNew').value;
@@ -2835,26 +2984,33 @@ document.getElementById('btnPostStory').addEventListener('click', (e) => {
     return;
   }
   
+  const storyId = Date.now().toString();
+  
   const newStory = {
-    id: Date.now(),
+    id: storyId,
     title: title,
     content: content,
     author: user.name,
     authorId: user.id,
     timestamp: new Date().toISOString(),
     likes: 0,
+    likedBy: [],
     comments: [],
-    liked: false,
     media: document.getElementById('fileInputNew').files[0] ? URL.createObjectURL(document.getElementById('fileInputNew').files[0]) : null,
     mediaType: document.getElementById('fileInputNew').files[0] ? document.getElementById('fileInputNew').files[0].type : null,
     colorClass: `note-color-${Math.floor(Math.random() * 8) + 1}`
   };
   
-  // Thêm story vào mảng
+  // Thêm story vào mảng local
   stories.unshift(newStory);
   
-  // Lưu vào localStorage
-  saveStories();
+  // Lưu vào Firestore
+  const firestoreSuccess = await saveStoryToFirestore(newStory);
+  
+  if (!firestoreSuccess) {
+    // Nếu Firestore thất bại, lưu vào localStorage
+    saveStories();
+  }
   
   // Cập nhật giao diện
   renderStories();
@@ -2872,7 +3028,6 @@ document.getElementById('btnPostStory').addEventListener('click', (e) => {
   // Hiển thị thông báo thành công
   showSuccessMessage();
 });
-
 function showSuccessMessage() {
   const successMessage = document.getElementById('successMessage');
   if (successMessage) {
