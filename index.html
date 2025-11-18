@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="vi">
 <head>
@@ -1147,6 +1148,9 @@
         <div class="menu-item" data-page="profile">
           <i class="fas fa-user"></i>Trang cá nhân
         </div>
+        <div class="menu-item" data-page="analytics">
+          <i class="fas fa-chart-bar"></i>Thống kê
+        </div>
       </div>
     </div>
   </div>
@@ -1463,6 +1467,7 @@
 
 // Biến toàn cục
 let currentPage = 'home';
+let stories = [];
 let currentUser = null;
 
 // Firebase configuration
@@ -1502,11 +1507,7 @@ function initFirebase() {
           visitedSites: [],
           completedGames: {}
         };
-        // TỰ ĐỘNG khởi tạo dữ liệu analytics
-    setTimeout(() => {
-      dataGenerator.initializeUserData(user.uid);
-    }, 5000); // Delay 5 giây cho tự nhiên
-
+        
         // Load user data từ Firestore
         loadUserData(user.uid);
       } else {
@@ -1786,210 +1787,6 @@ function recordDone(siteId, gameId) {
     updateUser(user);
   }
 }
-// ==================== SMART DATA GENERATOR ====================
-class SmartDataGenerator {
-  constructor() {
-    this.isInitialized = false;
-  }
-  
-  async initializeUserData(userId) {
-    if (this.isInitialized) return;
-    
-    // Kiểm tra xem user đã có dữ liệu chưa
-    const hasExistingData = await this.checkExistingData(userId);
-    if (hasExistingData) {
-      this.isInitialized = true;
-      return;
-    }
-    
-    console.log('🚀 Initializing smart user data...');
-    await this.generateNaturalUserJourney(userId);
-    this.isInitialized = true;
-  }
-  
-  async checkExistingData(userId) {
-    if (!db) return false;
-    
-    try {
-      const snapshot = await db.collection('analytics_events')
-        .where('userId', '==', userId)
-        .limit(1)
-        .get();
-      return !snapshot.empty;
-    } catch (error) {
-      return false;
-    }
-  }
-  
-  async generateNaturalUserJourney(userId) {
-    if (!db) return;
-    
-    const events = [];
-    const baseDate = new Date();
-    
-    // Tạo dữ liệu 45-60 ngày trước
-    const startDaysAgo = 45 + Math.floor(Math.random() * 16);
-    baseDate.setDate(baseDate.getDate() - startDaysAgo);
-    
-    // Mô hình hành vi người dùng
-    const userBehavior = this.generateUserBehaviorPattern();
-    
-    for (let day = 0; day < startDaysAgo; day++) {
-      const currentDate = new Date(baseDate);
-      currentDate.setDate(currentDate.getDate() + day);
-      
-      // Số sự kiện mỗi ngày (ít → nhiều)
-      const dailyEvents = this.calculateDailyEvents(day, startDaysAgo, userBehavior);
-      
-      for (let i = 0; i < dailyEvents; i++) {
-        const event = this.generateNaturalEvent(userId, currentDate, day, userBehavior);
-        events.push(event);
-      }
-    }
-    
-    // Thêm vào Firestore - KHÔNG có field simulated
-    await this.batchInsertEvents(events);
-    console.log(`✅ Generated ${events.length} natural events`);
-  }
-  
-  generateUserBehaviorPattern() {
-    const patterns = ['explorer', 'regular', 'binger', 'casual'];
-    const pattern = patterns[Math.floor(Math.random() * patterns.length)];
-    
-    return {
-      pattern: pattern,
-      favoritePages: this.getFavoritePages(pattern),
-      activeHours: this.getActiveHours(pattern)
-    };
-  }
-  
-  getFavoritePages(pattern) {
-    const preferences = {
-      'explorer': ['Bản đồ số', 'PQ Stories', 'Trang chủ'],
-      'regular': ['Trang chủ', 'Bản đồ số', 'Trang cá nhân'],
-      'binger': ['PQ Stories', 'Bản đồ số', 'PQ Stories'],
-      'casual': ['Trang chủ', 'Trang cá nhân']
-    };
-    return preferences[pattern] || ['Trang chủ', 'Bản đồ số'];
-  }
-  
-  getActiveHours(pattern) {
-    const hours = {
-      'explorer': [9, 10, 14, 15, 16, 20, 21],
-      'regular': [8, 12, 13, 18, 19, 20],
-      'binger': [19, 20, 21, 22, 23],
-      'casual': [12, 13, 19, 20]
-    };
-    return hours[pattern] || [9, 10, 14, 15, 20, 21];
-  }
-  
-  calculateDailyEvents(day, totalDays, behavior) {
-    const progress = day / totalDays;
-    const baseEvents = 2 + (progress * 8); // 2-10 events/ngày
-    const randomVariation = Math.random() * 2 - 1;
-    
-    return Math.max(1, Math.floor(baseEvents + randomVariation));
-  }
-  
-  generateNaturalEvent(userId, date, day, behavior) {
-    const eventTime = new Date(date);
-    const hour = behavior.activeHours[Math.floor(Math.random() * behavior.activeHours.length)];
-    eventTime.setHours(hour, Math.floor(Math.random() * 60), Math.floor(Math.random() * 60));
-    
-    const eventType = this.weightedRandomEvent();
-    const page = this.weightedRandomPage(behavior.favoritePages);
-    
-    return {
-      event: eventType,
-      params: {
-        page_title: page,
-        user_engagement: Math.random() > 0.7 ? 'high' : 'medium'
-      },
-      timestamp: firebase.firestore.Timestamp.fromDate(eventTime),
-      userId: userId,
-      userAgent: this.getRealisticUserAgent(),
-      screen: {
-        width: this.getRealisticScreenSize(),
-        height: this.getRealisticScreenSize()
-      }
-    };
-  }
-  
-  weightedRandomEvent() {
-    const events = [
-      { type: 'page_view', weight: 60 },
-      { type: 'story_view', weight: 20 },
-      { type: 'location_view', weight: 10 },
-      { type: 'game_start', weight: 5 },
-      { type: 'story_created', weight: 3 },
-      { type: 'location_checkin', weight: 2 }
-    ];
-    
-    return this.weightedRandom(events);
-  }
-  
-  weightedRandomPage(favorites) {
-    const pages = [
-      { page: favorites[0], weight: 40 },
-      { page: favorites[1], weight: 25 },
-      { page: favorites[2], weight: 15 },
-      { page: 'Thống kê', weight: 10 },
-      { page: 'Trang cá nhân', weight: 10 }
-    ];
-    
-    return this.weightedRandom(pages);
-  }
-  
-  weightedRandom(items) {
-    const total = items.reduce((sum, item) => sum + item.weight, 0);
-    let random = Math.random() * total;
-    
-    for (const item of items) {
-      random -= item.weight;
-      if (random <= 0) return item.type || item.page;
-    }
-    
-    return items[0].type || items[0].page;
-  }
-  
-  getRealisticUserAgent() {
-    const agents = [
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-      'Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1',
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-    ];
-    return agents[Math.floor(Math.random() * agents.length)];
-  }
-  
-  getRealisticScreenSize() {
-    const sizes = [1920, 1366, 1536, 1440, 1280, 375, 414, 768, 1024];
-    return sizes[Math.floor(Math.random() * sizes.length)];
-  }
-  
-  async batchInsertEvents(events) {
-    if (!db) return;
-    
-    const batchSize = 100;
-    for (let i = 0; i < events.length; i += batchSize) {
-      const batch = db.batch();
-      const chunk = events.slice(i, i + batchSize);
-      
-      chunk.forEach(event => {
-        const docRef = db.collection('analytics_events').doc();
-        batch.set(docRef, event);
-      });
-      
-      await batch.commit();
-      
-      if (i + batchSize < events.length) {
-        await new Promise(resolve => setTimeout(resolve, 100));
-      }
-    }
-  }
-}
-
-// Khởi tạo generator
-const dataGenerator = new SmartDataGenerator();
 
 /* ---------- KHỞI TẠO ỨNG DỤNG ---------- */
 document.addEventListener('DOMContentLoaded', function() {
@@ -2060,82 +1857,18 @@ function showPage(page) {
 }
 
 /* ---------- STORIES SYSTEM ---------- */
-let stories = [];
-
-// Tải stories từ Firebase
 function loadStories() {
-  loadStoriesFromFirebase();
-}
-
-// Tải stories từ Firebase với real-time updates
-async function loadStoriesFromFirebase() {
-  if (!db) {
-    const savedStories = localStorage.getItem('pq_stories');
-    if (savedStories) {
-      stories = JSON.parse(savedStories);
-    }
-    renderStories();
-    return;
-  }
-  
-  try {
-    const doc = await db.collection('stories').doc('public_stories').get();
-    if (doc.exists) {
-      stories = doc.data().stories || [];
-      console.log('✅ Stories loaded from Firebase');
-    }
-  } catch (error) {
-    console.log('⚠️ Cannot load stories from Firebase');
-    const savedStories = localStorage.getItem('pq_stories');
-    if (savedStories) {
-      stories = JSON.parse(savedStories);
-    }
+  const savedStories = localStorage.getItem('pq_stories');
+  if (savedStories) {
+    stories = JSON.parse(savedStories);
   }
   renderStories();
 }
 
-// Lưu stories lên Firebase
-async function saveStoriesToFirebase() {
-  if (!db) {
-    saveStoriesToLocal();
-    return;
-  }
-  
-  try {
-    await db.collection('stories').doc('public_stories').set({
-      stories: stories,
-      lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
-    console.log('✅ Stories saved to Firebase');
-  } catch (error) {
-    console.log('⚠️ Cannot save stories to Firebase');
-    saveStoriesToLocal();
-  }
-}
-
-// Lưu stories vào localStorage
-function saveStoriesToLocal() {
+function saveStories() {
   localStorage.setItem('pq_stories', JSON.stringify(stories));
 }
 
-// Khởi tạo real-time listener cho stories
-function initStoriesRealTime() {
-  if (!db) return;
-  
-  db.collection('stories').doc('public_stories')
-    .onSnapshot((doc) => {
-      if (doc.exists) {
-        const newStories = doc.data().stories || [];
-        if (JSON.stringify(newStories) !== JSON.stringify(stories)) {
-          stories = newStories;
-          renderStories();
-          console.log('🔄 Stories updated in real-time!');
-        }
-      }
-    });
-}
-
-// Hiển thị stories
 function renderStories() {
   const storiesWallNew = document.getElementById('storiesWallNew');
   if (!storiesWallNew) return;
@@ -2153,73 +1886,45 @@ function renderStories() {
     return;
   }
   
-  // Sắp xếp stories mới nhất lên đầu
-  const sortedStories = [...stories].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-  
-  sortedStories.forEach(story => {
+  stories.forEach(story => {
     const storyElement = document.createElement('div');
     storyElement.className = `story-note-new ${story.colorClass}`;
-    
-    // Kiểm tra user đã like chưa
-    const currentUserObj = getCurrentUser();
-    const userLiked = currentUserObj && story.likes && story.likes.includes(currentUserObj.id);
-    const likeCount = story.likes ? story.likes.length : 0;
-    
     storyElement.innerHTML = `
       <div>
         <h3>${story.title}</h3>
-        
-        <!-- Hiển thị multiple media -->
-        ${story.media && story.media.length > 0 ? `
-          <div class="story-media-grid">
-            ${story.media.slice(0, 5).map((media, index) => `
-              ${media.type.startsWith('image/') ? 
-                `<img src="${media.url}" alt="${story.title} - Ảnh ${index + 1}" class="story-media-new" onclick="openMediaModal('${media.url}', 'image')">` :
-              media.type.startsWith('video/') ? 
-                `<video controls class="story-media-new">
-                  <source src="${media.url}" type="${media.type}">
-                  Trình duyệt của bạn không hỗ trợ video.
-                </video>` :
-              media.type.startsWith('audio/') ? 
-                `<audio controls class="story-media-new">
-                  <source src="${media.url}" type="${media.type}">
-                  Trình duyệt của bạn không hỗ trợ audio.
-                </audio>` :
-                ''
-              }
-            `).join('')}
-          </div>
-          ${story.media.length > 5 ? `<p class="text-muted small mt-1">+ ${story.media.length - 5} file khác</p>` : ''}
-        ` : ''}
-        
+        ${story.media ? (
+          story.mediaType && story.mediaType.startsWith('image/') ? 
+            `<img src="${story.media}" alt="${story.title}" class="story-media-new">` :
+          story.mediaType && story.mediaType.startsWith('video/') ? 
+            `<video controls class="story-media-new"><source src="${story.media}" type="${story.mediaType}">Trình duyệt của bạn không hỗ trợ video.</video>` :
+          story.mediaType && story.mediaType.startsWith('audio/') ? 
+            `<audio controls class="story-media-new"><source src="${story.media}" type="${story.mediaType}">Trình duyệt của bạn không hỗ trợ audio.</audio>` :
+            ''
+        ) : ''}
         <div class="story-content-new">${story.content}</div>
-        <div class="word-count-display small text-muted mt-1">${countWords(story.content)}/200 từ</div>
       </div>
       <div>
         <div class="story-meta-new">
-          <span><i class="fas fa-user"></i> ${story.author}</span>
-          <span><i class="fas fa-clock"></i> ${formatTimeAgo(story.timestamp)}</span>
+          <span>${story.author}</span>
+          <span>${formatTimeAgo(story.timestamp)}</span>
         </div>
         <div class="story-actions-new">
-          <div class="story-action-new ${userLiked ? 'liked' : ''}" onclick="likeStory(${story.id})">
+          <div class="story-action-new ${story.liked ? 'liked' : ''}" onclick="likeStory(${story.id})">
             <i class="fas fa-heart"></i>
-            <span>${likeCount}</span>
+            <span>${story.likes}</span>
           </div>
           <div class="story-action-new" onclick="toggleComments(${story.id})">
             <i class="fas fa-comment"></i>
-            <span>${story.comments ? story.comments.length : 0}</span>
+            <span>${story.comments.length}</span>
           </div>
         </div>
         <div class="story-comments" id="comments-${story.id}">
-          ${story.comments && story.comments.length > 0 ? story.comments.map(comment => `
+          ${story.comments.map(comment => `
             <div class="story-comment">
-              <div class="story-comment-author">
-                <i class="fas fa-user-circle"></i> ${comment.author}
-                <small class="text-muted">${formatTimeAgo(comment.timestamp)}</small>
-              </div>
+              <div class="story-comment-author">${comment.author}</div>
               <div class="story-comment-content">${comment.content}</div>
             </div>
-          `).join('') : '<p class="text-muted small">Chưa có bình luận nào</p>'}
+          `).join('')}
           <div class="add-comment-form">
             <input type="text" class="add-comment-input" id="comment-input-${story.id}" placeholder="Viết bình luận...">
             <button class="add-comment-btn" onclick="addComment(${story.id})">Gửi</button>
@@ -2231,13 +1936,7 @@ function renderStories() {
   });
 }
 
-// Đếm số từ
-function countWords(text) {
-  return text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
-}
-
-// Thích/bỏ thích story
-async function likeStory(storyId) {
+function likeStory(storyId) {
   const user = getCurrentUser();
   if (!user) {
     alert('Vui lòng đăng nhập để thích câu chuyện.');
@@ -2246,23 +1945,18 @@ async function likeStory(storyId) {
   
   const story = stories.find(s => s.id === storyId);
   if (story) {
-    if (!story.likes) story.likes = [];
-    
-    const userIndex = story.likes.indexOf(user.id);
-    if (userIndex > -1) {
-      // Bỏ like
-      story.likes.splice(userIndex, 1);
+    if (story.liked) {
+      story.likes--;
+      story.liked = false;
     } else {
-      // Thêm like
-      story.likes.push(user.id);
+      story.likes++;
+      story.liked = true;
     }
-    
-    await saveStoriesToFirebase();
+    saveStories();
     renderStories();
   }
 }
 
-// Hiện/ẩn bình luận
 function toggleComments(storyId) {
   const commentsDiv = document.getElementById(`comments-${storyId}`);
   if (commentsDiv) {
@@ -2270,8 +1964,7 @@ function toggleComments(storyId) {
   }
 }
 
-// Thêm bình luận
-async function addComment(storyId) {
+function addComment(storyId) {
   const user = getCurrentUser();
   if (!user) {
     alert('Vui lòng đăng nhập để bình luận.');
@@ -2289,22 +1982,17 @@ async function addComment(storyId) {
   
   const story = stories.find(s => s.id === storyId);
   if (story) {
-    if (!story.comments) story.comments = [];
-    
     story.comments.push({
       author: user.name,
-      authorId: user.id,
       content: content,
       timestamp: new Date().toISOString()
     });
-    
-    await saveStoriesToFirebase();
+    saveStories();
     renderStories();
     commentInput.value = '';
   }
 }
 
-// Định dạng thời gian
 function formatTimeAgo(timestamp) {
   const now = new Date();
   const storyTime = new Date(timestamp);
@@ -2313,299 +2001,8 @@ function formatTimeAgo(timestamp) {
   if (diffInSeconds < 60) return 'Vừa xong';
   if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} phút trước`;
   if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} giờ trước`;
-  if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)} ngày trước`;
-  return `${Math.floor(diffInSeconds / 2592000)} tháng trước`;
+  return `${Math.floor(diffInSeconds / 86400)} ngày trước`;
 }
-
-// Modal xem ảnh phóng to
-function openMediaModal(url, type) {
-  if (type === 'image') {
-    const modalHtml = `
-      <div class="modal fade" id="mediaModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-          <div class="modal-content">
-            <div class="modal-header">
-              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body text-center">
-              <img src="${url}" style="max-width: 100%; max-height: 80vh;" alt="Ảnh phóng to">
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-    
-    // Remove existing modal
-    const existingModal = document.getElementById('mediaModal');
-    if (existingModal) existingModal.remove();
-    
-    // Add new modal
-    document.body.insertAdjacentHTML('beforeend', modalHtml);
-    const mediaModal = new bootstrap.Modal(document.getElementById('mediaModal'));
-    mediaModal.show();
-  }
-}
-
-// Xử lý upload multiple files
-let selectedFiles = [];
-
-function handleFileSelect(event) {
-  const files = Array.from(event.target.files);
-  
-  // Kiểm tra số lượng file
-  if (selectedFiles.length + files.length > 5) {
-    alert('Chỉ được tải lên tối đa 5 file');
-    return;
-  }
-  
-  // Kiểm tra định dạng file
-  const validFiles = files.filter(file => 
-    file.type.startsWith('image/') || 
-    file.type.startsWith('video/') || 
-    file.type.startsWith('audio/')
-  );
-  
-  if (validFiles.length === 0) {
-    alert('Chỉ chấp nhận file ảnh, video hoặc audio');
-    return;
-  }
-  
-  // Thêm file vào danh sách
-  validFiles.forEach(file => {
-    selectedFiles.push(file);
-  });
-  
-  updateFilePreview();
-}
-
-function updateFilePreview() {
-  const filePreview = document.getElementById('filePreviewNew');
-  const fileInput = document.getElementById('fileInputNew');
-  
-  filePreview.innerHTML = '';
-  
-  if (selectedFiles.length === 0) {
-    filePreview.style.display = 'none';
-    return;
-  }
-  
-  filePreview.style.display = 'block';
-  
-  selectedFiles.forEach((file, index) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const previewItem = document.createElement('div');
-      previewItem.className = 'file-preview-item';
-      previewItem.style.cssText = `
-        position: relative;
-        display: inline-block;
-        margin: 5px;
-        max-width: 100px;
-      `;
-      
-      let previewContent = '';
-      if (file.type.startsWith('image/')) {
-        previewContent = `<img src="${e.target.result}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px;">`;
-      } else if (file.type.startsWith('video/')) {
-        previewContent = `
-          <div style="width: 100px; height: 100px; background: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-            <i class="fas fa-video" style="font-size: 2rem; color: #666;"></i>
-          </div>
-        `;
-      } else if (file.type.startsWith('audio/')) {
-        previewContent = `
-          <div style="width: 100px; height: 100px; background: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-            <i class="fas fa-music" style="font-size: 2rem; color: #666;"></i>
-          </div>
-        `;
-      }
-      
-      previewItem.innerHTML = `
-        ${previewContent}
-        <button type="button" class="btn btn-sm btn-danger" onclick="removeFile(${index})" 
-                style="position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; border-radius: 50%; padding: 0; font-size: 10px;">
-          ×
-        </button>
-        <small class="d-block text-center mt-1" style="font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100px;">
-          ${file.name}
-        </small>
-      `;
-      
-      filePreview.appendChild(previewItem);
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
-function removeFile(index) {
-  selectedFiles.splice(index, 1);
-  updateFilePreview();
-}
-
-// Đăng story mới
-async function postNewStory() {
-  const title = document.getElementById('storyTitleNew').value.trim();
-  const content = document.getElementById('storyContentNew').value.trim();
-  const user = getCurrentUser();
-  
-  if (!user) {
-    alert('Vui lòng đăng nhập để chia sẻ câu chuyện.');
-    return;
-  }
-  
-  if (!title || !content) {
-    alert('Vui lòng điền tiêu đề và nội dung câu chuyện.');
-    return;
-  }
-  
-  const wordCount = countWords(content);
-  if (wordCount > 200) {
-    alert('Nội dung câu chuyện vượt quá 200 từ. Vui lòng rút gọn.');
-    return;
-  }
-  
-  // Upload files và lấy URLs
-  const mediaUrls = [];
-  
-  if (selectedFiles.length > 0) {
-    for (const file of selectedFiles) {
-      try {
-        const url = await uploadFileToStorage(file);
-        mediaUrls.push({
-          url: url,
-          type: file.type,
-          name: file.name
-        });
-      } catch (error) {
-        console.log('⚠️ Upload file failed:', error);
-      }
-    }
-  }
-  
-  const newStory = {
-    id: Date.now(),
-    title: title,
-    content: content,
-    author: user.name,
-    authorId: user.id,
-    timestamp: new Date().toISOString(),
-    likes: [],
-    comments: [],
-    media: mediaUrls,
-    colorClass: `note-color-${Math.floor(Math.random() * 8) + 1}`,
-    wordCount: wordCount
-  };
-  
-  // Thêm story vào mảng
-  stories.unshift(newStory);
-  
-  // Lưu lên Firebase
-  await saveStoriesToFirebase();
-  
-  // Cập nhật giao diện
-  renderStories();
-  
-  // Đóng modal và reset form
-  document.getElementById('storyModalOverlay').classList.remove('active');
-  document.getElementById('storyFormNew').reset();
-  selectedFiles = [];
-  updateFilePreview();
-  document.getElementById('wordCount').textContent = '0/200 từ';
-  document.getElementById('wordCount').classList.remove('warning');
-  
-  // Hiển thị thông báo thành công
-  showSuccessMessage();
-}
-
-// Upload file lên Firebase Storage
-async function uploadFileToStorage(file) {
-  if (!firebase.storage) {
-    // Fallback: dùng Data URL nếu không có Firebase Storage
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = (e) => resolve(e.target.result);
-      reader.readAsDataURL(file);
-    });
-  }
-  
-  const storage = firebase.storage();
-  const storageRef = storage.ref();
-  const fileRef = storageRef.child(`stories/${Date.now()}_${file.name}`);
-  
-  const snapshot = await fileRef.put(file);
-  const downloadURL = await snapshot.ref.getDownloadURL();
-  
-  return downloadURL;
-}
-
-// Thêm CSS cho media grid
-const style = document.createElement('style');
-style.textContent = `
-  .story-media-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    gap: 8px;
-    margin-bottom: 15px;
-  }
-  
-  .story-media-new {
-    width: 100%;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: transform 0.3s;
-  }
-  
-  .story-media-new:hover {
-    transform: scale(1.05);
-  }
-  
-  .file-preview-item {
-    transition: transform 0.2s;
-  }
-  
-  .file-preview-item:hover {
-    transform: scale(1.1);
-  }
-  
-  .word-count-display {
-    font-style: italic;
-  }
-`;
-document.head.appendChild(style);
-
-// ==================== FIXES ====================
-
-// 1. Hàm saveStories (cho tương thích)
-function saveStories() {
-  saveStoriesToLocal();
-}
-
-// 2. Hàm countWords cho modal
-function countWords(text) {
-  return text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
-}
-
-// 3. Cập nhật event listener cho post story
-document.getElementById('btnPostStory').addEventListener('click', (e) => {
-  e.preventDefault();
-  postNewStory();
-});
-
-// 4. Hàm showSuccessMessage
-function showSuccessMessage() {
-  const successMessage = document.getElementById('successMessage');
-  if (successMessage) {
-    successMessage.classList.add('show');
-    
-    setTimeout(() => {
-      successMessage.classList.remove('show');
-    }, 5000);
-  }
-}
-
-// 5. Cập nhật initFirebase để gọi real-time listener
-// TÌM HÀM initFirebase() và THÊM DÒNG NÀY vào cuối hàm, trước return:
-initStoriesRealTime();
 
 /* ---------- MAP SYSTEM ---------- */
 let map;
@@ -3581,309 +2978,19 @@ function showSuccessMessage() {
 document.getElementById('successClose').addEventListener('click', () => {
   document.getElementById('successMessage').classList.remove('show');
 });
+
 /* ---------- ANALYTICS ---------- */
-async function renderAnalytics() {
-  if (!db) {
-    showEnhancedPlaceholderData();
-    return;
-  }
+function renderAnalytics() {
+  // Placeholder for analytics functionality
+  document.getElementById('totalVisitors').textContent = '0';
+  document.getElementById('uniqueVisitors').textContent = '0';
+  document.getElementById('registeredUsers').textContent = '0';
+  document.getElementById('totalStories').textContent = stories.length;
   
-  try {
-    // Lấy tất cả events
-    const eventsSnapshot = await db.collection('analytics_events').get();
-    const allEvents = eventsSnapshot.docs.map(doc => {
-      const data = doc.data();
-      return {
-        ...data,
-        id: doc.id
-      };
-    });
-    
-    // Tính toán metrics ấn tượng
-    const metrics = calculateImpressiveMetrics(allEvents);
-    
-    // Cập nhật UI
-    updateAnalyticsUI(metrics, allEvents);
-    
-  } catch (error) {
-    console.log('⚠️ Analytics error:', error);
-    showEnhancedPlaceholderData();
-  }
+  document.getElementById('pageViewsChart').innerHTML = '<p class="text-muted">Chưa có dữ liệu</p>';
+  document.getElementById('deviceChart').innerHTML = '<p class="text-muted">Chưa có dữ liệu</p>';
+  document.getElementById('recentActivity').innerHTML = '<p class="text-muted">Chưa có hoạt động nào</p>';
 }
-
-function calculateImpressiveMetrics(events) {
-  const userCount = new Set(events.map(e => e.userId)).size;
-  const daysCount = new Set(events.map(e => 
-    e.timestamp.toDate().toDateString()
-  )).size;
-  
-  // 🔥 SỐ LIỆU CHO 400 HỌC SINH VỚI TĂNG TRƯỞNG THEO THỜI GIAN
-  const timelineMetrics = this.calculateTimelineMetrics(daysCount);
-  
-  const totalEvents = events.length;
-  const storyEvents = events.filter(e => e.event === 'story_created').length;
-  const gameEvents = events.filter(e => e.event === 'game_start').length;
-  
-  return {
-    // 🔥 SỐ LIỆU TĂNG DẦN THEO THỜI GIAN
-    totalVisitors: timelineMetrics.totalVisitors,
-    uniqueVisitors: timelineMetrics.uniqueVisitors,
-    registeredUsers: timelineMetrics.registeredUsers,
-    totalStories: Math.max(storyEvents, timelineMetrics.totalStories),
-    
-    // 🔥 METRICS CHẤT LƯỢNG CŨNG TĂNG DẦN
-    totalEvents: totalEvents,
-    engagementRate: timelineMetrics.engagementRate,
-    growthRate: timelineMetrics.growthRate,
-    avgSessionDuration: timelineMetrics.avgSessionDuration
-  };
-}
-
-// 🔥 HÀM TÍNH SỐ LIỆU THEO TIMELINE
-function calculateTimelineMetrics(daysActive) {
-  // MÔ HÌNH TĂNG TRƯỞNG CHO 400 HỌC SINH
-  if (daysActive < 7) {
-    // TUẦN ĐẦU: GIỚI THIỆU, TĂNG CHẬM
-    return {
-      totalVisitors: 80 + Math.floor(Math.random() * 20),      // 80-100
-      uniqueVisitors: 60 + Math.floor(Math.random() * 15),     // 60-75
-      registeredUsers: 50 + Math.floor(Math.random() * 10),    // 50-60
-      totalStories: 15 + Math.floor(Math.random() * 10),       // 15-25
-      engagementRate: 65 + Math.floor(Math.random() * 10),     // 65-75%
-      growthRate: 20 + Math.floor(Math.random() * 10),         // 20-30%
-      avgSessionDuration: 8 + Math.floor(Math.random() * 4)    // 8-12 phút
-    };
-  } else if (daysActive < 30) {
-    // THÁNG ĐẦU: LAN TRUYỀN, TĂNG NHANH
-    return {
-      totalVisitors: 220 + Math.floor(Math.random() * 40),     // 220-260
-      uniqueVisitors: 180 + Math.floor(Math.random() * 30),    // 180-210
-      registeredUsers: 150 + Math.floor(Math.random() * 20),   // 150-170
-      totalStories: 75 + Math.floor(Math.random() * 25),       // 75-100
-      engagementRate: 75 + Math.floor(Math.random() * 10),     // 75-85%
-      growthRate: 35 + Math.floor(Math.random() * 15),         // 35-50%
-      avgSessionDuration: 12 + Math.floor(Math.random() * 6)   // 12-18 phút
-    };
-  } else {
-    // THÁNG THỨ 2: ỔN ĐỊNH CAO
-    return {
-      totalVisitors: 380 + Math.floor(Math.random() * 40),     // 380-420
-      uniqueVisitors: 320 + Math.floor(Math.random() * 30),    // 320-350
-      registeredUsers: 280 + Math.floor(Math.random() * 20),   // 280-300
-      totalStories: 140 + Math.floor(Math.random() * 40),      // 140-180
-      engagementRate: 82 + Math.floor(Math.random() * 13),     // 82-95%
-      growthRate: 45 + Math.floor(Math.random() * 15),         // 45-60%
-      avgSessionDuration: 16 + Math.floor(Math.random() * 9)   // 16-25 phút
-    };
-  }
-}
-function updateAnalyticsUI(metrics, allEvents) {
-  document.getElementById('totalVisitors').textContent = metrics.totalVisitors.toLocaleString();
-  document.getElementById('uniqueVisitors').textContent = metrics.uniqueVisitors.toLocaleString();
-  document.getElementById('registeredUsers').textContent = metrics.registeredUsers.toLocaleString();
-  document.getElementById('totalStories').textContent = metrics.totalStories.toLocaleString();
-  
-  renderEnhancedCharts(allEvents);
-}
-
-function getEventDescription(eventType) {
-  const descriptions = {
-    'page_view': '📄 Truy cập trang',
-    'story_view': '📖 Xem câu chuyện', 
-    'story_created': '✨ Đăng câu chuyện mới',
-    'location_view': '🗺️ Xem địa điểm',
-    'game_start': '🎮 Bắt đầu chơi game',
-    'location_checkin': '📍 Check-in địa điểm',
-    'game_completed': '🏆 Hoàn thành game'
-  };
-  return descriptions[eventType] || '📊 Hoạt động';
-}
-
-function renderEnhancedCharts(allEvents) {
-  // Biểu đồ timeline
-  const eventsByDate = {};
-  allEvents.forEach(event => {
-    const dateStr = event.timestamp.toDate().toDateString();
-    eventsByDate[dateStr] = (eventsByDate[dateStr] || 0) + 1;
-  });
-  
-  const dates = Object.keys(eventsByDate).sort();
-  const last60Days = dates.slice(-60);
-  
-  let timelineHTML = `
-    <div class="mb-4">
-      <h6>📈 Xu hướng hoạt động (${last60Days.length} ngày)</h6>
-      <div style="height: 200px; overflow-x: auto;">
-        <div class="d-flex align-items-end" style="height: 150px; min-width: 800px;">
-  `;
-  
-  last60Days.forEach(date => {
-    const events = eventsByDate[date] || 0;
-    const maxEvents = Math.max(...Object.values(eventsByDate));
-    const height = maxEvents > 0 ? (events / maxEvents) * 100 : 0;
-    
-    timelineHTML += `
-      <div class="d-flex flex-column align-items-center mx-1" style="height: 100%;">
-        <div class="bg-primary rounded" style="width: 8px; height: ${height}%;"></div>
-        <small class="mt-1" style="writing-mode: vertical-rl; transform: rotate(180deg); font-size: 0.7rem;">
-          ${new Date(date).toLocaleDateString('vi-VN')}
-        </small>
-      </div>
-    `;
-  });
-  
-  timelineHTML += `
-        </div>
-      </div>
-      <div class="text-center mt-2">
-        <span class="badge bg-success">↑ Tăng trưởng ổn định</span>
-      </div>
-    </div>
-  `;
-  
-  document.getElementById('pageViewsChart').innerHTML = timelineHTML;
-  
-  // Phân tích user behavior
-  const eventTypes = {};
-  allEvents.forEach(event => {
-    eventTypes[event.event] = (eventTypes[event.event] || 0) + 1;
-  });
-  
-  let behaviorHTML = `
-    <div class="mb-4">
-      <h6>👥 Phân tích hành vi người dùng</h6>
-      <div class="row text-center">
-        <div class="col-4">
-          <div class="stat-card">
-            <div class="stat-number">${Math.floor(allEvents.length / Math.max(Object.keys(eventsByDate).length, 1))}</div>
-            <div class="stat-label">Lượt tương tác TB/ngày</div>
-          </div>
-        </div>
-        <div class="col-4">
-          <div class="stat-card">
-            <div class="stat-number">${Object.keys(eventTypes).length}</div>
-            <div class="stat-label">Loại hoạt động</div>
-          </div>
-        </div>
-        <div class="col-4">
-          <div class="stat-card">
-            <div class="stat-number">${Math.floor(Math.random() * 30) + 15}%</div>
-            <div class="stat-label">Tăng trưởng</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-  
-  document.getElementById('deviceChart').innerHTML = behaviorHTML;
-  
-// Hoạt động gần đây
-const recentActivities = allEvents
-  .sort((a, b) => b.timestamp.toDate() - a.timestamp.toDate())
-  .slice(0, 5)
-  .map(event => ({
-    action: getEventDescription(event.event),  // BỎ this.
-    user: `User${event.userId.substring(0, 6)}`,
-    time: formatTimeAgo(event.timestamp.toDate())  // BỎ this.
-  }));  
-  let activityHTML = '<div class="list-group">';
-  recentActivities.forEach(activity => {
-    activityHTML += `
-      <div class="list-group-item">
-        <div class="d-flex w-100 justify-content-between">
-          <h6 class="mb-1">${activity.action}</h6>
-          <small>${activity.time}</small>
-        </div>
-        <p class="mb-1">${activity.user}</p>
-      </div>
-    `;
-  });
-  activityHTML += '</div>';
-  
-  document.getElementById('recentActivity').innerHTML = activityHTML;
-}
-
-function getEventDescription(eventType) {
-  const descriptions = {
-    'page_view': 'Truy cập trang',
-    'story_view': 'Xem câu chuyện',
-    'story_created': 'Đăng câu chuyện mới',
-    'location_view': 'Xem địa điểm',
-    'game_start': 'Bắt đầu chơi game',
-    'location_checkin': 'Check-in địa điểm'
-  };
-  return descriptions[eventType] || 'Hoạt động';
-}
-
-function formatTimeAgo(date) {
-  const now = new Date();
-  const diffInSeconds = Math.floor((now - date) / 1000);
-  
-  if (diffInSeconds < 60) return 'Vừa xong';
-  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} phút trước`;
-  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} giờ trước`;
-  return `${Math.floor(diffInSeconds / 86400)} ngày trước`;
-}
-
-function showEnhancedPlaceholderData() {
-  const totalEvents = Math.floor(Math.random() * 2000) + 1500;
-  const uniqueVisitors = Math.floor(totalEvents / 15) + 50;
-  
-  document.getElementById('totalVisitors').textContent = totalEvents.toLocaleString();
-  document.getElementById('uniqueVisitors').textContent = uniqueVisitors.toLocaleString();
-  document.getElementById('registeredUsers').textContent = (Math.floor(Math.random() * 80) + 45).toLocaleString();
-  document.getElementById('totalStories').textContent = (stories.length + Math.floor(Math.random() * 25)).toLocaleString();
-  
-  // Hiển thị biểu đồ placeholder
-  document.getElementById('pageViewsChart').innerHTML = '<p class="text-muted">Đang tải dữ liệu...</p>';
-  document.getElementById('deviceChart').innerHTML = '<p class="text-muted">Đang tải dữ liệu...</p>';
-  document.getElementById('recentActivity').innerHTML = '<p class="text-muted">Đang tải hoạt động...</p>';
-}
-// ==================== REAL-TIME EVENT TRACKING ====================
-function logEvent(eventName, eventParams = {}) {
-  try {
-    // Ghi nhận vào Firestore
-    if (db && getCurrentUser()) {
-      db.collection('analytics_events').add({
-        event: eventName,
-        params: eventParams,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-        userId: getCurrentUser().id,
-        userAgent: navigator.userAgent,
-        screen: {
-          width: screen.width,
-          height: screen.height
-        }
-      });
-    }
-  } catch (error) {
-    console.log('⚠️ Event tracking error:', error);
-  }
-}
-
-// Ghi nhận lượt truy cập trang
-function trackPageView(pageName) {
-  logEvent('page_view', {
-    page_title: pageName,
-    page_location: window.location.href
-  });
-}
-
-// Cập nhật hàm showPage để ghi nhận lượt xem
-const originalShowPage = showPage;
-showPage = function(page) {
-  originalShowPage(page);
-  
-  const pageNames = {
-    'home': 'Trang chủ',
-    'map': 'Bản đồ số', 
-    'stories': 'PQ Stories',
-    'profile': 'Trang cá nhân',
-    'analytics': 'Thống kê'
-  };
-  
-  trackPageView(pageNames[page] || page);
-};
 </script>
 </body>
 </html>
