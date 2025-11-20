@@ -1321,6 +1321,119 @@
   border: none;
   color: white;
 }
+/* ========== FIX FOR MODAL POPUP STYLING ========== */
+/* Style cho modal di tích */
+#diModal .modal-header {
+  background: linear-gradient(135deg, var(--accent), #d32f2f) !important;
+  color: white;
+  border-bottom: none;
+  padding: 20px 25px;
+}
+
+#diModal .modal-header .btn-close {
+  filter: brightness(0) invert(1);
+  opacity: 0.8;
+}
+
+#diModal .modal-header .btn-close:hover {
+  opacity: 1;
+}
+
+#diModal .modal-title {
+  font-weight: 800;
+  font-size: 1.4rem;
+}
+
+.diatic-title {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 1.4rem;
+  margin-bottom: 15px;
+  border-left: 4px solid var(--accent);
+  padding-left: 12px;
+}
+
+/* Style cho các nút trong modal */
+#diModal .modal-footer {
+  border-top: 1px solid #e9ecef;
+  padding: 20px 25px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+#diModal .modal-footer .btn {
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  padding: 10px 20px;
+  border: none;
+  flex-shrink: 0;
+}
+
+#diModal .modal-footer .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+#diModal .btn-warning {
+  background: linear-gradient(135deg, #FF9800, #F57C00);
+  color: white;
+}
+
+#diModal .btn-warning:hover {
+  background: linear-gradient(135deg, #F57C00, #E65100);
+}
+
+#diModal .btn-accent {
+  background: linear-gradient(135deg, var(--accent), #d32f2f);
+  color: white;
+}
+
+#diModal .btn-accent:hover {
+  background: linear-gradient(135deg, #d32f2f, #b71c1c);
+}
+
+#diModal .btn-outline-success {
+  border: 2px solid #28a745;
+  color: #28a745;
+  background: transparent;
+}
+
+#diModal .btn-outline-success:hover {
+  background: #28a745;
+  color: white;
+}
+
+#diModal .btn-outline-secondary {
+  border: 2px solid #6c757d;
+  color: #6c757d;
+  background: transparent;
+}
+
+#diModal .btn-outline-secondary:hover {
+  background: #6c757d;
+  color: white;
+}
+
+/* Responsive cho modal footer */
+@media (max-width: 768px) {
+  #diModal .modal-footer {
+    flex-direction: column;
+  }
+  
+  #diModal .modal-footer .btn {
+    width: 100%;
+    margin-bottom: 5px;
+  }
+  
+  #diModal .modal-footer .me-auto {
+    order: 3;
+    width: 100%;
+    text-align: center;
+    margin-top: 10px;
+  }
+}
   }
 </style>
 </head>
@@ -2943,11 +3056,10 @@ if (document.getElementById('diModal')) {
   diModal = new bootstrap.Modal(document.getElementById('diModal'));
 }
 function openDiModal(p){
-function openDiModal(p){
-  console.log('Opening modal for:', p.name);
-  console.log('Has games:', p.games && p.games.length);
-  console.log('Is nha-tu:', p.id === 'nha-tu');
-}
+  console.log('🚀 Opening modal for:', p.name);
+  console.log('🎮 Has games:', p.games && p.games.length);
+  console.log('🔍 Is nha-tu:', p.id === 'nha-tu');
+  
   if (!diModal) return;
   
   document.getElementById('diTitle').innerText = p.name;
@@ -3073,8 +3185,7 @@ function openDiModal(p){
   }
   
   diModal.show();
-}
-  
+}  
 function awardBadgeSite(siteId, siteName) {
   const badgeIcons = {
     'chua': 'images/hhchua.jpg',
