@@ -1,6 +1,10 @@
 <!doctype html>
 <html lang="vi">
 <head>
+<!-- Thêm vào sau Font Awesome -->
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script src="https://unpkg.com/typed.js@2.0.16/dist/typed.umd.js"></script>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -579,342 +583,6 @@
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-10px); }
   }
-/* === LUXURY HERO REDESIGN === */
-
-.luxury-hero {
-  position: relative;
-  height: 100vh;
-  min-height: 700px;
-  overflow: hidden;
-  background: #0a0a0a;
-}
-
-.hero-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.hero-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: brightness(0.4);
-  animation: imageScale 20s ease-in-out infinite;
-}
-
-@keyframes imageScale {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-}
-
-.hero-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    135deg,
-    rgba(198, 40, 40, 0.1) 0%,
-    rgba(0, 0, 0, 0.8) 50%,
-    rgba(198, 40, 40, 0.1) 100%
-  );
-}
-
-.luxury-content {
-  position: relative;
-  z-index: 10;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  color: white;
-  padding: 0 20px;
-}
-
-/* Prestige Badge */
-.prestige-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 50px;
-  padding: 12px 24px;
-  margin-bottom: 40px;
-  animation: fadeInUp 1s ease;
-}
-
-.badge-icon {
-  color: #FFD54F;
-  font-size: 1.1rem;
-}
-
-.badge-text {
-  font-size: 0.9rem;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-}
-
-/* Main Title */
-.title-container {
-  margin-bottom: 30px;
-}
-
-.main-title {
-  font-size: 4rem;
-  font-weight: 800;
-  margin-bottom: 20px;
-  line-height: 1.1;
-}
-
-.title-line {
-  display: block;
-  background: linear-gradient(135deg, #fff 0%, #FFD54F 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.subtitle-line {
-  display: block;
-  font-size: 1.5rem;
-  font-weight: 300;
-  color: rgba(255, 255, 255, 0.8);
-  margin-top: 10px;
-}
-
-/* Elegant Dynamic Text */
-.elegant-dynamic-text {
-  height: 60px;
-  margin: 20px 0;
-  position: relative;
-}
-
-.text-slider {
-  position: relative;
-  height: 100%;
-}
-
-.text-item {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  font-size: 1.8rem;
-  font-weight: 300;
-  color: #FFD54F;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.8s ease;
-}
-
-.text-item.active {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Hero Description */
-.hero-description {
-  font-size: 1.2rem;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.8);
-  max-width: 600px;
-  margin: 0 auto 40px;
-  font-weight: 300;
-}
-
-/* CTA Buttons */
-.hero-actions {
-  display: flex;
-  gap: 20px;
-  align-items: center;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.cta-primary {
-  position: relative;
-  background: linear-gradient(135deg, var(--accent), #d32);
-  color: white;
-  border: none;
-  padding: 18px 40px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  border-radius: 50px;
-  cursor: pointer;
-  overflow: hidden;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.cta-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(198, 40, 40, 0.4);
-}
-
-.btn-shine {
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-  transition: left 0.5s ease;
-}
-
-.cta-primary:hover .btn-shine {
-  left: 100%;
-}
-
-.cta-secondary {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 16px 30px;
-  border-radius: 50px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 500;
-}
-
-.cta-secondary:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
-}
-
-/* Scroll Indicator */
-.scroll-elegant {
-  position: absolute;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  color: rgba(255, 255, 255, 0.6);
-  text-align: center;
-  animation: bounce 2s infinite;
-}
-
-.scroll-line {
-  width: 1px;
-  height: 40px;
-  background: rgba(255, 255, 255, 0.4);
-  margin: 0 auto 10px;
-}
-
-/* Features Grid */
-.luxury-features {
-  padding: 100px 0;
-  background: #f8f9fa;
-}
-
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 40px;
-  max-width: 1000px;
-  margin: 0 auto;
-}
-
-.feature-card {
-  background: white;
-  padding: 50px 30px;
-  border-radius: 20px;
-  text-align: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-  transition: all 0.3s ease;
-  border: 1px solid rgba(0,0,0,0.05);
-}
-
-.feature-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.12);
-}
-
-.feature-icon-wrapper {
-  width: 80px;
-  height: 80px;
-  background: linear-gradient(135deg, var(--accent), #d32);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 25px;
-  color: white;
-  font-size: 1.8rem;
-}
-
-.feature-card h3 {
-  font-size: 1.4rem;
-  font-weight: 700;
-  margin-bottom: 15px;
-  color: #333;
-}
-
-.feature-card p {
-  color: #666;
-  line-height: 1.6;
-  font-size: 1rem;
-}
-
-/* Animations */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes bounce {
-  0%, 20%, 50%, 80%, 100% {
-    transform: translateY(0) translateX(-50%);
-  }
-  40% {
-    transform: translateY(-10px) translateX(-50%);
-  }
-  60% {
-    transform: translateY(-5px) translateX(-50%);
-  }
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .main-title {
-    font-size: 2.5rem;
-  }
-  
-  .text-item {
-    font-size: 1.4rem;
-  }
-  
-  .hero-description {
-    font-size: 1.1rem;
-    padding: 0 20px;
-  }
-  
-  .hero-actions {
-    flex-direction: column;
-  }
-  
-  .features-grid {
-    grid-template-columns: 1fr;
-  }
-}
 
   /* ========== NEW PQ STORIES DESIGN ========== */
   #page-stories {
@@ -1391,7 +1059,203 @@
   .note-color-6 { background: #F8BBD0; }
   .note-color-7 { background: #C5E1A5; }
   .note-color-8 { background: #B39DDB; }
- 
+ /* ========== STORYTELLING EXPERIENCE ========== */
+.story-modal-overlay {
+  background: rgba(0, 0, 0, 0.9) !important;
+}
+
+.story-page {
+  min-height: 80vh;
+  padding: 40px 20px;
+  display: none;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s ease;
+}
+
+.story-page.active {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.story-mystery {
+  text-align: center;
+  color: white;
+  padding: 60px 20px;
+}
+
+.mystery-image {
+  width: 200px;
+  height: 200px;
+  margin: 0 auto 30px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #8B0000, #B22222);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.mystery-question {
+  font-size: 1.8rem;
+  font-weight: 300;
+  margin-bottom: 30px;
+  line-height: 1.4;
+}
+
+.story-content {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  padding: 30px;
+  margin: 20px 0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.story-timeline {
+  position: relative;
+  padding-left: 30px;
+}
+
+.story-timeline::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(to bottom, var(--accent), var(--gold));
+}
+
+.timeline-item {
+  margin-bottom: 40px;
+  position: relative;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -33px;
+  top: 5px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 3px solid white;
+}
+
+.timeline-year {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+
+.timeline-content {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+  border-left: 4px solid var(--accent);
+}
+
+.story-image-reveal {
+  width: 100%;
+  border-radius: 10px;
+  margin: 15px 0;
+  opacity: 0;
+  transform: scale(0.9);
+  transition: all 0.8s ease;
+}
+
+.story-image-reveal.revealed {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.story-controls {
+  position: fixed;
+  bottom: 30px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  z-index: 1000;
+}
+
+.story-btn {
+  background: linear-gradient(135deg, var(--accent), #d32);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  padding: 12px 25px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 5px 15px rgba(198, 40, 40, 0.4);
+}
+
+.story-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(198, 40, 40, 0.6);
+}
+
+.story-btn:disabled {
+  background: #6c757d;
+  transform: none;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.story-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  z-index: 1001;
+}
+
+.story-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--gold));
+  width: 0%;
+  transition: width 0.5s ease;
+}
+
+.typed-cursor {
+  color: var(--gold);
+  font-weight: bold;
+}
+
+/* Hiệu ứng giấy cũ */
+.vintage-paper {
+  background: #f5e8c8;
+  padding: 25px;
+  border-radius: 8px;
+  position: relative;
+  border: 1px solid #d4b78c;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.vintage-paper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" opacity="0.1"><path d="M0,0 L100,0 L100,100 L0,100 Z" fill="none" stroke="%238B4513" stroke-width="2"/></svg>');
+  pointer-events: none;
+}
   
   /* Responsive */
   @media (max-width: 768px) {
@@ -1454,102 +1318,53 @@
   <!-- Overlay khi menu mở -->
   <div class="menu-overlay" id="menuOverlay"></div>
 
-<!-- HOME - LUXURY DESIGN -->
-<section id="page-home">
-  <!-- LUXURY HERO - SINGLE EPIC IMAGE -->
-  <div class="luxury-hero">
-    <div class="hero-background">
-      <img src="https://images.unsplash.com/photo-1596422846543-75c6fc197b07?w=1200&h=800&fit=crop" alt="Phú Quốc" class="hero-image">
-      <div class="hero-overlay"></div>
-    </div>
-    
-    <div class="luxury-content">
-      <!-- Badge sang trọng -->
-      <div class="prestige-badge">
-        <div class="badge-icon">
-          <i class="fas fa-crown"></i>
-        </div>
-        <span class="badge-text">Dự Án KHKT THPT An Thới</span>
-      </div>
-
-      <!-- Main title với hiệu ứng -->
-      <div class="title-container">
-        <h1 class="main-title">
-          <span class="title-line">PQStoryMap</span>
-          <span class="subtitle-line">Hành Trình Về Nguồn</span>
-        </h1>
-        
-        <!-- Text động tinh tế -->
-        <div class="elegant-dynamic-text">
-          <div class="text-slider">
-            <div class="text-item active">Khám Phá Di Sản</div>
-            <div class="text-item">Trải Nghiệm Văn Hóa</div>
-            <div class="text-item">Tự Hào Quê Hương</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Description ngắn gọn -->
-      <p class="hero-description">
-        Nơi lịch sử và cảm xúc hội tụ. Khám phá Phú Quốc qua góc nhìn đa chiều, 
-        nơi mỗi địa điểm là một trang sử sống động.
+  <!-- HOME -->
+  <section id="page-home">
+    <div class="hero">
+      <h1 style="margin:0;color:var(--accent)">PQStoryMap</h1>
+      <p style="margin-top:10px;margin-bottom:8px; font-size: 1.1rem; line-height: 1.6;">
+        <strong>Hành trình về nguồn chưa bao giờ sống động và cảm xúc đến thế!</strong>
       </p>
-
-      <!-- CTA buttons sang trọng -->
-      <div class="hero-actions">
-        <button class="cta-primary" id="luxuryStartBtn">
-          <span class="btn-text">Bắt Đầu Khám Phá</span>
-          <div class="btn-icon">
-            <i class="fas fa-arrow-right"></i>
-          </div>
-          <div class="btn-shine"></div>
-        </button>
-        
-        <button class="cta-secondary" onclick="showPage('stories')">
-          <i class="fas fa-book-open"></i>
-          <span>PQ Stories</span>
-        </button>
+      <p style="margin:0 0 6px 0;color:#444; line-height: 1.6">
+        PQStoryMap không chỉ là một website, đó là cây cầu kết nối thế hệ trẻ với hành trình đầy tự hào của cha ông. Chúng tôi mời bạn bước vào một thế giới nơi mỗi di tích là một câu chuyện chờ được kể, mỗi nhân vật lịch sử là một người hùng chờ được thấu hiểu.
+      </p>
+      <p style="margin:0 0 8px 0;color:#444; line-height: 1.6">
+        Tại đây, bạn sẽ:<br>
+        • Chạm vào lịch sử bằng cảm xúc chân thật nhất.<br>
+        • Khám phá vẻ đẹp của quê hương qua lăng kính mới mẻ, trực quan.<br>
+        • Rèn luyện tư duy phản biện và kỹ năng kể chuyện để trở thành những đại sứ văn hóa tương lai.
+      </p>
+      <p style="margin:0 0 8px 0;color:#444; line-height: 1.6">
+        Hãy để chúng tôi đồng hành cùng bạn trên hành trình khơi dậy lòng tự hào dân tộc và tình yêu với mảnh đất Phú Quốc anh hùng.
+      </p>
+      <p style="margin:0 0 8px 0;color:#444; line-height: 1.6">
+        Bản đồ số là giải pháp thuộc khuôn khổ dự án khoa học kĩ thuật "<strong>Giáo dục lòng tự hào dân tộc và tình yêu quê hương đất nước cho tuổi trẻ THPT An Thới</strong>".
+      </p>
+      <div class="mt-3">
+        <button id="btn-start" class="btn btn-accent btn-lg">Bắt đầu khám phá</button>
       </div>
     </div>
-
-    <!-- Scroll indicator tinh tế -->
-    <div class="scroll-elegant">
-      <div class="scroll-line"></div>
-      <span>Khám phá thêm</span>
-    </div>
-  </div>
-
-  <!-- FEATURES GRID - MINIMALIST -->
-  <div class="luxury-features">
-    <div class="container">
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-icon-wrapper">
-            <i class="fas fa-map-marked-alt"></i>
-          </div>
-          <h3>Bản Đồ Số</h3>
-          <p>12 địa điểm đặc sắc với thông tin chi tiết và hình ảnh sống động</p>
-        </div>
-        
-        <div class="feature-card">
-          <div class="feature-icon-wrapper">
-            <i class="fas fa-puzzle-piece"></i>
-          </div>
-          <h3>Tương Tác</h3>
-          <p>Mini-games và câu đố giúp học tập trở nên thú vị</p>
-        </div>
-        
-        <div class="feature-card">
-          <div class="feature-icon-wrapper">
-            <i class="fas fa-share-alt"></i>
-          </div>
-          <h3>Cộng Đồng</h3>
-          <p>Chia sẻ và kết nối qua những câu chuyện ý nghĩa</p>
+    <div class="row g-3">
+      <div class="col-md-12">
+        <div class="game-card">
+          <h5>Hướng dẫn nhanh</h5>
+          <ol style="padding-left:18px">
+            <li>Nhấn "Bắt đầu khám phá" để sang trang bản đồ</li>
+            <li>Click marker để xem thông tin; nếu có mini-game, bấm "Chơi"</li>
+            <li>Truy cập "PQ Stories" để chia sẻ ký ức của bạn</li>
+            <li>Vào "Trang cá nhân" để xem thành tích và huy hiệu</li>
+            <li>Xem "Thống kê" để theo dõi hoạt động trang web</li>
+          </ol>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
+
+  <!-- MAP PAGE -->
+  <section id="page-map" style="display:none">
+    <div id="map" class="mb-3"></div>
+  </section>
+
   <!-- PQ STORIES PAGE -->
   <section id="page-stories" style="display:none">
     <div class="stories-hero">
@@ -1655,6 +1470,159 @@
   </button>
 </div>
 
+<!-- Storytelling Experience Modal -->
+<div class="modal fade" id="storyModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content" style="background: transparent; border: none;">
+      <div class="modal-header" style="background: transparent; border: none; position: absolute; top: 20px; right: 20px; z-index: 1002;">
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal" style="filter: brightness(0) invert(1);"></button>
+      </div>
+      <div class="modal-body p-0">
+        <div class="story-progress">
+          <div class="story-progress-bar" id="storyProgress"></div>
+        </div>
+        
+        <div class="story-modal-content">
+          <!-- Trang 1: Mở đầu bí ẩn -->
+          <div class="story-page active" id="page1">
+            <div class="story-mystery">
+              <div class="mystery-image">
+                <i class="fas fa-question"></i>
+              </div>
+              <div class="mystery-question" id="typed-question"></div>
+              <p style="color: #ccc; font-size: 1.1rem; margin-bottom: 30px;">
+                Một câu chuyện về sự kiên cường và hy sinh
+              </p>
+              <button class="story-btn" onclick="nextPage(2)">
+                Bắt đầu hành trình <i class="fas fa-arrow-right ms-2"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Trang 2: Dòng thời gian -->
+          <div class="story-page" id="page2">
+            <div class="story-content">
+              <h3 class="text-center mb-4" style="color: var(--accent);">Dòng Thời Gian Lịch Sử</h3>
+              <div class="story-timeline">
+                <div class="timeline-item" data-aos="fade-right">
+                  <div class="timeline-year">1967</div>
+                  <div class="timeline-content vintage-paper">
+                    <p>Nhà tù Phú Quốc chính thức được xây dựng vào ngày 1/6/1967 với tên gọi "Nhà lao Cây Dừa"</p>
+                  </div>
+                </div>
+                <div class="timeline-item" data-aos="fade-right" data-aos-delay="200">
+                  <div class="timeline-year">1967-1973</div>
+                  <div class="timeline-content vintage-paper">
+                    <p>Hơn 40,000 tù binh đã bị giam giữ tại đây. Nơi đây trở thành "địa ngục trần gian" với các hình thức tra tấn dã man</p>
+                  </div>
+                </div>
+                <div class="timeline-item" data-aos="fade-right" data-aos-delay="400">
+                  <div class="timeline-year">2014</div>
+                  <div class="timeline-content vintage-paper">
+                    <p>Được xếp hạng Di tích Quốc gia đặc biệt, trở thành biểu tượng của ý chí kiên cường</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="story-controls">
+              <button class="story-btn" onclick="prevPage(1)">
+                <i class="fas fa-arrow-left me-2"></i>Quay lại
+              </button>
+              <button class="story-btn" onclick="nextPage(3)">
+                Tiếp tục <i class="fas fa-arrow-right ms-2"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Trang 3: Hình ảnh và câu chuyện -->
+          <div class="story-page" id="page3">
+            <div class="story-content">
+              <h3 class="text-center mb-4" style="color: var(--accent);">Chứng Tích Lịch Sử</h3>
+              
+              <div data-aos="zoom-in">
+                <img src="images/nhatupq1.jpg" alt="Nhà tù Phú Quốc" class="story-image-reveal" 
+                     onload="this.classList.add('revealed')" style="width: 100%; border-radius: 10px;">
+              </div>
+              
+              <div class="vintage-paper mt-4" data-aos="fade-up">
+                <h5><i class="fas fa-quote-left text-muted me-2"></i>Câu chuyện từ quá khứ</h5>
+                <p class="mb-0">"Dù bị tra tấn dã man, những người tù vẫn giữ vững khí tiết. Họ đã biến nhà tù thành trường học cách mạng, nơi truyền dạy lòng yêu nước và ý chí đấu tranh..."</p>
+              </div>
+
+              <div class="row mt-4">
+                <div class="col-md-6" data-aos="fade-right">
+                  <div class="vintage-paper h-100">
+                    <h6><i class="fas fa-exclamation-triangle text-warning me-2"></i>Hình thức tra tấn</h6>
+                    <ul class="mb-0">
+                      <li>Chuồng cọp kẽm gai</li>
+                      <li>Đóng đinh vào tay</li>
+                      <li>Ăn cơm nhạt</li>
+                      <li>Gõ thùng, đục răng</li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="col-md-6" data-aos="fade-left">
+                  <div class="vintage-paper h-100">
+                    <h6><i class="fas fa-medal text-success me-2"></i>Ý chí kiên cường</h6>
+                    <ul class="mb-0">
+                      <li>45 cuộc vượt ngục</li>
+                      <li>Tổ chức học tập</li>
+                      <li>Đấu tranh chính trị</li>
+                      <li>Đoàn kết tương trợ</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="story-controls">
+              <button class="story-btn" onclick="prevPage(2)">
+                <i class="fas fa-arrow-left me-2"></i>Quay lại
+              </button>
+              <button class="story-btn" onclick="nextPage(4)">
+                Tiếp tục <i class="fas fa-arrow-right ms-2"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Trang 4: Kết thúc và thông điệp -->
+          <div class="story-page" id="page4">
+            <div class="story-content text-center">
+              <div data-aos="zoom-in">
+                <div class="mystery-image" style="background: linear-gradient(45deg, #4CAF50, #2E7D32); width: 150px; height: 150px; margin: 0 auto 30px;">
+                  <i class="fas fa-peace" style="color: white; font-size: 3rem;"></i>
+                </div>
+              </div>
+              
+              <h3 style="color: var(--accent);" data-aos="fade-up">Bài Học Từ Lịch Sử</h3>
+              
+              <div class="vintage-paper mt-4" data-aos="fade-up" data-aos-delay="200">
+                <p class="lead">"Di tích Nhà tù Phú Quốc không chỉ là chứng tích của một thời đau thương, mà còn là minh chứng hùng hồn cho ý chí kiên cường, lòng yêu nước và khát vọng tự do của dân tộc Việt Nam."</p>
+              </div>
+
+              <div class="row mt-4">
+                <div class="col-md-8 mx-auto">
+                  <div class="vintage-paper" data-aos="fade-up" data-aos-delay="400">
+                    <h6>Thông điệp cho thế hệ trẻ:</h6>
+                    <p class="mb-0">Hãy trân trọng hòa bình, phát huy tinh thần bất khuất của cha ông, và góp phần xây dựng đất nước ngày càng phát triển.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-5" data-aos="fade-up" data-aos-delay="600">
+                <button class="story-btn me-3" onclick="closeStoryModal()">
+                  <i class="fas fa-check me-2"></i>Hoàn thành
+                </button>
+                <button class="btn btn-outline-secondary" onclick="restartStory()">
+                  <i class="fas fa-redo me-2"></i>Xem lại
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 <!-- Các modal và popup khác giữ nguyên -->
 <!-- DI TÍCH MODAL -->
 <div class="modal fade" id="diModal" tabindex="-1">
@@ -3589,6 +3557,150 @@ function renderAnalytics() {
   document.getElementById('pageViewsChart').innerHTML = '<p class="text-muted">Chưa có dữ liệu</p>';
   document.getElementById('deviceChart').innerHTML = '<p class="text-muted">Chưa có dữ liệu</p>';
   document.getElementById('recentActivity').innerHTML = '<p class="text-muted">Chưa có hoạt động nào</p>';
+}
+/* ---------- STORYTELLING EXPERIENCE ---------- */
+let currentStoryPage = 1;
+const totalStoryPages = 4;
+let storyTyped = null;
+
+function openStoryExperience() {
+  currentStoryPage = 1;
+  const storyModal = new bootstrap.Modal(document.getElementById('storyModal'));
+  storyModal.show();
+  
+  // Khởi tạo AOS
+  AOS.init({
+    duration: 800,
+    once: true
+  });
+  
+  // Reset progress
+  updateStoryProgress();
+  
+  // Khởi tạo typed.js sau khi modal hiển thị
+  setTimeout(() => {
+    if (!storyTyped) {
+      storyTyped = new Typed('#typed-question', {
+        strings: ['Bạn có biết nơi nào từng được mệnh danh là "địa ngục trần gian"...^1000\nnhưng cũng là biểu tượng của ý chí kiên cường?'],
+        typeSpeed: 40,
+        backSpeed: 0,
+        backDelay: 1000,
+        startDelay: 500,
+        showCursor: true,
+        cursorChar: '|',
+        loop: false
+      });
+    }
+  }, 500);
+}
+
+function nextPage(nextPageNum) {
+  if (nextPageNum > totalStoryPages) return;
+  
+  // Ẩn trang hiện tại
+  document.getElementById(`page${currentStoryPage}`).classList.remove('active');
+  
+  // Hiển thị trang mới
+  currentStoryPage = nextPageNum;
+  document.getElementById(`page${currentStoryPage}`).classList.add('active');
+  
+  // Cập nhật progress
+  updateStoryProgress();
+  
+  // Refresh AOS để kích hoạt animation
+  setTimeout(() => {
+    AOS.refresh();
+  }, 300);
+}
+
+function prevPage(prevPageNum) {
+  if (prevPageNum < 1) return;
+  
+  document.getElementById(`page${currentStoryPage}`).classList.remove('active');
+  currentStoryPage = prevPageNum;
+  document.getElementById(`page${currentStoryPage}`).classList.add('active');
+  updateStoryProgress();
+  
+  setTimeout(() => {
+    AOS.refresh();
+  }, 300);
+}
+
+function updateStoryProgress() {
+  const progress = (currentStoryPage / totalStoryPages) * 100;
+  document.getElementById('storyProgress').style.width = `${progress}%`;
+}
+
+function closeStoryModal() {
+  const storyModal = bootstrap.Modal.getInstance(document.getElementById('storyModal'));
+  storyModal.hide();
+  
+  // Ghi nhận user đã xem story
+  const user = getCurrentUser();
+  if (user) {
+    recordDone('nha-tu', 'story_experience');
+  }
+}
+
+function restartStory() {
+  nextPage(1);
+}
+
+// Cập nhật hàm openDiModal để thêm nút mới
+function openDiModal(p) {
+  if (!diModal) return;
+  
+  // ... phần code hiện tại giữ nguyên ...
+  
+  // THÊM NÚT MỚI - đặt sau nút check-in
+  const btnPlay = document.getElementById('btn-play');
+  if(p.games && p.games.length){
+    btnPlay.style.display = 'inline-block';
+    btnPlay.onclick = () => { diModal.hide(); openGamePicker(p); };
+  } else { 
+    btnPlay.style.display = 'none'; 
+    btnPlay.onclick = null; 
+  }
+  
+  // THÊM NÚT TRẢI NGHIỆM KỂ CHUYỆN - chỉ cho Nhà tù Phú Quốc
+  let storyBtnHtml = '';
+  if (p.id === 'nha-tu') {
+    storyBtnHtml = `<button id="btn-story" class="btn btn-warning">
+      <i class="fas fa-book-open me-2"></i>Trải nghiệm kể chuyện
+    </button>`;
+  }
+  
+  document.getElementById('btn-checkin').onclick = () => {
+    const user = getCurrentUser();
+    if(!user){ 
+      alert('Vui lòng đăng nhập trước khi check-in.'); 
+      return; 
+    }
+    markVisited(p.id);
+    awardBadgeSite(p.id, p.name);
+  };
+  
+  // Thêm nút story vào modal footer
+  const modalFooter = document.querySelector('#diModal .modal-footer');
+  if (p.id === 'nha-tu') {
+    modalFooter.innerHTML = `
+      <div class="me-auto">
+        <small class="text-muted">Toạ độ: <span id="diCoords"></span></small>
+      </div>
+      ${storyBtnHtml}
+      <button id="btn-checkin" class="btn btn-outline-success">Check-in (Tôi đã đến)</button>
+      <button id="btn-play" class="btn btn-accent" style="display:none">Chơi mini-game</button>
+      <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Đóng</button>
+    `;
+    
+    // Thêm event listener cho nút story
+    document.getElementById('btn-story').onclick = () => { 
+      diModal.hide(); 
+      setTimeout(() => openStoryExperience(), 300);
+    };
+  }
+  
+  diModal.show();
 }
 </script>
 </body>
