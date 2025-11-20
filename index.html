@@ -1,10 +1,6 @@
 <!doctype html>
 <html lang="vi">
 <head>
-<!-- Thêm vào sau Font Awesome -->
-<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-<script src="https://unpkg.com/typed.js@2.0.16/dist/typed.umd.js"></script>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -1059,203 +1055,7 @@
   .note-color-6 { background: #F8BBD0; }
   .note-color-7 { background: #C5E1A5; }
   .note-color-8 { background: #B39DDB; }
- /* ========== STORYTELLING EXPERIENCE ========== */
-.story-modal-overlay {
-  background: rgba(0, 0, 0, 0.9) !important;
-}
-
-.story-page {
-  min-height: 80vh;
-  padding: 40px 20px;
-  display: none;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.8s ease;
-}
-
-.story-page.active {
-  display: block;
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.story-mystery {
-  text-align: center;
-  color: white;
-  padding: 60px 20px;
-}
-
-.mystery-image {
-  width: 200px;
-  height: 200px;
-  margin: 0 auto 30px;
-  border-radius: 50%;
-  background: linear-gradient(45deg, #8B0000, #B22222);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 4rem;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
-}
-
-.mystery-question {
-  font-size: 1.8rem;
-  font-weight: 300;
-  margin-bottom: 30px;
-  line-height: 1.4;
-}
-
-.story-content {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 15px;
-  padding: 30px;
-  margin: 20px 0;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-}
-
-.story-timeline {
-  position: relative;
-  padding-left: 30px;
-}
-
-.story-timeline::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: linear-gradient(to bottom, var(--accent), var(--gold));
-}
-
-.timeline-item {
-  margin-bottom: 40px;
-  position: relative;
-}
-
-.timeline-item::before {
-  content: '';
-  position: absolute;
-  left: -33px;
-  top: 5px;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--accent);
-  border: 3px solid white;
-}
-
-.timeline-year {
-  font-size: 1.3rem;
-  font-weight: bold;
-  color: var(--accent);
-  margin-bottom: 10px;
-}
-
-.timeline-content {
-  background: #f8f9fa;
-  padding: 20px;
-  border-radius: 10px;
-  border-left: 4px solid var(--accent);
-}
-
-.story-image-reveal {
-  width: 100%;
-  border-radius: 10px;
-  margin: 15px 0;
-  opacity: 0;
-  transform: scale(0.9);
-  transition: all 0.8s ease;
-}
-
-.story-image-reveal.revealed {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.story-controls {
-  position: fixed;
-  bottom: 30px;
-  left: 0;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  z-index: 1000;
-}
-
-.story-btn {
-  background: linear-gradient(135deg, var(--accent), #d32);
-  color: white;
-  border: none;
-  border-radius: 25px;
-  padding: 12px 25px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 5px 15px rgba(198, 40, 40, 0.4);
-}
-
-.story-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(198, 40, 40, 0.6);
-}
-
-.story-btn:disabled {
-  background: #6c757d;
-  transform: none;
-  box-shadow: none;
-  cursor: not-allowed;
-}
-
-.story-progress {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.2);
-  z-index: 1001;
-}
-
-.story-progress-bar {
-  height: 100%;
-  background: linear-gradient(90deg, var(--accent), var(--gold));
-  width: 0%;
-  transition: width 0.5s ease;
-}
-
-.typed-cursor {
-  color: var(--gold);
-  font-weight: bold;
-}
-
-/* Hiệu ứng giấy cũ */
-.vintage-paper {
-  background: #f5e8c8;
-  padding: 25px;
-  border-radius: 8px;
-  position: relative;
-  border: 1px solid #d4b78c;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-.vintage-paper::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" opacity="0.1"><path d="M0,0 L100,0 L100,100 L0,100 Z" fill="none" stroke="%238B4513" stroke-width="2"/></svg>');
-  pointer-events: none;
-}
+ 
   
   /* Responsive */
   @media (max-width: 768px) {
@@ -1278,160 +1078,234 @@
     .stat-card {
       margin-bottom: 15px;
     }
-/* Style cho modal di tích */
-.modal-header {
-  background: linear-gradient(135deg, var(--accent), #d32f2f) !important;
+
+/* ========== STORYTELLING EXPERIENCE STYLES ========== */
+.story-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: rgba(255,255,255,0.2);
+  z-index: 1001;
+}
+
+.story-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--gold));
+  width: 0%;
+  transition: width 0.3s ease;
+}
+
+.story-modal-content {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
   color: white;
-  border-bottom: none;
+  position: relative;
 }
 
-.modal-header .btn-close {
-  filter: brightness(0) invert(1);
+.story-page {
+  display: none;
+  min-height: 100vh;
+  padding: 80px 20px 40px;
 }
 
-.diatic-title {
-  color: var(--accent);
-  font-weight: 700;
-  font-size: 1.4rem;
-  margin-bottom: 15px;
-  border-left: 4px solid var(--accent);
-  padding-left: 12px;
+.story-page.active {
+  display: block;
 }
 
-/* Style cho các nút trong modal */
-.modal-footer .btn {
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 0.3s ease;
+.story-mystery {
+  text-align: center;
+  padding: 60px 20px;
+  background: rgba(0,0,0,0.7);
+  border-radius: 20px;
+  margin: 20px auto;
+  max-width: 900px;
+  border: 2px solid var(--accent);
 }
 
-.modal-footer .btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.btn-warning {
-  background: linear-gradient(135deg, #FF9800, #F57C00);
-  border: none;
-  color: white;
-}
-
-.btn-accent {
-  background: linear-gradient(135deg, var(--accent), #d32f2f);
-  border: none;
-  color: white;
-}
-/* ========== FIX FOR MODAL POPUP STYLING ========== */
-/* Style cho modal di tích */
-#diModal .modal-header {
-  background: linear-gradient(135deg, var(--accent), #d32f2f) !important;
-  color: white;
-  border-bottom: none;
-  padding: 20px 25px;
-}
-
-#diModal .modal-header .btn-close {
-  filter: brightness(0) invert(1);
-  opacity: 0.8;
-}
-
-#diModal .modal-header .btn-close:hover {
-  opacity: 1;
-}
-
-#diModal .modal-title {
-  font-weight: 800;
-  font-size: 1.4rem;
-}
-
-.diatic-title {
-  color: var(--accent);
-  font-weight: 700;
-  font-size: 1.4rem;
-  margin-bottom: 15px;
-  border-left: 4px solid var(--accent);
-  padding-left: 12px;
-}
-
-/* Style cho các nút trong modal */
-#diModal .modal-footer {
-  border-top: 1px solid #e9ecef;
-  padding: 20px 25px;
+.mystery-image {
+  width: 120px;
+  height: 120px;
+  background: linear-gradient(45deg, var(--accent), var(--gold));
+  border-radius: 50%;
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 30px;
+  animation: pulse 2s infinite;
 }
 
-#diModal .modal-footer .btn {
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  padding: 10px 20px;
+.mystery-image i {
+  font-size: 3rem;
+  color: white;
+}
+
+.mystery-question {
+  font-size: 2.2rem;
+  font-weight: 300;
+  line-height: 1.4;
+  margin-bottom: 30px;
+  color: var(--gold);
+  min-height: 120px;
+}
+
+.story-btn {
+  background: linear-gradient(135deg, var(--accent), var(--gold));
+  color: white;
   border: none;
-  flex-shrink: 0;
+  padding: 12px 30px;
+  border-radius: 25px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(198,40,40,0.4);
 }
 
-#diModal .modal-footer .btn:hover {
+.story-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 20px rgba(198,40,40,0.6);
 }
 
-#diModal .btn-warning {
-  background: linear-gradient(135deg, #FF9800, #F57C00);
+.story-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.story-timeline {
+  position: relative;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.story-timeline::before {
+  content: '';
+  position: absolute;
+  left: 30px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--accent), var(--gold));
+}
+
+.timeline-item {
+  display: flex;
+  margin-bottom: 40px;
+  position: relative;
+}
+
+.timeline-year {
+  background: linear-gradient(135deg, var(--accent), var(--gold));
   color: white;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-weight: bold;
+  min-width: 120px;
+  text-align: center;
+  margin-right: 30px;
+  z-index: 2;
 }
 
-#diModal .btn-warning:hover {
-  background: linear-gradient(135deg, #F57C00, #E65100);
+.timeline-content {
+  flex: 1;
+  background: rgba(255,255,255,0.1);
+  padding: 20px;
+  border-radius: 10px;
+  border-left: 4px solid var(--gold);
 }
 
-#diModal .btn-accent {
-  background: linear-gradient(135deg, var(--accent), #d32f2f);
-  color: white;
+.vintage-paper {
+  background: linear-gradient(135deg, #f9f3e9 0%, #e8dfca 100%);
+  color: #5d4037;
+  padding: 25px;
+  border-radius: 8px;
+  border: 1px solid #d7ccc8;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  position: relative;
 }
 
-#diModal .btn-accent:hover {
-  background: linear-gradient(135deg, #d32f2f, #b71c1c);
+.vintage-paper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="%23a1887f" opacity="0.1"><circle cx="20" cy="20" r="2"/><circle cx="80" cy="30" r="1"/><circle cx="40" cy="80" r="1.5"/></svg>');
+  pointer-events: none;
 }
 
-#diModal .btn-outline-success {
-  border: 2px solid #28a745;
-  color: #28a745;
-  background: transparent;
+.story-image-reveal {
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all 1s ease;
 }
 
-#diModal .btn-outline-success:hover {
-  background: #28a745;
-  color: white;
+.story-image-reveal.revealed {
+  opacity: 1;
+  transform: scale(1);
 }
 
-#diModal .btn-outline-secondary {
-  border: 2px solid #6c757d;
-  color: #6c757d;
-  background: transparent;
+.story-controls {
+  display: flex;
+  justify-content: space-between;
+  padding: 30px 20px;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
-#diModal .btn-outline-secondary:hover {
-  background: #6c757d;
-  color: white;
+/* Animations */
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
 }
 
-/* Responsive cho modal footer */
+@keyframes typewriter {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+.typewriter {
+  overflow: hidden;
+  border-right: 2px solid var(--gold);
+  white-space: nowrap;
+  animation: typewriter 3s steps(40, end), blink-caret 0.75s step-end infinite;
+}
+
+@keyframes blink-caret {
+  from, to { border-color: transparent; }
+  50% { border-color: var(--gold); }
+}
+
+/* Responsive */
 @media (max-width: 768px) {
-  #diModal .modal-footer {
+  .mystery-question {
+    font-size: 1.6rem;
+  }
+  
+  .timeline-item {
     flex-direction: column;
   }
   
-  #diModal .modal-footer .btn {
-    width: 100%;
-    margin-bottom: 5px;
+  .timeline-year {
+    margin-right: 0;
+    margin-bottom: 15px;
+    align-self: flex-start;
   }
   
-  #diModal .modal-footer .me-auto {
-    order: 3;
+  .story-timeline::before {
+    left: 15px;
+  }
+  
+  .story-controls {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .story-btn {
     width: 100%;
-    text-align: center;
-    margin-top: 10px;
   }
 }
   }
@@ -1625,22 +1499,44 @@
     <i class="fas fa-times"></i>
   </button>
 </div>
+
+<!-- Các modal và popup khác giữ nguyên -->
+<!-- DI TÍCH MODAL -->
+<div class="modal fade" id="diModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header" style="background:linear-gradient(90deg,var(--accent),#d32);color:white">
+        <h5 class="modal-title" id="diTitle"></h5>
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="diBody"></div>
+      <div class="modal-footer">
+        <div class="me-auto">
+          <small class="text-muted">Toạ độ: <span id="diCoords"></span></small>
+        </div>
+        <button id="btn-checkin" class="btn btn-outline-success">Check-in (Tôi đã đến)</button>
+        <button id="btn-play" class="btn btn-accent" style="display:none">Chơi mini-game</button>
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Đóng</button>
+      </div>
+    </div>
+  </div>
+</div>
 <!-- Storytelling Experience Modal -->
 <div class="modal fade" id="storyModal" tabindex="-1">
   <div class="modal-dialog modal-xl modal-dialog-centered">
     <div class="modal-content" style="background: transparent; border: none;">
-     <div class="modal-header" style="background: transparent; border: none; position: absolute; top: 20px; left: 20px; right: 20px; z-index: 1002; display: flex; justify-content: space-between; align-items: center;">
-  <!-- THÊM DÒNG NÀY -->
-  <h5 class="modal-title text-white m-0" style="font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
-    <i class="fas fa-landmark me-2"></i>NHÀ TÙ PHÚ QUỐC
-  </h5>
-  <button class="btn-close btn-close-white" data-bs-dismiss="modal" style="filter: brightness(0) invert(1);"></button>
-</div>        
+      <div class="modal-header" style="background: transparent; border: none; position: absolute; top: 20px; right: 20px; z-index: 1002;">
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal" style="filter: brightness(0) invert(1);"></button>
+      </div>
+      <div class="modal-body p-0">
+        <div class="story-progress">
+          <div class="story-progress-bar" id="storyProgress"></div>
+        </div>
+        
         <div class="story-modal-content">
           <!-- Trang 1: Mở đầu bí ẩn -->
           <div class="story-page active" id="page1">
             <div class="story-mystery">
-              <!-- THÊM TIÊU ĐỀ Ở ĐÂY -->
               <h1 class="text-center mb-4" style="color: var(--gold); font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
                 NHÀ TÙ PHÚ QUỐC
               </h1>
@@ -1653,20 +1549,19 @@
                 Di tích lịch sử Quốc gia đặc biệt - Chứng tích của ý chí kiên cường
               </p>
               
-              <!-- THÊM ẢNH MINH HỌA NHỎ Ở TRANG ĐẦU -->
               <div class="row justify-content-center mt-4">
-                <div class="col-3" data-aos="fade-up">
-                  <img src="images/nhatutoancanh.jpg" alt="Nhà tù Phú Quốc" 
+                <div class="col-3">
+                  <img src="images/nhatupq3.jpg" alt="Nhà tù Phú Quốc" 
                        class="img-fluid rounded shadow" 
                        style="border: 2px solid var(--gold);">
                 </div>
-                <div class="col-3" data-aos="fade-up" data-aos-delay="200">
-                  <img src="images/nhatupq2.jpg" alt="Khu trưng bày" 
+                <div class="col-3">
+                  <img src="images/nhatupq5.jpg" alt="Khu trưng bày" 
                        class="img-fluid rounded shadow" 
                        style="border: 2px solid var(--gold);">
                 </div>
-                <div class="col-3" data-aos="fade-up" data-aos-delay="400">
-                  <img src="images/nhatupqhienvat.jpg" alt="Hiện vật" 
+                <div class="col-3">
+                  <img src="images/hientat.jpg" alt="Hiện vật" 
                        class="img-fluid rounded shadow" 
                        style="border: 2px solid var(--gold);">
                 </div>
@@ -1684,23 +1579,21 @@
               <h3 class="text-center mb-4" style="color: var(--accent);">Dòng Thời Gian Lịch Sử</h3>
               
               <div class="story-timeline">
-                <div class="timeline-item" data-aos="fade-right">
+                <div class="timeline-item">
                   <div class="timeline-year">1967</div>
                   <div class="timeline-content vintage-paper">
                     <p>Nhà tù Phú Quốc chính thức được xây dựng vào ngày 1/6/1967 với tên gọi "Nhà lao Cây Dừa"</p>
-                    <!-- THÊM ẢNH -->
                     <div class="text-center mt-3">
-                      <img src="images/nhatu-1967.jpg" alt="Nhà tù năm 1967" 
+                      <img src="images/nhatupq-1967.jpg" alt="Nhà tù năm 1967" 
                            class="img-fluid rounded" style="max-height: 200px;">
                     </div>
                   </div>
                 </div>
                 
-                <div class="timeline-item" data-aos="fade-right" data-aos-delay="200">
+                <div class="timeline-item">
                   <div class="timeline-year">1967-1973</div>
                   <div class="timeline-content vintage-paper">
                     <p>Hơn 40,000 tù binh đã bị giam giữ tại đây. Nơi đây trở thành "địa ngục trần gian" với các hình thức tra tấn dã man</p>
-                    <!-- THÊM ẢNH -->
                     <div class="text-center mt-3">
                       <img src="images/tubinh.jpg" alt="Tù binh" 
                            class="img-fluid rounded" style="max-height: 200px;">
@@ -1708,11 +1601,10 @@
                   </div>
                 </div>
                 
-                <div class="timeline-item" data-aos="fade-right" data-aos-delay="400">
+                <div class="timeline-item">
                   <div class="timeline-year">2014</div>
                   <div class="timeline-content vintage-paper">
                     <p>Được xếp hạng Di tích Quốc gia đặc biệt, trở thành biểu tượng của ý chí kiên cường</p>
-                    <!-- THÊM ẢNH -->
                     <div class="text-center mt-3">
                       <img src="images/ditich.jpg" alt="Di tích ngày nay" 
                            class="img-fluid rounded" style="max-height: 200px;">
@@ -1736,32 +1628,30 @@
             <div class="story-content">
               <h3 class="text-center mb-4" style="color: var(--accent);">Chứng Tích Lịch Sử</h3>
               
-              <!-- ẢNH LỚN CHÍNH -->
-              <div data-aos="zoom-in">
-                <img src="images/nhatupq1.jpg" alt="Nhà tù Phú Quốc" class="story-image-reveal" 
+              <div>
+                <img src="images/trantan.jpg" alt="Nhà tù Phú Quốc" class="story-image-reveal" 
                      onload="this.classList.add('revealed')" style="width: 100%; border-radius: 10px; max-height: 400px; object-fit: cover;">
               </div>
               
-              <div class="vintage-paper mt-4" data-aos="fade-up">
+              <div class="vintage-paper mt-4">
                 <h5><i class="fas fa-quote-left text-muted me-2"></i>Câu chuyện từ quá khứ</h5>
                 <p class="mb-0">"Dù bị tra tấn dã man, những người tù vẫn giữ vững khí tiết. Họ đã biến nhà tù thành trường học cách mạng, nơi truyền dạy lòng yêu nước và ý chí đấu tranh..."</p>
               </div>
 
-              <!-- THÊM BỘ SƯU TẬP ẢNH -->
               <div class="row mt-4">
-                <div class="col-md-4" data-aos="fade-up">
+                <div class="col-md-4">
                   <div class="text-center">
                     <img src="images/chuongcopkemgai.jpg" alt="Chuồng cọp" class="img-fluid rounded shadow" style="max-height: 150px;">
                     <p class="small text-muted mt-2">Chuồng cọp kẽm gai</p>
                   </div>
                 </div>
-                <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="col-md-4">
                   <div class="text-center">
                     <img src="images/hientat.jpg" alt="Hiện vật" class="img-fluid rounded shadow" style="max-height: 150px;">
                     <p class="small text-muted mt-2">Hiện vật lịch sử</p>
                   </div>
                 </div>
-                <div class="col-md-4" data-aos="fade-up" data-aos-delay="400">
+                <div class="col-md-4">
                   <div class="text-center">
                     <img src="images/tutuong.jpg" alt="Tượng đài" class="img-fluid rounded shadow" style="max-height: 150px;">
                     <p class="small text-muted mt-2">Tượng đài tưởng niệm</p>
@@ -1770,7 +1660,7 @@
               </div>
 
               <div class="row mt-4">
-                <div class="col-md-6" data-aos="fade-right">
+                <div class="col-md-6">
                   <div class="vintage-paper h-100">
                     <h6><i class="fas fa-exclamation-triangle text-warning me-2"></i>Hình thức tra tấn</h6>
                     <ul class="mb-0">
@@ -1779,13 +1669,12 @@
                       <li>Ăn cơm nhạt</li>
                       <li>Gõ thùng, đục răng</li>
                     </ul>
-                    <!-- ẢNH MINH HỌA -->
                     <div class="text-center mt-3">
                       <img src="images/trantan.jpg" alt="Tra tấn" class="img-fluid rounded" style="max-height: 120px;">
                     </div>
                   </div>
                 </div>
-                <div class="col-md-6" data-aos="fade-left">
+                <div class="col-md-6">
                   <div class="vintage-paper h-100">
                     <h6><i class="fas fa-medal text-success me-2"></i>Ý chí kiên cường</h6>
                     <ul class="mb-0">
@@ -1794,7 +1683,6 @@
                       <li>Đấu tranh chính trị</li>
                       <li>Đoàn kết tương trợ</li>
                     </ul>
-                    <!-- ẢNH MINH HỌA -->
                     <div class="text-center mt-3">
                       <img src="images/vuotnguc.jpg" alt="Vượt ngục" class="img-fluid rounded" style="max-height: 120px;">
                     </div>
@@ -1815,34 +1703,33 @@
           <!-- Trang 4: Kết thúc và thông điệp -->
           <div class="story-page" id="page4">
             <div class="story-content text-center">
-              <div data-aos="zoom-in">
+              <div>
                 <div class="mystery-image" style="background: linear-gradient(45deg, #4CAF50, #2E7D32); width: 150px; height: 150px; margin: 0 auto 30px;">
                   <i class="fas fa-peace" style="color: white; font-size: 3rem;"></i>
                 </div>
               </div>
               
-              <h3 style="color: var(--accent);" data-aos="fade-up">Bài Học Từ Lịch Sử</h3>
+              <h3 style="color: var(--accent);">Bài Học Từ Lịch Sử</h3>
               
-              <div class="vintage-paper mt-4" data-aos="fade-up" data-aos-delay="200">
+              <div class="vintage-paper mt-4">
                 <p class="lead">"Di tích Nhà tù Phú Quốc không chỉ là chứng tích của một thời đau thương, mà còn là minh chứng hùng hồn cho ý chí kiên cường, lòng yêu nước và khát vọng tự do của dân tộc Việt Nam."</p>
               </div>
 
-              <!-- THÊM ẢNH HIỆN TRẠNG NGÀY NAY -->
               <div class="row mt-4">
                 <div class="col-md-8 mx-auto">
-                  <div data-aos="fade-up" data-aos-delay="400">
+                  <div>
                     <img src="images/hientai.jpg" alt="Nhà tù ngày nay" class="img-fluid rounded shadow">
                     <p class="small text-muted mt-2">Di tích Nhà tù Phú Quốc ngày nay - Nơi giáo dục truyền thống</p>
                   </div>
                 </div>
               </div>
 
-              <div class="vintage-paper mt-4" data-aos="fade-up" data-aos-delay="600">
+              <div class="vintage-paper mt-4">
                 <h6>Thông điệp cho thế hệ trẻ:</h6>
                 <p class="mb-0">Hãy trân trọng hòa bình, phát huy tinh thần bất khuất của cha ông, và góp phần xây dựng đất nước ngày càng phát triển.</p>
               </div>
 
-              <div class="mt-5" data-aos="fade-up" data-aos-delay="800">
+              <div class="mt-5">
                 <button class="story-btn me-3" onclick="closeStoryModal()">
                   <i class="fas fa-check me-2"></i>Hoàn thành
                 </button>
@@ -1857,29 +1744,6 @@
     </div>
   </div>
 </div>
-</div>
-<!-- Các modal và popup khác giữ nguyên -->
-<!-- DI TÍCH MODAL -->
-<div class="modal fade" id="diModal" tabindex="-1">
-  <div class="modal-dialog modal-xl modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header" style="background:linear-gradient(90deg,var(--accent),#d32);color:white">
-        <h5 class="modal-title" id="diTitle"></h5>
-        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body" id="diBody"></div>
-      <div class="modal-footer">
-        <div class="me-auto">
-          <small class="text-muted">Toạ độ: <span id="diCoords"></span></small>
-        </div>
-        <button id="btn-checkin" class="btn btn-outline-success">Check-in (Tôi đã đến)</button>
-        <button id="btn-play" class="btn btn-accent" style="display:none">Chơi mini-game</button>
-        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Đóng</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- GAME FULLSCREEN MODE -->
 <div id="gameFullscreen" class="game-fullscreen">
   <div class="game-fullscreen-header">
@@ -2268,10 +2132,7 @@ function recordDone(siteId, gameId) {
 /* ---------- KHỞI TẠO ỨNG DỤNG ---------- */
 document.addEventListener('DOMContentLoaded', function() {
   console.log('🚀 Starting application...');
-  // Đảm bảo modal được khởi tạo
-if (document.getElementById('diModal')) {
-  diModal = new bootstrap.Modal(document.getElementById('diModal'));
-}
+  
   // Khởi tạo Firebase
   const firebaseOK = initFirebase();
   
@@ -2290,7 +2151,6 @@ if (firebaseOK) {
 }
   console.log('✅ Application started successfully');
 });
-
 
 /* ---------- Menu Navigation ---------- */
 const menuBtn = document.getElementById('nav-menu');
@@ -3056,12 +2916,62 @@ if (document.getElementById('diModal')) {
   diModal = new bootstrap.Modal(document.getElementById('diModal'));
 }
 function openDiModal(p){
-  console.log('🚀 Opening modal for:', p.name);
-  console.log('🎮 Has games:', p.games && p.games.length);
-  console.log('🔍 Is nha-tu:', p.id === 'nha-tu');
-  
   if (!diModal) return;
   
+  // ĐẶC BIỆT: Xử lý riêng cho Nhà tù Phú Quốc
+  if (p.id === 'nha-tu') {
+    document.getElementById('diTitle').innerText = p.name;
+    
+    // HTML đơn giản chỉ có ảnh và các nút hành động
+    const html = `
+      <div class="text-center">
+        <div class="mb-4">
+          <img src="${Array.isArray(p.img) ? p.img[0] : p.img}" 
+               alt="${p.name}" 
+               style="width:100%;border-radius:12px;object-fit:cover;height:300px;box-shadow:0 8px 25px rgba(0,0,0,0.15)">
+        </div>
+        
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle me-2"></i>
+          <strong>Trải nghiệm đặc biệt:</strong> Khám phá câu chuyện đằng sau di tích này
+        </div>
+        
+        <div class="d-grid gap-3 mt-4">
+          <button class="btn btn-accent btn-lg" onclick="openStoryExperience()">
+            <i class="fas fa-book-open me-2"></i>
+            Trải nghiệm kể chuyện
+          </button>
+        </div>
+      </div>
+    `;
+    
+    document.getElementById('diBody').innerHTML = html;
+    document.getElementById('diCoords').innerText = `${p.lat.toFixed(6)}, ${p.lng.toFixed(6)}`;
+    
+    // Hiển thị nút mini-game và check-in
+    const btnPlay = document.getElementById('btn-play');
+    if(p.games && p.games.length){
+      btnPlay.style.display = 'inline-block';
+      btnPlay.onclick = () => { diModal.hide(); openGamePicker(p); };
+    } else { 
+      btnPlay.style.display = 'none'; 
+    }
+    
+    document.getElementById('btn-checkin').onclick = () => {
+      const user = getCurrentUser();
+      if(!user){ 
+        alert('Vui lòng đăng nhập trước khi check-in.'); 
+        return; 
+      }
+      markVisited(p.id);
+      awardBadgeSite(p.id, p.name);
+    };
+    
+    diModal.show();
+    return;
+  }
+  
+  // Xử lý bình thường cho các địa điểm khác
   document.getElementById('diTitle').innerText = p.name;
   const extras = p.extra.map(x => `<li>${x}</li>`).join('');
   
@@ -3113,50 +3023,15 @@ function openDiModal(p){
   document.getElementById('diBody').innerHTML = html;
   document.getElementById('diCoords').innerText = `${p.lat.toFixed(6)}, ${p.lng.toFixed(6)}`;
   
-  // TẠO NÚT BUTTONS CHO MODAL FOOTER
-  const modalFooter = document.querySelector('#diModal .modal-footer');
-  
-  let buttonsHTML = `
-    <div class="me-auto">
-      <small class="text-muted">Toạ độ: <span id="diCoords">${p.lat.toFixed(6)}, ${p.lng.toFixed(6)}</span></small>
-    </div>
-  `;
-  
-  // THÊM NÚT "TRẢI NGHIỆM KỂ CHUYỆN" CHO NHÀ TÙ PHÚ QUỐC
-  if (p.id === 'nha-tu') {
-    buttonsHTML += `
-      <button id="btn-story" class="btn btn-warning">
-        <i class="fas fa-book-open me-2"></i>Trải nghiệm kể chuyện
-      </button>
-    `;
-  }
-  
-  // THÊM NÚT CHECK-IN
-  buttonsHTML += `
-    <button id="btn-checkin" class="btn btn-outline-success">
-      <i class="fas fa-map-marker-alt me-2"></i>Check-in (Tôi đã đến)
-    </button>
-  `;
-  
-  // THÊM NÚT MINI-GAME NẾU CÓ
+  const btnPlay = document.getElementById('btn-play');
   if(p.games && p.games.length){
-    buttonsHTML += `
-      <button id="btn-play" class="btn btn-accent">
-        <i class="fas fa-gamepad me-2"></i>Chơi mini-game
-      </button>
-    `;
+    btnPlay.style.display = 'inline-block';
+    btnPlay.onclick = () => { diModal.hide(); openGamePicker(p); };
+  } else { 
+    btnPlay.style.display = 'none'; 
+    btnPlay.onclick = null; 
   }
   
-  // THÊM NÚT ĐÓNG
-  buttonsHTML += `
-    <button class="btn btn-outline-secondary" data-bs-dismiss="modal">
-      <i class="fas fa-times me-2"></i>Đóng
-    </button>
-  `;
-  
-  modalFooter.innerHTML = buttonsHTML;
-  
-  // THÊM EVENT LISTENERS CHO CÁC NÚT
   document.getElementById('btn-checkin').onclick = () => {
     const user = getCurrentUser();
     if(!user){ 
@@ -3165,27 +3040,11 @@ function openDiModal(p){
     }
     markVisited(p.id);
     awardBadgeSite(p.id, p.name);
-    alert('✓ Check-in thành công tại ' + p.name);
   };
   
-  // EVENT CHO NÚT TRẢI NGHIỆM KỂ CHUYỆN
-  if (p.id === 'nha-tu') {
-    document.getElementById('btn-story').onclick = () => { 
-      diModal.hide(); 
-      setTimeout(() => openStoryExperience(), 300);
-    };
-  }
-  
-  // EVENT CHO NÚT MINI-GAME
-  if(p.games && p.games.length){
-    document.getElementById('btn-play').onclick = () => { 
-      diModal.hide(); 
-      setTimeout(() => openGamePicker(p), 300);
-    };
-  }
-  
   diModal.show();
-}  
+}
+
 function awardBadgeSite(siteId, siteName) {
   const badgeIcons = {
     'chua': 'images/hhchua.jpg',
@@ -3852,149 +3711,91 @@ function renderAnalytics() {
   document.getElementById('deviceChart').innerHTML = '<p class="text-muted">Chưa có dữ liệu</p>';
   document.getElementById('recentActivity').innerHTML = '<p class="text-muted">Chưa có hoạt động nào</p>';
 }
-/* ---------- STORYTELLING EXPERIENCE ---------- */
+/* ========== STORYTELLING EXPERIENCE FUNCTIONS ========== */
+let storyModal;
+if (document.getElementById('storyModal')) {
+  storyModal = new bootstrap.Modal(document.getElementById('storyModal'));
+}
+
 let currentStoryPage = 1;
 const totalStoryPages = 4;
-let storyTyped = null;
 
 function openStoryExperience() {
   currentStoryPage = 1;
-  const storyModal = new bootstrap.Modal(document.getElementById('storyModal'));
-  storyModal.show();
+  updateStoryProgress();
+  showStoryPage(1);
   
-  // Khởi tạo AOS
-  AOS.init({
-    duration: 800,
-    once: true
+  // Typewriter effect for the question
+  const question = "Bạn có biết nơi nào từng được mệnh danh là 'địa ngục trần gian' nhưng nay là chứng tích cho ý chí kiên cường?";
+  typeWriterEffect('typed-question', question);
+  
+  storyModal.show();
+}
+
+function typeWriterEffect(elementId, text) {
+  const element = document.getElementById(elementId);
+  element.innerHTML = '';
+  element.classList.add('typewriter');
+  
+  let i = 0;
+  function type() {
+    if (i < text.length) {
+      element.innerHTML += text.charAt(i);
+      i++;
+      setTimeout(type, 50);
+    } else {
+      element.classList.remove('typewriter');
+    }
+  }
+  type();
+}
+
+function showStoryPage(pageNumber) {
+  // Hide all pages
+  document.querySelectorAll('.story-page').forEach(page => {
+    page.classList.remove('active');
   });
   
-  // Reset progress
-  updateStoryProgress();
+  // Show current page
+  const currentPage = document.getElementById(`page${pageNumber}`);
+  if (currentPage) {
+    currentPage.classList.add('active');
+  }
   
-  // Khởi tạo typed.js sau khi modal hiển thị
-  setTimeout(() => {
-    if (!storyTyped) {
-      storyTyped = new Typed('#typed-question', {
-        strings: ['Bạn có biết nơi nào từng được mệnh danh là "địa ngục trần gian"...^1000\nnhưng cũng là biểu tượng của ý chí kiên cường?'],
-        typeSpeed: 40,
-        backSpeed: 0,
-        backDelay: 1000,
-        startDelay: 500,
-        showCursor: true,
-        cursorChar: '|',
-        loop: false
-      });
-    }
-  }, 500);
+  currentStoryPage = pageNumber;
+  updateStoryProgress();
 }
 
-function nextPage(nextPageNum) {
-  if (nextPageNum > totalStoryPages) return;
-  
-  // Ẩn trang hiện tại
-  document.getElementById(`page${currentStoryPage}`).classList.remove('active');
-  
-  // Hiển thị trang mới
-  currentStoryPage = nextPageNum;
-  document.getElementById(`page${currentStoryPage}`).classList.add('active');
-  
-  // Cập nhật progress
-  updateStoryProgress();
-  
-  // Refresh AOS để kích hoạt animation
-  setTimeout(() => {
-    AOS.refresh();
-  }, 300);
+function nextPage(nextPageNumber) {
+  if (nextPageNumber <= totalStoryPages) {
+    showStoryPage(nextPageNumber);
+  }
 }
 
-function prevPage(prevPageNum) {
-  if (prevPageNum < 1) return;
-  
-  document.getElementById(`page${currentStoryPage}`).classList.remove('active');
-  currentStoryPage = prevPageNum;
-  document.getElementById(`page${currentStoryPage}`).classList.add('active');
-  updateStoryProgress();
-  
-  setTimeout(() => {
-    AOS.refresh();
-  }, 300);
+function prevPage(prevPageNumber) {
+  if (prevPageNumber >= 1) {
+    showStoryPage(prevPageNumber);
+  }
 }
 
 function updateStoryProgress() {
   const progress = (currentStoryPage / totalStoryPages) * 100;
-  document.getElementById('storyProgress').style.width = `${progress}%`;
+  const progressBar = document.getElementById('storyProgress');
+  if (progressBar) {
+    progressBar.style.width = `${progress}%`;
+  }
 }
 
 function closeStoryModal() {
-  const storyModal = bootstrap.Modal.getInstance(document.getElementById('storyModal'));
-  storyModal.hide();
-  
-  // Ghi nhận user đã xem story
-  const user = getCurrentUser();
-  if (user) {
-    recordDone('nha-tu', 'story_experience');
+  if (storyModal) {
+    storyModal.hide();
   }
+  // Award badge for completing the story experience
+  awardBadge('story_nhatu', 'Nhà Kể Chuyện', 'images/hhstory.jpg');
 }
 
 function restartStory() {
-  nextPage(1);
-}
-
-// Cập nhật hàm openDiModal để thêm nút mới
-function openDiModal(p) {
-  if (!diModal) return;
-  
-  // ... phần code hiện tại giữ nguyên ...
-  
-  // THÊM NÚT MỚI - đặt sau nút check-in
-  const btnPlay = document.getElementById('btn-play');
-  if(p.games && p.games.length){
-    btnPlay.style.display = 'inline-block';
-    btnPlay.onclick = () => { diModal.hide(); openGamePicker(p); };
-  } else { 
-    btnPlay.style.display = 'none'; 
-    btnPlay.onclick = null; 
-  }
-  
-  // THÊM NÚT TRẢI NGHIỆM KỂ CHUYỆN - chỉ cho Nhà tù Phú Quốc
-  let storyBtnHtml = '';
-  if (p.id === 'nha-tu') {
-    storyBtnHtml = `<button id="btn-story" class="btn btn-warning">
-      <i class="fas fa-book-open me-2"></i>Trải nghiệm kể chuyện
-    </button>`;
-  }
-  
-  document.getElementById('btn-checkin').onclick = () => {
-    const user = getCurrentUser();
-    if(!user){ 
-      alert('Vui lòng đăng nhập trước khi check-in.'); 
-      return; 
-    }
-    markVisited(p.id);
-    awardBadgeSite(p.id, p.name);
-  };
-  
-  // Thêm nút story vào modal footer
-  const modalFooter = document.querySelector('#diModal .modal-footer');
-  if (p.id === 'nha-tu') {
-    modalFooter.innerHTML = `
-      <div class="me-auto">
-        <small class="text-muted">Toạ độ: <span id="diCoords"></span></small>
-      </div>
-      ${storyBtnHtml}
-      <button id="btn-checkin" class="btn btn-outline-success">Check-in (Tôi đã đến)</button>
-      <button id="btn-play" class="btn btn-accent" style="display:none">Chơi mini-game</button>
-      <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Đóng</button>
-    `;
-    
-    // Thêm event listener cho nút story
-    document.getElementById('btn-story').onclick = () => { 
-      diModal.hide(); 
-      setTimeout(() => openStoryExperience(), 300);
-    };
-  }
-  
-  diModal.show();
+  showStoryPage(1);
 }
 </script>
 </body>
