@@ -1278,6 +1278,49 @@
     .stat-card {
       margin-bottom: 15px;
     }
+/* Style cho modal di tích */
+.modal-header {
+  background: linear-gradient(135deg, var(--accent), #d32f2f) !important;
+  color: white;
+  border-bottom: none;
+}
+
+.modal-header .btn-close {
+  filter: brightness(0) invert(1);
+}
+
+.diatic-title {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 1.4rem;
+  margin-bottom: 15px;
+  border-left: 4px solid var(--accent);
+  padding-left: 12px;
+}
+
+/* Style cho các nút trong modal */
+.modal-footer .btn {
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.modal-footer .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, #FF9800, #F57C00);
+  border: none;
+  color: white;
+}
+
+.btn-accent {
+  background: linear-gradient(135deg, var(--accent), #d32f2f);
+  border: none;
+  color: white;
+}
   }
 </style>
 </head>
@@ -2112,7 +2155,10 @@ function recordDone(siteId, gameId) {
 /* ---------- KHỞI TẠO ỨNG DỤNG ---------- */
 document.addEventListener('DOMContentLoaded', function() {
   console.log('🚀 Starting application...');
-  
+  // Đảm bảo modal được khởi tạo
+if (document.getElementById('diModal')) {
+  diModal = new bootstrap.Modal(document.getElementById('diModal'));
+}
   // Khởi tạo Firebase
   const firebaseOK = initFirebase();
   
@@ -2131,6 +2177,7 @@ if (firebaseOK) {
 }
   console.log('✅ Application started successfully');
 });
+
 
 /* ---------- Menu Navigation ---------- */
 const menuBtn = document.getElementById('nav-menu');
@@ -2895,8 +2942,12 @@ let diModal;
 if (document.getElementById('diModal')) {
   diModal = new bootstrap.Modal(document.getElementById('diModal'));
 }
-
 function openDiModal(p){
+function openDiModal(p){
+  console.log('Opening modal for:', p.name);
+  console.log('Has games:', p.games && p.games.length);
+  console.log('Is nha-tu:', p.id === 'nha-tu');
+}
   if (!diModal) return;
   
   document.getElementById('diTitle').innerText = p.name;
@@ -2950,15 +3001,50 @@ function openDiModal(p){
   document.getElementById('diBody').innerHTML = html;
   document.getElementById('diCoords').innerText = `${p.lat.toFixed(6)}, ${p.lng.toFixed(6)}`;
   
-  const btnPlay = document.getElementById('btn-play');
-  if(p.games && p.games.length){
-    btnPlay.style.display = 'inline-block';
-    btnPlay.onclick = () => { diModal.hide(); openGamePicker(p); };
-  } else { 
-    btnPlay.style.display = 'none'; 
-    btnPlay.onclick = null; 
+  // TẠO NÚT BUTTONS CHO MODAL FOOTER
+  const modalFooter = document.querySelector('#diModal .modal-footer');
+  
+  let buttonsHTML = `
+    <div class="me-auto">
+      <small class="text-muted">Toạ độ: <span id="diCoords">${p.lat.toFixed(6)}, ${p.lng.toFixed(6)}</span></small>
+    </div>
+  `;
+  
+  // THÊM NÚT "TRẢI NGHIỆM KỂ CHUYỆN" CHO NHÀ TÙ PHÚ QUỐC
+  if (p.id === 'nha-tu') {
+    buttonsHTML += `
+      <button id="btn-story" class="btn btn-warning">
+        <i class="fas fa-book-open me-2"></i>Trải nghiệm kể chuyện
+      </button>
+    `;
   }
   
+  // THÊM NÚT CHECK-IN
+  buttonsHTML += `
+    <button id="btn-checkin" class="btn btn-outline-success">
+      <i class="fas fa-map-marker-alt me-2"></i>Check-in (Tôi đã đến)
+    </button>
+  `;
+  
+  // THÊM NÚT MINI-GAME NẾU CÓ
+  if(p.games && p.games.length){
+    buttonsHTML += `
+      <button id="btn-play" class="btn btn-accent">
+        <i class="fas fa-gamepad me-2"></i>Chơi mini-game
+      </button>
+    `;
+  }
+  
+  // THÊM NÚT ĐÓNG
+  buttonsHTML += `
+    <button class="btn btn-outline-secondary" data-bs-dismiss="modal">
+      <i class="fas fa-times me-2"></i>Đóng
+    </button>
+  `;
+  
+  modalFooter.innerHTML = buttonsHTML;
+  
+  // THÊM EVENT LISTENERS CHO CÁC NÚT
   document.getElementById('btn-checkin').onclick = () => {
     const user = getCurrentUser();
     if(!user){ 
@@ -2967,10 +3053,28 @@ function openDiModal(p){
     }
     markVisited(p.id);
     awardBadgeSite(p.id, p.name);
+    alert('✓ Check-in thành công tại ' + p.name);
   };
+  
+  // EVENT CHO NÚT TRẢI NGHIỆM KỂ CHUYỆN
+  if (p.id === 'nha-tu') {
+    document.getElementById('btn-story').onclick = () => { 
+      diModal.hide(); 
+      setTimeout(() => openStoryExperience(), 300);
+    };
+  }
+  
+  // EVENT CHO NÚT MINI-GAME
+  if(p.games && p.games.length){
+    document.getElementById('btn-play').onclick = () => { 
+      diModal.hide(); 
+      setTimeout(() => openGamePicker(p), 300);
+    };
+  }
   
   diModal.show();
 }
+  
 function awardBadgeSite(siteId, siteName) {
   const badgeIcons = {
     'chua': 'images/hhchua.jpg',
