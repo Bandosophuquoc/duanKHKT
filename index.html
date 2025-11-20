@@ -579,6 +579,342 @@
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-10px); }
   }
+/* === LUXURY HERO REDESIGN === */
+
+.luxury-hero {
+  position: relative;
+  height: 100vh;
+  min-height: 700px;
+  overflow: hidden;
+  background: #0a0a0a;
+}
+
+.hero-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.4);
+  animation: imageScale 20s ease-in-out infinite;
+}
+
+@keyframes imageScale {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    rgba(198, 40, 40, 0.1) 0%,
+    rgba(0, 0, 0, 0.8) 50%,
+    rgba(198, 40, 40, 0.1) 100%
+  );
+}
+
+.luxury-content {
+  position: relative;
+  z-index: 10;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: white;
+  padding: 0 20px;
+}
+
+/* Prestige Badge */
+.prestige-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50px;
+  padding: 12px 24px;
+  margin-bottom: 40px;
+  animation: fadeInUp 1s ease;
+}
+
+.badge-icon {
+  color: #FFD54F;
+  font-size: 1.1rem;
+}
+
+.badge-text {
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+/* Main Title */
+.title-container {
+  margin-bottom: 30px;
+}
+
+.main-title {
+  font-size: 4rem;
+  font-weight: 800;
+  margin-bottom: 20px;
+  line-height: 1.1;
+}
+
+.title-line {
+  display: block;
+  background: linear-gradient(135deg, #fff 0%, #FFD54F 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subtitle-line {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 10px;
+}
+
+/* Elegant Dynamic Text */
+.elegant-dynamic-text {
+  height: 60px;
+  margin: 20px 0;
+  position: relative;
+}
+
+.text-slider {
+  position: relative;
+  height: 100%;
+}
+
+.text-item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  font-size: 1.8rem;
+  font-weight: 300;
+  color: #FFD54F;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s ease;
+}
+
+.text-item.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Hero Description */
+.hero-description {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.8);
+  max-width: 600px;
+  margin: 0 auto 40px;
+  font-weight: 300;
+}
+
+/* CTA Buttons */
+.hero-actions {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.cta-primary {
+  position: relative;
+  background: linear-gradient(135deg, var(--accent), #d32);
+  color: white;
+  border: none;
+  padding: 18px 40px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 50px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cta-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(198, 40, 40, 0.4);
+}
+
+.btn-shine {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.cta-primary:hover .btn-shine {
+  left: 100%;
+}
+
+.cta-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 16px 30px;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+}
+
+.cta-secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Scroll Indicator */
+.scroll-elegant {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  animation: bounce 2s infinite;
+}
+
+.scroll-line {
+  width: 1px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.4);
+  margin: 0 auto 10px;
+}
+
+/* Features Grid */
+.luxury-features {
+  padding: 100px 0;
+  background: #f8f9fa;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 40px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.feature-card {
+  background: white;
+  padding: 50px 30px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.feature-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+}
+
+.feature-icon-wrapper {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, var(--accent), #d32);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 25px;
+  color: white;
+  font-size: 1.8rem;
+}
+
+.feature-card h3 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.feature-card p {
+  color: #666;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0) translateX(-50%);
+  }
+  40% {
+    transform: translateY(-10px) translateX(-50%);
+  }
+  60% {
+    transform: translateY(-5px) translateX(-50%);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .main-title {
+    font-size: 2.5rem;
+  }
+  
+  .text-item {
+    font-size: 1.4rem;
+  }
+  
+  .hero-description {
+    font-size: 1.1rem;
+    padding: 0 20px;
+  }
+  
+  .hero-actions {
+    flex-direction: column;
+  }
+  
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+}
 
   /* ========== NEW PQ STORIES DESIGN ========== */
   #page-stories {
@@ -1118,53 +1454,102 @@
   <!-- Overlay khi menu mở -->
   <div class="menu-overlay" id="menuOverlay"></div>
 
-  <!-- HOME -->
-  <section id="page-home">
-    <div class="hero">
-      <h1 style="margin:0;color:var(--accent)">PQStoryMap</h1>
-      <p style="margin-top:10px;margin-bottom:8px; font-size: 1.1rem; line-height: 1.6;">
-        <strong>Hành trình về nguồn chưa bao giờ sống động và cảm xúc đến thế!</strong>
+<!-- HOME - LUXURY DESIGN -->
+<section id="page-home">
+  <!-- LUXURY HERO - SINGLE EPIC IMAGE -->
+  <div class="luxury-hero">
+    <div class="hero-background">
+      <img src="https://images.unsplash.com/photo-1596422846543-75c6fc197b07?w=1200&h=800&fit=crop" alt="Phú Quốc" class="hero-image">
+      <div class="hero-overlay"></div>
+    </div>
+    
+    <div class="luxury-content">
+      <!-- Badge sang trọng -->
+      <div class="prestige-badge">
+        <div class="badge-icon">
+          <i class="fas fa-crown"></i>
+        </div>
+        <span class="badge-text">Dự Án KHKT THPT An Thới</span>
+      </div>
+
+      <!-- Main title với hiệu ứng -->
+      <div class="title-container">
+        <h1 class="main-title">
+          <span class="title-line">PQStoryMap</span>
+          <span class="subtitle-line">Hành Trình Về Nguồn</span>
+        </h1>
+        
+        <!-- Text động tinh tế -->
+        <div class="elegant-dynamic-text">
+          <div class="text-slider">
+            <div class="text-item active">Khám Phá Di Sản</div>
+            <div class="text-item">Trải Nghiệm Văn Hóa</div>
+            <div class="text-item">Tự Hào Quê Hương</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Description ngắn gọn -->
+      <p class="hero-description">
+        Nơi lịch sử và cảm xúc hội tụ. Khám phá Phú Quốc qua góc nhìn đa chiều, 
+        nơi mỗi địa điểm là một trang sử sống động.
       </p>
-      <p style="margin:0 0 6px 0;color:#444; line-height: 1.6">
-        PQStoryMap không chỉ là một website, đó là cây cầu kết nối thế hệ trẻ với hành trình đầy tự hào của cha ông. Chúng tôi mời bạn bước vào một thế giới nơi mỗi di tích là một câu chuyện chờ được kể, mỗi nhân vật lịch sử là một người hùng chờ được thấu hiểu.
-      </p>
-      <p style="margin:0 0 8px 0;color:#444; line-height: 1.6">
-        Tại đây, bạn sẽ:<br>
-        • Chạm vào lịch sử bằng cảm xúc chân thật nhất.<br>
-        • Khám phá vẻ đẹp của quê hương qua lăng kính mới mẻ, trực quan.<br>
-        • Rèn luyện tư duy phản biện và kỹ năng kể chuyện để trở thành những đại sứ văn hóa tương lai.
-      </p>
-      <p style="margin:0 0 8px 0;color:#444; line-height: 1.6">
-        Hãy để chúng tôi đồng hành cùng bạn trên hành trình khơi dậy lòng tự hào dân tộc và tình yêu với mảnh đất Phú Quốc anh hùng.
-      </p>
-      <p style="margin:0 0 8px 0;color:#444; line-height: 1.6">
-        Bản đồ số là giải pháp thuộc khuôn khổ dự án khoa học kĩ thuật "<strong>Giáo dục lòng tự hào dân tộc và tình yêu quê hương đất nước cho tuổi trẻ THPT An Thới</strong>".
-      </p>
-      <div class="mt-3">
-        <button id="btn-start" class="btn btn-accent btn-lg">Bắt đầu khám phá</button>
+
+      <!-- CTA buttons sang trọng -->
+      <div class="hero-actions">
+        <button class="cta-primary" id="luxuryStartBtn">
+          <span class="btn-text">Bắt Đầu Khám Phá</span>
+          <div class="btn-icon">
+            <i class="fas fa-arrow-right"></i>
+          </div>
+          <div class="btn-shine"></div>
+        </button>
+        
+        <button class="cta-secondary" onclick="showPage('stories')">
+          <i class="fas fa-book-open"></i>
+          <span>PQ Stories</span>
+        </button>
       </div>
     </div>
-    <div class="row g-3">
-      <div class="col-md-12">
-        <div class="game-card">
-          <h5>Hướng dẫn nhanh</h5>
-          <ol style="padding-left:18px">
-            <li>Nhấn "Bắt đầu khám phá" để sang trang bản đồ</li>
-            <li>Click marker để xem thông tin; nếu có mini-game, bấm "Chơi"</li>
-            <li>Truy cập "PQ Stories" để chia sẻ ký ức của bạn</li>
-            <li>Vào "Trang cá nhân" để xem thành tích và huy hiệu</li>
-            <li>Xem "Thống kê" để theo dõi hoạt động trang web</li>
-          </ol>
+
+    <!-- Scroll indicator tinh tế -->
+    <div class="scroll-elegant">
+      <div class="scroll-line"></div>
+      <span>Khám phá thêm</span>
+    </div>
+  </div>
+
+  <!-- FEATURES GRID - MINIMALIST -->
+  <div class="luxury-features">
+    <div class="container">
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">
+            <i class="fas fa-map-marked-alt"></i>
+          </div>
+          <h3>Bản Đồ Số</h3>
+          <p>12 địa điểm đặc sắc với thông tin chi tiết và hình ảnh sống động</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">
+            <i class="fas fa-puzzle-piece"></i>
+          </div>
+          <h3>Tương Tác</h3>
+          <p>Mini-games và câu đố giúp học tập trở nên thú vị</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">
+            <i class="fas fa-share-alt"></i>
+          </div>
+          <h3>Cộng Đồng</h3>
+          <p>Chia sẻ và kết nối qua những câu chuyện ý nghĩa</p>
         </div>
       </div>
     </div>
-  </section>
-
-  <!-- MAP PAGE -->
-  <section id="page-map" style="display:none">
-    <div id="map" class="mb-3"></div>
-  </section>
-
+  </div>
+</section>
   <!-- PQ STORIES PAGE -->
   <section id="page-stories" style="display:none">
     <div class="stories-hero">
@@ -3208,3 +3593,4 @@ function renderAnalytics() {
 </script>
 </body>
 </html>
+
