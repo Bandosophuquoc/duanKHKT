@@ -1469,7 +1469,6 @@
     <i class="fas fa-times"></i>
   </button>
 </div>
-
 <!-- Storytelling Experience Modal -->
 <div class="modal fade" id="storyModal" tabindex="-1">
   <div class="modal-dialog modal-xl modal-dialog-centered">
@@ -1486,14 +1485,39 @@
           <!-- Trang 1: Mở đầu bí ẩn -->
           <div class="story-page active" id="page1">
             <div class="story-mystery">
+              <!-- THÊM TIÊU ĐỀ Ở ĐÂY -->
+              <h1 class="text-center mb-4" style="color: var(--gold); font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
+                NHÀ TÙ PHÚ QUỐC
+              </h1>
+              
               <div class="mystery-image">
-                <i class="fas fa-question"></i>
+                <i class="fas fa-landmark"></i>
               </div>
               <div class="mystery-question" id="typed-question"></div>
               <p style="color: #ccc; font-size: 1.1rem; margin-bottom: 30px;">
-                Một câu chuyện về sự kiên cường và hy sinh
+                Di tích lịch sử Quốc gia đặc biệt - Chứng tích của ý chí kiên cường
               </p>
-              <button class="story-btn" onclick="nextPage(2)">
+              
+              <!-- THÊM ẢNH MINH HỌA NHỎ Ở TRANG ĐẦU -->
+              <div class="row justify-content-center mt-4">
+                <div class="col-3" data-aos="fade-up">
+                  <img src="images/nhatutoancanh.jpg" alt="Nhà tù Phú Quốc" 
+                       class="img-fluid rounded shadow" 
+                       style="border: 2px solid var(--gold);">
+                </div>
+                <div class="col-3" data-aos="fade-up" data-aos-delay="200">
+                  <img src="images/nhatupq2.jpg" alt="Khu trưng bày" 
+                       class="img-fluid rounded shadow" 
+                       style="border: 2px solid var(--gold);">
+                </div>
+                <div class="col-3" data-aos="fade-up" data-aos-delay="400">
+                  <img src="images/nhatupqhienvat.jpg" alt="Hiện vật" 
+                       class="img-fluid rounded shadow" 
+                       style="border: 2px solid var(--gold);">
+                </div>
+              </div>
+              
+              <button class="story-btn mt-4" onclick="nextPage(2)">
                 Bắt đầu hành trình <i class="fas fa-arrow-right ms-2"></i>
               </button>
             </div>
@@ -1503,23 +1527,41 @@
           <div class="story-page" id="page2">
             <div class="story-content">
               <h3 class="text-center mb-4" style="color: var(--accent);">Dòng Thời Gian Lịch Sử</h3>
+              
               <div class="story-timeline">
                 <div class="timeline-item" data-aos="fade-right">
                   <div class="timeline-year">1967</div>
                   <div class="timeline-content vintage-paper">
                     <p>Nhà tù Phú Quốc chính thức được xây dựng vào ngày 1/6/1967 với tên gọi "Nhà lao Cây Dừa"</p>
+                    <!-- THÊM ẢNH -->
+                    <div class="text-center mt-3">
+                      <img src="images/nhatu-1967.jpg" alt="Nhà tù năm 1967" 
+                           class="img-fluid rounded" style="max-height: 200px;">
+                    </div>
                   </div>
                 </div>
+                
                 <div class="timeline-item" data-aos="fade-right" data-aos-delay="200">
                   <div class="timeline-year">1967-1973</div>
                   <div class="timeline-content vintage-paper">
                     <p>Hơn 40,000 tù binh đã bị giam giữ tại đây. Nơi đây trở thành "địa ngục trần gian" với các hình thức tra tấn dã man</p>
+                    <!-- THÊM ẢNH -->
+                    <div class="text-center mt-3">
+                      <img src="images/tubinh.jpg" alt="Tù binh" 
+                           class="img-fluid rounded" style="max-height: 200px;">
+                    </div>
                   </div>
                 </div>
+                
                 <div class="timeline-item" data-aos="fade-right" data-aos-delay="400">
                   <div class="timeline-year">2014</div>
                   <div class="timeline-content vintage-paper">
                     <p>Được xếp hạng Di tích Quốc gia đặc biệt, trở thành biểu tượng của ý chí kiên cường</p>
+                    <!-- THÊM ẢNH -->
+                    <div class="text-center mt-3">
+                      <img src="images/ditich.jpg" alt="Di tích ngày nay" 
+                           class="img-fluid rounded" style="max-height: 200px;">
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1539,14 +1581,37 @@
             <div class="story-content">
               <h3 class="text-center mb-4" style="color: var(--accent);">Chứng Tích Lịch Sử</h3>
               
+              <!-- ẢNH LỚN CHÍNH -->
               <div data-aos="zoom-in">
                 <img src="images/nhatupq1.jpg" alt="Nhà tù Phú Quốc" class="story-image-reveal" 
-                     onload="this.classList.add('revealed')" style="width: 100%; border-radius: 10px;">
+                     onload="this.classList.add('revealed')" style="width: 100%; border-radius: 10px; max-height: 400px; object-fit: cover;">
               </div>
               
               <div class="vintage-paper mt-4" data-aos="fade-up">
                 <h5><i class="fas fa-quote-left text-muted me-2"></i>Câu chuyện từ quá khứ</h5>
                 <p class="mb-0">"Dù bị tra tấn dã man, những người tù vẫn giữ vững khí tiết. Họ đã biến nhà tù thành trường học cách mạng, nơi truyền dạy lòng yêu nước và ý chí đấu tranh..."</p>
+              </div>
+
+              <!-- THÊM BỘ SƯU TẬP ẢNH -->
+              <div class="row mt-4">
+                <div class="col-md-4" data-aos="fade-up">
+                  <div class="text-center">
+                    <img src="images/chuongcopkemgai.jpg" alt="Chuồng cọp" class="img-fluid rounded shadow" style="max-height: 150px;">
+                    <p class="small text-muted mt-2">Chuồng cọp kẽm gai</p>
+                  </div>
+                </div>
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                  <div class="text-center">
+                    <img src="images/hientat.jpg" alt="Hiện vật" class="img-fluid rounded shadow" style="max-height: 150px;">
+                    <p class="small text-muted mt-2">Hiện vật lịch sử</p>
+                  </div>
+                </div>
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="400">
+                  <div class="text-center">
+                    <img src="images/tutuong.jpg" alt="Tượng đài" class="img-fluid rounded shadow" style="max-height: 150px;">
+                    <p class="small text-muted mt-2">Tượng đài tưởng niệm</p>
+                  </div>
+                </div>
               </div>
 
               <div class="row mt-4">
@@ -1559,6 +1624,10 @@
                       <li>Ăn cơm nhạt</li>
                       <li>Gõ thùng, đục răng</li>
                     </ul>
+                    <!-- ẢNH MINH HỌA -->
+                    <div class="text-center mt-3">
+                      <img src="images/trantan.jpg" alt="Tra tấn" class="img-fluid rounded" style="max-height: 120px;">
+                    </div>
                   </div>
                 </div>
                 <div class="col-md-6" data-aos="fade-left">
@@ -1570,6 +1639,10 @@
                       <li>Đấu tranh chính trị</li>
                       <li>Đoàn kết tương trợ</li>
                     </ul>
+                    <!-- ẢNH MINH HỌA -->
+                    <div class="text-center mt-3">
+                      <img src="images/vuotnguc.jpg" alt="Vượt ngục" class="img-fluid rounded" style="max-height: 120px;">
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1599,16 +1672,22 @@
                 <p class="lead">"Di tích Nhà tù Phú Quốc không chỉ là chứng tích của một thời đau thương, mà còn là minh chứng hùng hồn cho ý chí kiên cường, lòng yêu nước và khát vọng tự do của dân tộc Việt Nam."</p>
               </div>
 
+              <!-- THÊM ẢNH HIỆN TRẠNG NGÀY NAY -->
               <div class="row mt-4">
                 <div class="col-md-8 mx-auto">
-                  <div class="vintage-paper" data-aos="fade-up" data-aos-delay="400">
-                    <h6>Thông điệp cho thế hệ trẻ:</h6>
-                    <p class="mb-0">Hãy trân trọng hòa bình, phát huy tinh thần bất khuất của cha ông, và góp phần xây dựng đất nước ngày càng phát triển.</p>
+                  <div data-aos="fade-up" data-aos-delay="400">
+                    <img src="images/hientai.jpg" alt="Nhà tù ngày nay" class="img-fluid rounded shadow">
+                    <p class="small text-muted mt-2">Di tích Nhà tù Phú Quốc ngày nay - Nơi giáo dục truyền thống</p>
                   </div>
                 </div>
               </div>
 
-              <div class="mt-5" data-aos="fade-up" data-aos-delay="600">
+              <div class="vintage-paper mt-4" data-aos="fade-up" data-aos-delay="600">
+                <h6>Thông điệp cho thế hệ trẻ:</h6>
+                <p class="mb-0">Hãy trân trọng hòa bình, phát huy tinh thần bất khuất của cha ông, và góp phần xây dựng đất nước ngày càng phát triển.</p>
+              </div>
+
+              <div class="mt-5" data-aos="fade-up" data-aos-delay="800">
                 <button class="story-btn me-3" onclick="closeStoryModal()">
                   <i class="fas fa-check me-2"></i>Hoàn thành
                 </button>
@@ -1622,6 +1701,7 @@
       </div>
     </div>
   </div>
+</div>
 </div>
 <!-- Các modal và popup khác giữ nguyên -->
 <!-- DI TÍCH MODAL -->
