@@ -1078,128 +1078,6 @@
     .stat-card {
       margin-bottom: 15px;
     }
-/* NEW HERO SECTION STYLES */
-.hero-new {
-  position: relative;
-  height: 80vh;
-  min-height: 500px;
-  overflow: hidden;
-  border-radius: 12px;
-  margin: 18px 0;
-}
-
-.slideshow-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.slide {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  transition: opacity 1s ease-in-out;
-}
-
-.slide.active {
-  opacity: 1;
-}
-
-.slide img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.slide-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(45deg, rgba(0,0,0,0.4) 0%, rgba(198,40,40,0.2) 100%);
-}
-
-/* Hero Content */
-.hero-content {
-  position: relative;
-  z-index: 10;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  padding: 0 40px;
-}
-
-.hero-text-container {
-  max-width: 600px;
-  color: white;
-}
-
-.project-title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 20px;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-  line-height: 1.4;
-}
-
-.dynamic-text {
-  font-size: 3.5rem;
-  font-weight: 800;
-  margin-bottom: 30px;
-  height: 80px;
-  position: relative;
-}
-
-.text-word {
-  position: absolute;
-  top: 0;
-  left: 0;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.5s ease;
-  text-shadow: 0 4px 8px rgba(0,0,0,0.3);
-}
-
-.text-word.active {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* CTA Button */
-.cta-btn {
-  background: linear-gradient(135deg, var(--accent), #FF6B35);
-  color: white;
-  border: none;
-  padding: 15px 35px;
-  font-size: 1.2rem;
-  font-weight: 600;
-  border-radius: 50px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.cta-btn.glow {
-  animation: glow-pulse 2s infinite;
-}
-
-.cta-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(198,40,40,0.4);
-}
-
-@keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 20px rgba(198,40,40,0.6); }
-  50% { box-shadow: 0 0 30px rgba(198,40,40,0.9); }
-}
   }
 </style>
 </head>
@@ -1242,51 +1120,30 @@
 
   <!-- HOME -->
   <section id="page-home">
-<!-- NEW HERO SECTION - FULLSCREEN SLIDESHOW -->
-<div class="hero-new">
-  <div class="slideshow-container">
-    <!-- Slide 1 -->
-    <div class="slide active">
-      <img src="images/bien-hero.jpg" alt="Bãi Sao Phú Quốc">
-      <div class="slide-overlay"></div>
-    </div>
-    
-    <!-- Slide 2 -->
-    <div class="slide">
-      <img src="images/nhatu-hero.jpg" alt="Vườn Quốc Gia Phú Quốc">
-      <div class="slide-overlay"></div>
-    </div>
-    
-    <!-- Slide 3 -->
-    <div class="slide">
-      <img src="images/cauhon-hero.jpg" alt="Nhà Tù Phú Quốc">
-      <div class="slide-overlay"></div>
-    </div>
-  </div>
-  
-  <!-- Hero Content - Hiển thị trên slideshow -->
-  <div class="hero-content">
-    <div class="hero-text-container">
-      <!-- Dòng chữ bắt buộc -->
-      <div class="project-title">
-        PQStoryMap - Dự án KHKT "Giáo dục lòng tự hào dân tộc và tình yêu quê hương đất nước cho tuổi trẻ THPT An Thới"
+    <div class="hero">
+      <h1 style="margin:0;color:var(--accent)">PQStoryMap</h1>
+      <p style="margin-top:10px;margin-bottom:8px; font-size: 1.1rem; line-height: 1.6;">
+        <strong>Hành trình về nguồn chưa bao giờ sống động và cảm xúc đến thế!</strong>
+      </p>
+      <p style="margin:0 0 6px 0;color:#444; line-height: 1.6">
+        PQStoryMap không chỉ là một website, đó là cây cầu kết nối thế hệ trẻ với hành trình đầy tự hào của cha ông. Chúng tôi mời bạn bước vào một thế giới nơi mỗi di tích là một câu chuyện chờ được kể, mỗi nhân vật lịch sử là một người hùng chờ được thấu hiểu.
+      </p>
+      <p style="margin:0 0 8px 0;color:#444; line-height: 1.6">
+        Tại đây, bạn sẽ:<br>
+        • Chạm vào lịch sử bằng cảm xúc chân thật nhất.<br>
+        • Khám phá vẻ đẹp của quê hương qua lăng kính mới mẻ, trực quan.<br>
+        • Rèn luyện tư duy phản biện và kỹ năng kể chuyện để trở thành những đại sứ văn hóa tương lai.
+      </p>
+      <p style="margin:0 0 8px 0;color:#444; line-height: 1.6">
+        Hãy để chúng tôi đồng hành cùng bạn trên hành trình khơi dậy lòng tự hào dân tộc và tình yêu với mảnh đất Phú Quốc anh hùng.
+      </p>
+      <p style="margin:0 0 8px 0;color:#444; line-height: 1.6">
+        Bản đồ số là giải pháp thuộc khuôn khổ dự án khoa học kĩ thuật "<strong>Giáo dục lòng tự hào dân tộc và tình yêu quê hương đất nước cho tuổi trẻ THPT An Thới</strong>".
+      </p>
+      <div class="mt-3">
+        <button id="btn-start" class="btn btn-accent btn-lg">Bắt đầu khám phá</button>
       </div>
-      
-      <!-- Text động -->
-      <div class="dynamic-text">
-        <span class="text-word active">Khám phá</span>
-        <span class="text-word">Trải nghiệm</span>
-        <span class="text-word">Tự hào</span>
-      </div>
-      
-      <!-- Nút CTA -->
-      <button class="cta-btn glow" id="heroStartBtn">
-        Bắt đầu hành trình <i class="fas fa-arrow-right"></i>
-      </button>
     </div>
-  </div>
-</div>
-       </div>
     <div class="row g-3">
       <div class="col-md-12">
         <div class="game-card">
@@ -3160,46 +3017,7 @@ function initData() {
     localStorage.setItem('pq_stories', JSON.stringify([]));
   }
 }
-// Hero Slideshow Functionality
-function initHeroSlideshow() {
-  const slides = document.querySelectorAll('.slide');
-  const textWords = document.querySelectorAll('.text-word');
-  let currentSlide = 0;
-  let currentText = 0;
-  
-  // Slide change every 5 seconds
-  setInterval(() => {
-    // Hide current slide
-    slides[currentSlide].classList.remove('active');
-    
-    // Move to next slide
-    currentSlide = (currentSlide + 1) % slides.length;
-    
-    // Show next slide
-    slides[currentSlide].classList.add('active');
-  }, 5000);
-  
-  // Text change every 3 seconds  
-  setInterval(() => {
-    // Hide current text
-    textWords[currentText].classList.remove('active');
-    
-    // Move to next text
-    currentText = (currentText + 1) % textWords.length;
-    
-    // Show next text
-    textWords[currentText].classList.add('active');
-  }, 3000);
-}
 
-// Initialize when page loads
-initHeroSlideshow();
-
-// CTA Button click
-document.getElementById('heroStartBtn').addEventListener('click', () => {
-  showPage('map');
-  window.scrollTo(0,0);
-});
 /* ---------- EVENT LISTENERS ---------- */
 const authModal = new bootstrap.Modal(document.getElementById('authModal'));
 
@@ -3390,4 +3208,3 @@ function renderAnalytics() {
 </script>
 </body>
 </html>
-
