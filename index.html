@@ -1376,12 +1376,9 @@ let auth, db;
 /* ---------- FIREBASE ĐƠN GIẢN ---------- */
 function initFirebase() {
   try {
-    // Kiểm tra xem Firebase đã được khởi tạo chưa
     if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
       console.log('✅ Firebase initialized');
-    } else {
-      firebase.app(); // Sử dụng app hiện có
     }
     
     auth = firebase.auth();
@@ -1411,11 +1408,11 @@ function initFirebase() {
     
     return true;
   } catch (error) {
-    console.log('⚠️ Firebase failed:', error);
-    console.log('⚠️ Using localStorage mode only');
+    console.log('⚠️ Firebase failed, using localStorage');
     return false;
   }
 }
+
 // Load user data từ Firestore
 async function loadUserData(uid) {
   try {
@@ -1695,19 +1692,14 @@ document.addEventListener('DOMContentLoaded', function() {
   initData();
   refreshProfileAuthUI();
   loadStories();
-  
-  // Khởi tạo map sau một chút delay để đảm bảo DOM đã render
-  setTimeout(() => {
-    initMap();
-  }, 100);
-  
+  initMap();
   // Thiết lập real-time listener cho stories
-  if (firebaseOK) {
-    setupStoriesListener();
-  }
-  
+if (firebaseOK) {
+  setupStoriesListener();
+}
   console.log('✅ Application started successfully');
 });
+
 /* ---------- Menu Navigation ---------- */
 const menuBtn = document.getElementById('nav-menu');
 const menuDropdown = document.getElementById('menuDropdown');
@@ -2113,158 +2105,83 @@ function initMap() {
     {
       id:'vuon-quoc-gia',
       name:'Vườn quốc gia Phú Quốc',
-      address:'Vườn quốc gia Phú Quốc, An Giang, Việt Nam',
+      address:'Vườn quốc gia Phú Quốc, Kiên Giang, Việt Nam',
       note:'Vườn quốc gia với hệ sinh thái rừng nhiệt đới phong phú, nơi bảo tồn nhiều loài động thực vật quý hiếm.',
-      extra:['Diện tích: 31.422 ha', 'Vườn quốc gia Phú Quốc có đến 12.794 ha rừng', 'Có nhiều loài động thực vật quý hiếm: 929 loài thực vật, 89 loài san hô cứng, 19 loài san hô mềm, 125 loài cá ở rặng san hô, 132 loài thân mềm, 32 loài da gai và 62 loài rong biển,...', 'Hệ sinh thái rừng nhiệt đới đa dạng'],
+      extra:['Diện tích: 31.422 ha', 'Có nhiều loài động thực vật quý hiếm', 'Hệ sinh thái rừng nhiệt đới đa dạng'],
       lat:10.3645, lng:103.9919,
       games:[],
-      img: [ 
-      'images/vuonqg.jpg',
-      'images/vuon.jpg',
-      'images/vuon1.jpg',
-      'images/vuon2.jpg',
-      'images/vuon3.jpg',
-      'images/vuon4.jpg',
-      'images/vuon5.jpg',
-      ],
+      img: 'images/vuon.jpg',
       category: 'nature'
     },
     {
       id:'bai-sao',
       name:'Bãi Sao',
-      address:'Bãi Sao, Phú Quốc, An Giang, Việt Nam',
+      address:'Bãi Sao, Phú Quốc, Kiên Giang, Việt Nam',
       note:'Bãi biển đẹp với cát trắng mịn, nước biển trong xanh, hình lưỡi liềm đặc trưng.',
-      extra:['Bãi cát dài 7km tại Bãi Sao mang một nét đẹp rất đặc trưng', 'Biển ở Bãi Sao rất êm và nước khá nông, kể cả vào mùa mưa nên rất thích hợp để cảm nhận “nhịp đập” của biển cả.', 'Hình dạng lưỡi liềm độc đáo', 'Du khách cũng có thể vừa tắm biển vừa chơi các trò chơi thú vị như: bóng ném, chèo thuyền Kayak, cano kéo dù, lái moto nước,phao chuối'],
+      extra:['Cát trắng mịn', 'Nước biển trong xanh', 'Hình dạng lưỡi liềm độc đáo'],
       lat:10.0572, lng:104.0360,
       games:[],
-      img: [
-      'images/baisao.jpg',
-      'images/baisao1.jpg',
-      'images/baisao2.jpg',
-      'images/baisao3.jpg',
-      'images/baisao4.jpg',
-      'images/baisao5.jpg',
-      'images/baisao6.jpg',
-      'images/baisao7.jpg',
-      'images/baisao8.jpg',
-      'images/baisao9.jpg',
-      ],
+      img:'images/baisao.jpg',
       category: 'nature'
     },
     {
       id:'hon-thom',
       name:'Hòn Thơm',
-      address:'Hòn Thơm, Phú Quốc, An Giang Giang, Việt Nam',
-      note:'Hòn Thơm, còn được gọi là Đảo Dứa là hòn đảo lớn nhất thuộc quần đảo An Thới trong vịnh Thái Lan.',
-      extra:['Nằm cách cảng An Thới khoảng 6km', 'Điểm nhấn của hòn đảo là phong cảnh hoang sơ, thơ mộng với màu nước trong xanh, nhiều ghềnh đá đẹp và lạ mắt.', 'Nhiều bãi biển đẹp như bãi Nồm, bãi Nam, bãi Chướng, bãi Trào', 'Hòn Thơm phát triển theo hướng du lịch giải trí và nghỉ dưỡng với cáp treo và quần thể vui chơi giải trí biển Sun World Hon Thom Nature Park'],
+      address:'Hòn Thơm, Phú Quốc, Kiên Giang, Việt Nam',
+      note:'Hòn đảo lớn thứ hai trong quần đảo An Thới, nổi tiếng với cảnh quan thiên nhiên hoang sơ.',
+      extra:['Đảo lớn thứ hai quần đảo An Thới', 'Cảnh quan thiên nhiên hoang sơ', 'Nhiều bãi biển đẹp'],
       lat:9.9560, lng:104.0179,
       games:[],
-      img: [
-      'images/honthom.jpg',
-      'images/honthom1.jpg',
-      'images/honthom2.jpg',
-      'images/honthom3.jpg',
-      'images/honthom4.jpg',
-      'images/honthom5.jpg',
-      ],
+      img:'images/honthom.jpg',
       category: 'nature'
     },
     
     // Nhóm Văn Hóa - Lịch Sử (Cam pastel)
     {
-    id:'quang-truong',
-      name:'Quảng trường Hồ Chí Minh',
-      address:'6XHH+66W, Dương Đông, Phú Quốc, An Giang, Việt Nam',
-      note:'Quảng trường Hồ Chí Minh và tượng đài Bác Hồ là công trình có ý nghĩa chính trị, văn hoá và lịch sử sâu sắc, đặc biệt là nơi tôn vinh công lao to lớn của Chủ tịch Hồ Chí Minh',
-        extra:[
-        'Quảng trường nơi đặt tượng đài Bác Hồ với quy mô 7,45 ha tại khu vực trung tâm đô thị', 
-        'Tượng Bác được đúc bằng hợp kim đồng, tổng chiều cao 20,7 m',
-        'Phía sau lưng tượng đài là bức phù điêu hai mặt, chạm nổi, dài 63 m, nơi cao nhất 10,8 m, nằm trên bệ cao 1,2 m. Phù điêu gồm 484 tấm đá trắng ghép lại với nhau.',
-        'Bên cạnh đó, kết hợp với đền thờ, nhà trưng bày về Chủ tịch Hồ Chí Minh, nhà đón tiếp, sân quảng trường và nhiều hạng mục khác tạo thành một quần thể công trình có ý nghĩa chính trị, văn hóa to lớn và sâu sắc, mang tầm quốc gia và quốc tế.'
-      ],
-      lat:10.2286667, lng:103.9770556,
-      games:[],
-      img: [
-      'images/quangtruong.jpg',
-      'images/quangtruong1.jpg',
-      'images/quangtruong2.jpg',
-   ],
-      category: 'culture',
-   
-    },
-    {
       id:'nha-tu',
       name:'Nhà tù Phú Quốc',
-      address:'350 Đ. Nguyễn Văn Cừ, An Thới, Phú Quốc, An Giang, Việt Nam',
+      address:'350 Đ. Nguyễn Văn Cừ, An Thới, Phú Quốc, Kiên Giang, Việt Nam',
       note:'Di tích lịch sử cấp Quốc gia đặc biệt (2014). Nơi giam giữ nhiều tù binh trong kháng chiến; chứng tích tra tấn, nhưng cũng là biểu tượng ý chí kiên cường.',
       extra:[
         'Năm xây dựng: 01/06/1967',
-        'Còn gọi: Nhà lao Cây Dừa', 
-        'Khoảng 40.000 tù binh từng bị giam; nhiều tù nhân bị tra tấn dã man. Có 45 cuộc vượt ngục ghi nhận.' ,
-        'Các hình thức tra tấn dã man: đóng kim, chuồng cọp kẽm gai, ăn cơm nhạt, gõ thùng, đục răng, đóng đinh,..',
+        'Còn gọi: Nhà lao Cây Dừa',
+        'Khoảng 40.000 tù binh từng bị giam; nhiều tù nhân bị tra tấn dã man. Có 45 cuộc vượt ngục ghi nhận.'
       ],
       lat:10.044417, lng:104.017639,
       games:['quiz_nhatu', 'memory_nhatu'],
-      img: [
-      'images/nhatupq1.jpg',
-      'images/nhatuphuquoc2.jpg',
-      'images/nhatupq3.jpg',
-      'images/nhatupq4.jpg',
-      'images/nhatupq5.jpg',
-      'images/nhatupq6.jpg',
-      'images/nhatupq7.jpg',
-      'images/nhatupq8.jpg',
-      'images/nhatupq9.jpg',
-      'images/nhatupq10.jpg',
-      'images/nhatupq11.jpg',
-      'images/nhatupq12.jpg', ],
+      img: 'images/nhatupq3.jpg',
       category: 'culture'
     },
     {
       id:'chua',
       name:'Chùa Hộ Quốc',
-      address:'426H+GVQ, Dương Tơ, Phú Quốc, An Giang, Việt Nam',
+      address:'426H+GVQ, Dương Tơ, Phú Quốc, Kiên Giang, Việt Nam',
       note:'Thiền viện Trúc Lâm Hộ Quốc — kiến trúc tâm linh lớn, phong cách cổ truyền Việt.',
       extra:['Ngôi chùa lớn nhất Phú Quốc', 'Kiến trúc truyền thống Việt Nam', 'Không gian tâm linh thanh tịnh'],
       lat:10.110028, lng:104.029056,
       games:[],
-      img: [
-      'images/chua.jpg',
-      'images/chua1.jpg',
-      'images/chua2.jpg',
-      'images/chua3.jpg',
-      'images/chua4.jpg',
-      'images/chua5.jpg',  ],
+      img: 'images/chua.jpg',
       category: 'culture'
     },
     {
       id:'dinh-ntt',
       name:'Đình Thần Nguyễn Trung Trực',
-      address:'9RFV+848, Gành Dầu, Phú Quốc, An Giang, Việt Nam',
+      address:'9RFV+848, Gành Dầu, Phú Quốc, Kiên Giang, Việt Nam',
       note:'Di tích lịch sử văn hóa. Đình thờ Anh hùng dân tộc Nguyễn Trung Trực (1839-1868).',
       extra:[
-       'Nguyễn Trung Trực là vị anh hùng có công lớn trong công cuộc chống thực dân Pháp giành lại Rạch Giá.',
-       'Với chiến tích lẫy lừng đánh chìm tàu Hy Vọng (L’Esperance) của Pháp trên sông Nhật Tảo và trận đánh tiêu diệt đồn Rạch Giá, Kiên Giang.',
-        'Tháng 9/1868 ông bị thực dân Pháp bắt tại Phú Quốc. Ngày 27/10/1868 chúng đưa ông về Rạch Giá và xử tử tại đây.',
-        'Đình được xây dựng từ năm 1993',
-        'Sở hữu nhiều kiến trúc độc đáo của ông cha ta thời xưa. Với đường nét hoa văn, chất liệu xây dựng và màu sắc đậm chất văn hóa Nam Bộ xưa.',
-        'Vào ngày 26 đến ngày 28 tháng 8 âm lịch hàng năm, đền thờ Nguyễn Trung Trực Phú Quốc đón người dân địa phương về đây dâng hương, tưởng nhớ đến công lao của ông.'
-  
+        'Đình được xây dựng từ năm 1882',
+        'Lễ giỗ tổ chức hàng năm (âm lịch) — hoạt động truyền thống hơn 100 năm',
+        'Nguyễn Trung Trực nổi tiếng với chiến công đốt tàu Pháp trên sông Nhật Tảo.'
       ],
       lat:10.373306, lng:103.842972,
       games:['quiz_trungtruc', 'memory_trungtruc'],
-      img:[
-      'images/dinhntt.jpg',
-      'images/dinhntt1.jpg',
-      'images/dinhntt2.jpg',
-      'images/dinhntt3.jpg',
-],
+      img:'images/dinhntt.jpg',
       category: 'culture'
     },
     {
       id:'baotang',
       name:'Bảo tàng Cội Nguồn',
-      address:'Số 149, đường Trần Hưng Đạo, Dương Đông, Phú Quốc’',
+      address:'số 149, đường Trần Hưng Đạo, Dương Đông, Phú Quốc’',
       note:'Bảo tàng tư nhân nhưng sở hữu nhiều hiện vật quý giá về văn hoá - lịch sử của Phú Quốc',
       extra:['Năm khởi công xây dựng: 2009', 'Quy mô lớn với nhiều hạng mục như nhà trưng bày, nhà sàn truyền thống, khu quà lưu niệm,..(rộng khoảng 6 ha)', 'Sở hữu nhiều bộ sưu tập gốm, đá, sứ,..Ngoài ra còn có bộ sưu tập biển, rừng Phú Quốc'],
       lat:10.192500, lng:103.967000,
@@ -2277,44 +2194,19 @@ function initMap() {
       'images/coinguon5.jpg',
       'images/coinguon6.jpg',
       'images/coinguon7.jpg',
-      'images/bt.jpg',
-      'images/bt1.jpg',
-      'images/bt2.jpg',
-      'images/bt3.jpg',
-      'images/bt4.jpg',
-      'images/bt5.jpg',
-      'images/bt6.jpg',
-      'images/bt7.jpg',
-      'images/bt8.jpg',
-      'images/bt9.jpg',
-      'images/bt10.jpg',
-      'images/bt11.jpg',
-      'images/bt12.jpg',
-      'images/bt13.jpg',
-      'images/bt14.jpg',
-      'images/bt15.jpg',
        ],
+
       category: 'culture'
     },
     {
       id:'dinh-cau',
       name:'Dinh Cậu',
-      address:'Khu phố 2, Phú Quốc, An Giang, Việt Nam',
-      note:'Di tích thắng cảnh; tín ngưỡng của ngư dân Phú Quốc về cuộc sống bình yên, mưa thuận gió hoà’,
-      extra:['Xây dựng: 1937 (tu sửa 1997)', 'Là nơi thờ phụng Chúa Ngọc Nương Nương và Cậu Tài, Cậu Quý', 'Hằng năm, vào ngày 15 và 16 tháng 10 âm lịch, lễ hội Dinh Cậu được tổ chức long trọng với nhiều nghi thức truyền thống nhằm tôn vinh và tưởng nhớ các vị thần này, thu hút đông đảo người dân và du khách đến tham dự.', 'Vị trí đẹp nhìn ra biển'],
+      address:'Khu phố 2, Tp. Phú Quốc, Kiên Giang 92500, Việt Nam',
+      note:'Di tích thắng cảnh; tín ngưỡng của ngư dân, có lễ hội hàng năm (15–16/10 âm lịch).',
+      extra:['Xây dựng: 1937 (tu sửa 1997)','Biểu tượng tâm linh của người dân địa phương', 'Vị trí đẹp nhìn ra biển'],
       lat:10.217194, lng:103.956500,
       games:[],
-      img:[
-      'images/dinhcau.jpg',
-      'images/dc1.jpg',
-      'images/dc2.jpg',
-      'images/dc3.jpg',
-      'images/dc4.jpg',
-      'images/dc5.jpg',
-      'images/dc6.jpg',
-      'images/dc7.jpg',
-      'images/dc8.jpg',
-      ],
+      img:'images/dinhcau.jpg',
       category: 'culture'
     },
     
@@ -2322,33 +2214,23 @@ function initMap() {
     {
       id:'cap-treo',
       name:'Cáp treo Hòn Thơm',
-      address:'Cáp treo Hòn Thơm, Phú Quốc, An Giang, Việt Nam',
+      address:'Cáp treo Hòn Thơm, Phú Quốc, Kiên Giang, Việt Nam',
       note:'Tuyến cáp treo vượt biển dài nhất thế giới, kết nối đảo Phú Quốc với đảo Hòn Thơm.',
-      extra:[ 
-     'Cáp treo Hòn Thơm Phú Quốc có chiều dài 7899,9m xuất phát từ ga An Thới, qua đảo Hòn Dừa, Hòn Rỏi và kết thúc ở Hòn Thơm, Phú Quốc.',
-    'Cáp treo Hòn Thơm Phú Quốc được tổ chức Guinness thế giới chứng nhận là Cáp treo 3 dây dài nhất thế giới',],
+      extra:['Tuyến cáp treo vượt biển dài nhất thế giới', 'Kết nối đảo Phú Quốc với Hòn Thơm', 'Cung đường ngắm cảnh tuyệt đẹp'],
       lat:10.0269, lng:104.0073,
       games:[],
-      img:[
-      'images/captreo.jpg',
-      'images/ct1.jpg',
-      'images/ct2.jpg',
-      'images/ct3.jpg',
-      'images/ct4.jpg',
-      ],
+      img:'images/captreo.jpg',
       category: 'entertainment'
     },
     {
       id:'grand-world',
       name:'Grand World Phú Quốc',
-      address:'Grand World Phú Quốc, Bãi Dài, Phú Quốc, An Giang, Việt Nam',
+      address:'Grand World Phú Quốc, Bãi Dài, Phú Quốc, Kiên Giang, Việt Nam',
       note:'Khu phức hợp giải trí, mua sắm và ẩm thực với kiến trúc châu Âu độc đáo.',
-      extra:[ 'Grand World Phu Quoc bao gồm 23 khu khác nhau với các chức năng riêng biệt: Bảo tàng gấu Teddy Bear Museum, Kênh đào Venice Phú Quốc, Công viên nghệ thuật đương đại Urban Park, Nhà tre Bamboo Legend, Quảng trường Vũ điệu Nhiệt đới',
-      ],
+      extra:['Khu phức hợp giải trí hiện đại', 'Kiến trúc châu Âu độc đáo', 'Nhiều hoạt động vui chơi, mua sắm'],
       lat:10.3289, lng:103.8629,
       games:[],
-      img:[ 'images/grandworld.jpg', 'images/gw1.jpg', 'images/gw2.jpg',
-'images/gw3.jpg', 'images/gw4.jpg', ],
+      img:'images/grandworld.jpg',
       category: 'entertainment'
     },
     
@@ -2358,15 +2240,10 @@ function initMap() {
       name:'Nhà thùng nước mắm Phú Quốc (Phụng Hưng)',
       address:'471 Đ. Nguyễn Văn Cừ, Khu 2, Phú Quốc, Kiên Giang',
       note:'Nhà thùng nước mắm truyền thống; nghề truyền thống của đảo.',
-      extra: [
-      'Lịch sử nhà thùng nước mắm Phú Quốc đã có từ 200 năm trước.',
-      'Tận dụng nguồn cá cơm dồi dào từ biển cả, người dân nơi đây bắt đầu tập trung sản xuất nước mắm theo phương thức ủ muối bí truyền, hình thành nên các làng nghề nước mắm sôi động trên đảo ngọc.',
-      'Thiết bị chính ở các nhà thùng nước mắm Phú Quốc là những thùng gỗ có kích thước “khủng”. Thùng thường được làm bằng gỗ bời lời hoặc gỗ vên vên, cao khoảng từ 2 - 4m, đường kính khoảng 1,5 - 3m. Với kích thước “siêu to khổng lồ”, thùng có thể chứa khoảng từ 7 - 13 tấn cá cơm trên mỗi lần ủ.',
-      'Thời gian ủ tối thiểu là 12 tháng. Tuy nhiên, ở một số nhà thùng nước mắm nổi tiếng Phú Quốc, thời gian ủ có thể kéo dài lên đến 15 tháng để đảm bảo cho ra đời tinh chất nước mắm hảo hạng nhất.'
-      ]
+      extra:['Lịch sử: hàng trăm năm, phương thức ủ muối truyền thống', 'Nước mắm Phú Quốc nổi tiếng thơm ngon'],
       lat:10.044917, lng:104.017444,
       games:[],
-      img:['images/nhathung.jpg', 'images/nt1.jpg',],
+      img:'images/nhathung.jpg',
       category: 'craft'
     },
     {
@@ -2374,22 +2251,21 @@ function initMap() {
       name:'Cơ sở nuôi cấy ngọc trai (Ngọc Hiền Pearl)',
       address:'Cơ sở nuôi cấy ngọc trai Ngọc Hiền Pearl, Phú Quốc, Kiên Giang',
       note:'Cơ sở nuôi cấy và chế tác ngọc trai nổi tiếng tại Phú Quốc.',
-      extra:[ 'Cơ sở nuôi cấy ngọc trai có quy mô lớn nhất tại đảo Phú Quốc, sở hữu nông trại 1000ha và quy trình nuôi cấy kết hợp công nghệ Nhật – Úc.', 'Những món trang sức cao cấp mang giá trị thẩm mỹ và tinh thần bền vững.',
-],
+      extra:['Nuôi cấy và chế tác ngọc trai', 'Sản phẩm ngọc trai chất lượng cao', 'Quy trình nuôi cấy công phu'],
       lat:10.1701, lng:103.9703,
       games:[],
-      img:['images/ngoctrai.jpg','images/ngoctrai1.jpg',],
+      img:'images/ngoctrai.jpg',
       category: 'craft'
     },
     {
       id:'ham-ninh',
       name:'Làng chài Hàm Ninh',
       address:'52JV+6XX, TL47, Rạch Hàm, Phú Quốc, Kiên Giang, Việt Nam',
-      note:'Làng chài cổ, nổi tiếng với hải sản tươi đặc biệt là ghẹ Hàm Ninh.',
+      note:'Làng chài cổ, nổi tiếng hải sản tươi, ghẹ Hàm Ninh.',
       extra:['Làng chài truyền thống lâu đời', 'Nổi tiếng với ghẹ Hàm Ninh tươi ngon', 'Cảnh biển đẹp, bình yên'],
       lat:10.180917, lng:104.048472,
       games:[],
-      img:['images/langchai.jpg', 'images/lc1.jpg','images/lc2.jpg','images/lc3.jpg',],
+      img:'images/langchai.jpg',
       category: 'craft'
     }
   ];
