@@ -1376,9 +1376,12 @@ let auth, db;
 /* ---------- FIREBASE ĐƠN GIẢN ---------- */
 function initFirebase() {
   try {
+    // Kiểm tra xem Firebase đã được khởi tạo chưa
     if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
       console.log('✅ Firebase initialized');
+    } else {
+      firebase.app(); // Sử dụng app hiện có
     }
     
     auth = firebase.auth();
@@ -1408,11 +1411,11 @@ function initFirebase() {
     
     return true;
   } catch (error) {
-    console.log('⚠️ Firebase failed, using localStorage');
+    console.log('⚠️ Firebase failed:', error);
+    console.log('⚠️ Using localStorage mode only');
     return false;
   }
 }
-
 // Load user data từ Firestore
 async function loadUserData(uid) {
   try {
@@ -1692,14 +1695,19 @@ document.addEventListener('DOMContentLoaded', function() {
   initData();
   refreshProfileAuthUI();
   loadStories();
-  initMap();
+  
+  // Khởi tạo map sau một chút delay để đảm bảo DOM đã render
+  setTimeout(() => {
+    initMap();
+  }, 100);
+  
   // Thiết lập real-time listener cho stories
-if (firebaseOK) {
-  setupStoriesListener();
-}
+  if (firebaseOK) {
+    setupStoriesListener();
+  }
+  
   console.log('✅ Application started successfully');
 });
-
 /* ---------- Menu Navigation ---------- */
 const menuBtn = document.getElementById('nav-menu');
 const menuDropdown = document.getElementById('menuDropdown');
@@ -2118,8 +2126,7 @@ function initMap() {
       'images/vuon3.jpg',
       'images/vuon4.jpg',
       'images/vuon5.jpg',
-
-      ]
+      ],
       category: 'nature'
     },
     {
@@ -2127,7 +2134,7 @@ function initMap() {
       name:'Bãi Sao',
       address:'Bãi Sao, Phú Quốc, An Giang, Việt Nam',
       note:'Bãi biển đẹp với cát trắng mịn, nước biển trong xanh, hình lưỡi liềm đặc trưng.',
-      extra:['Bãi cát dài 7km tại Bãi Sao mang một nét đẹp rất đặc trưng', 'Biển ở Bãi Sao rất êm và nước khá nông, kể cả vào mùa mưa nên rất thích hợp để cảm nhận “nhịp đập” của biển cả.', 'Hình dạng lưỡi liềm độc đáo', ‘Du khách cũng có thể vừa tắm biển vừa chơi các trò chơi thú vị như: bóng ném, chèo thuyền Kayak, cano kéo dù, lái moto nước,phao chuối ’],
+      extra:['Bãi cát dài 7km tại Bãi Sao mang một nét đẹp rất đặc trưng', 'Biển ở Bãi Sao rất êm và nước khá nông, kể cả vào mùa mưa nên rất thích hợp để cảm nhận “nhịp đập” của biển cả.', 'Hình dạng lưỡi liềm độc đáo', 'Du khách cũng có thể vừa tắm biển vừa chơi các trò chơi thú vị như: bóng ném, chèo thuyền Kayak, cano kéo dù, lái moto nước,phao chuối'],
       lat:10.0572, lng:104.0360,
       games:[],
       img: [
@@ -2148,7 +2155,7 @@ function initMap() {
       id:'hon-thom',
       name:'Hòn Thơm',
       address:'Hòn Thơm, Phú Quốc, An Giang Giang, Việt Nam',
-      note:Hòn Thơm, còn được gọi là Đảo Dứa là hòn đảo lớn nhất thuộc quần đảo An Thới trong vịnh Thái Lan.',
+      note:'Hòn Thơm, còn được gọi là Đảo Dứa là hòn đảo lớn nhất thuộc quần đảo An Thới trong vịnh Thái Lan.',
       extra:['Nằm cách cảng An Thới khoảng 6km', 'Điểm nhấn của hòn đảo là phong cảnh hoang sơ, thơ mộng với màu nước trong xanh, nhiều ghềnh đá đẹp và lạ mắt.', 'Nhiều bãi biển đẹp như bãi Nồm, bãi Nam, bãi Chướng, bãi Trào', 'Hòn Thơm phát triển theo hướng du lịch giải trí và nghỉ dưỡng với cáp treo và quần thể vui chơi giải trí biển Sun World Hon Thom Nature Park'],
       lat:9.9560, lng:104.0179,
       games:[],
@@ -2181,11 +2188,10 @@ function initMap() {
       'images/quangtruong.jpg',
       'images/quangtruong1.jpg',
       'images/quangtruong2.jpg',
-
-      ],
-      category: 'culture'
+   ],
+      category: 'culture',
    
-    }
+    },
     {
       id:'nha-tu',
       name:'Nhà tù Phú Quốc',
@@ -2193,8 +2199,8 @@ function initMap() {
       note:'Di tích lịch sử cấp Quốc gia đặc biệt (2014). Nơi giam giữ nhiều tù binh trong kháng chiến; chứng tích tra tấn, nhưng cũng là biểu tượng ý chí kiên cường.',
       extra:[
         'Năm xây dựng: 01/06/1967',
-        'Còn gọi: Nhà lao Cây Dừa',
-        'Khoảng 40.000 tù binh từng bị giam; nhiều tù nhân bị tra tấn dã man. Có 45 cuộc vượt ngục ghi nhận.'
+        'Còn gọi: Nhà lao Cây Dừa', 
+        'Khoảng 40.000 tù binh từng bị giam; nhiều tù nhân bị tra tấn dã man. Có 45 cuộc vượt ngục ghi nhận.' ,
         'Các hình thức tra tấn dã man: đóng kim, chuồng cọp kẽm gai, ăn cơm nhạt, gõ thùng, đục răng, đóng đinh,..',
       ],
       lat:10.044417, lng:104.017639,
@@ -2211,7 +2217,7 @@ function initMap() {
       'images/nhatupq9.jpg',
       'images/nhatupq10.jpg',
       'images/nhatupq11.jpg',
-      'images/nhatupq12.jpg', ]
+      'images/nhatupq12.jpg', ],
       category: 'culture'
     },
     {
@@ -2228,9 +2234,7 @@ function initMap() {
       'images/chua2.jpg',
       'images/chua3.jpg',
       'images/chua4.jpg',
-      'images/chua5.jpg',
-
-      ],
+      'images/chua5.jpg',  ],
       category: 'culture'
     },
     {
@@ -2254,7 +2258,6 @@ function initMap() {
       'images/dinhntt1.jpg',
       'images/dinhntt2.jpg',
       'images/dinhntt3.jpg',
-
 ],
       category: 'culture'
     },
@@ -2291,7 +2294,6 @@ function initMap() {
       'images/bt14.jpg',
       'images/bt15.jpg',
        ],
-
       category: 'culture'
     },
     {
@@ -2312,7 +2314,6 @@ function initMap() {
       'images/dc6.jpg',
       'images/dc7.jpg',
       'images/dc8.jpg',
-
       ],
       category: 'culture'
     },
@@ -2347,7 +2348,7 @@ function initMap() {
       lat:10.3289, lng:103.8629,
       games:[],
       img:[ 'images/grandworld.jpg', 'images/gw1.jpg', 'images/gw2.jpg',
-'images/gw3.jpg', 'images/gw4.jpg', ]
+'images/gw3.jpg', 'images/gw4.jpg', ],
       category: 'entertainment'
     },
     
@@ -2365,7 +2366,7 @@ function initMap() {
       ]
       lat:10.044917, lng:104.017444,
       games:[],
-      img:['images/nhathung.jpg', 'images/nt1.jpg',]
+      img:['images/nhathung.jpg', 'images/nt1.jpg',],
       category: 'craft'
     },
     {
@@ -2377,7 +2378,7 @@ function initMap() {
 ],
       lat:10.1701, lng:103.9703,
       games:[],
-      img:['images/ngoctrai.jpg','images/ngoctrai1.jpg',]
+      img:['images/ngoctrai.jpg','images/ngoctrai1.jpg',],
       category: 'craft'
     },
     {
@@ -2388,7 +2389,7 @@ function initMap() {
       extra:['Làng chài truyền thống lâu đời', 'Nổi tiếng với ghẹ Hàm Ninh tươi ngon', 'Cảnh biển đẹp, bình yên'],
       lat:10.180917, lng:104.048472,
       games:[],
-      img:['images/langchai.jpg', 'images/lc1.jpg','images/lc2.jpg','images/lc3.jpg',]
+      img:['images/langchai.jpg', 'images/lc1.jpg','images/lc2.jpg','images/lc3.jpg',],
       category: 'craft'
     }
   ];
