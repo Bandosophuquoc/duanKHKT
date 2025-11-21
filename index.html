@@ -1078,54 +1078,6 @@
     .stat-card {
       margin-bottom: 15px;
     }
-/* Hiển thị huy hiệu trong profile */
-.badge-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 15px;
-  width: 100%;
-}
-
-.badge-item {
-  text-align: center;
-  padding: 10px;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-  transition: transform 0.3s;
-}
-
-.badge-item:hover {
-  transform: translateY(-5px);
-}
-
-.badge-item img {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid var(--gold);
-  margin-bottom: 8px;
-}
-
-.badge-name {
-  font-size: 12px;
-  font-weight: 600;
-  color: #333;
-  line-height: 1.3;
-  word-break: break-word;
-}
-
-.badge-count {
-  background: var(--accent);
-  color: white;
-  border-radius: 20px;
-  padding: 5px 12px;
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 15px;
-  display: inline-block;
-}
   }
 </style>
 </head>
@@ -1470,15 +1422,13 @@ async function loadUserData(uid) {
       currentUser.badges = userData.badges || [];
       currentUser.visitedSites = userData.visitedSites || [];
       currentUser.completedGames = userData.completedGames || {};
-      console.log('✅ User data loaded, badges:', currentUser.badges.length);
-      
-      // Cập nhật UI ngay sau khi load data
-      refreshProfileAuthUI();
+      console.log('✅ User data loaded');
     }
   } catch (error) {
     console.log('⚠️ Cannot load user data');
   }
 }
+
 // Save user data lên Firestore
 async function saveUserData() {
   if (!currentUser || !auth.currentUser) return;
@@ -1640,32 +1590,20 @@ function refreshProfileAuthUI(){
     const source = currentUser ? '🔥 Firebase' : '📱 LocalStorage';
     profileInfo.innerHTML = `Xin chào <strong>${user.name}</strong> — ${user.email}<br><small>${source}</small>`;
     profileInfo.className = 'alert alert-success';
-      
-  // Hiển thị số lượng huy hiệu
-  const badgeCount = document.createElement('div');
-  badgeCount.className = 'w-100 text-center mb-3';
-  badgeCount.innerHTML = `<div class="badge-count">${user.badges.length} huy hiệu</div>`;
-  wrap.appendChild(badgeCount);
-  
-  // Tạo grid container
-  const gridContainer = document.createElement('div');
-  gridContainer.className = 'badge-grid';
-  
-  // Thêm từng huy hiệu vào grid
-  user.badges.forEach(badge => {
-    const badgeElement = document.createElement('div');
-    badgeElement.className = 'badge-item';
-    badgeElement.innerHTML = `
-      <img src="${badge.icon}" 
-           alt="${badge.name}" 
-           onerror="this.src='https://via.placeholder.com/64/C33/fff?text=${badge.name.charAt(0)}'">
-      <div class="badge-name">${badge.name}</div>
-    `;
-    gridContainer.appendChild(badgeElement);
-  });
-  
-  wrap.appendChild(gridContainer);
+    
+    renderUserBadges(user);
+  } else {
+    btnLogin.style.display = 'inline-block';
+    btnRegister.style.display = 'inline-block';
+    btnLogout.style.display = 'none';
+    
+    profileInfo.innerHTML = 'Bạn chưa đăng nhập. Vui lòng đăng nhập để lưu tiến trình.';
+    profileInfo.className = 'alert alert-info';
+    
+    renderProfileBadges();
+  }
 }
+
 function renderUserBadges(user) {
   const wrap = document.getElementById('profile-badge-area');
   if (!wrap) return;
@@ -1704,27 +1642,18 @@ function awardBadge(id, name, icon) {
   }
   
   if (!user.badges) user.badges = [];
+  if (user.badges.find(b => b.id === id)) return false;
   
-  // Kiểm tra xem đã có huy hiệu này chưa
-  const existingBadge = user.badges.find(b => b.id === id);
-  if (existingBadge) {
-    console.log('Huy hiệu đã tồn tại:', id);
-    return false;
-  }
-  
-  // Thêm huy hiệu mới
   user.badges.push({ id, name, icon });
-  console.log('Đã thêm huy hiệu:', name, user.badges);
   
   // Cập nhật user data
   if (updateUser(user)) {
-    // Cập nhật UI ngay lập tức
-    refreshProfileAuthUI();
     showBadgePopup(name, icon);
     return true;
   }
   return false;
 }
+
 function markVisited(siteId) {
   const user = getCurrentUser();
   if (!user) return;
@@ -2125,7 +2054,7 @@ function initMap() {
   
   // Tạo bản đồ với các tùy chọn giới hạn
   map = L.map('map', {
-zoomControl: true,
+    zoomControl: true,
     maxBounds: phuQuocBounds,           // Giới hạn khu vực
     maxBoundsViscosity: 1.0,            // Độ "dính" khi kéo ra biên
     minZoom: 10,                        // Zoom tối thiểu
@@ -2138,12 +2067,11 @@ zoomControl: true,
     attribution: '© OpenStreetMap',
     bounds: phuQuocBounds              // Giới hạn tile chỉ trong khu vực
   }).addTo(map);
-// Đặt giới hạn cho bản đồ
+  
+  // Đặt giới hạn cho bản đồ
   map.setMaxBounds(phuQuocBounds);
   
-  // PHẦN QUAN TRỌNG: Đảm bảo map đã được khởi tạo trước khi thêm marker
-  // Di chuyển phần tạo marker vào đây
-  
+  // Phần còn lại của hàm giữ nguyên...
   function createCustomIcon(category) {
     const colorMap = {
       'nature': '#A5D6A7',
@@ -2163,7 +2091,7 @@ zoomControl: true,
           height: 24px; 
           border-radius: 50%; 
           border: 3px solid white;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+          box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         "></div>
       `,
       iconSize: [30, 30],
@@ -2179,22 +2107,10 @@ zoomControl: true,
       name:'Vườn quốc gia Phú Quốc',
       address:'Vườn quốc gia Phú Quốc, Kiên Giang, Việt Nam',
       note:'Vườn quốc gia với hệ sinh thái rừng nhiệt đới phong phú, nơi bảo tồn nhiều loài động thực vật quý hiếm.',
-      extra:[
-'Diện tích: 31.422 ha', 
-'Vườn quốc gia Phú Quốc có đến 12.794 ha rừng',
-'Có nhiều loài động thực vật quý hiếm: 929 loài thực vật, 89 loài san hô cứng, 19 loài san hô mềm, 125 loài cá ở rặng san hô, 132 loài thân mềm, 32 loài da gai và 62 loài rong biển,...',
-'Hệ sinh thái rừng nhiệt đới đa dạng'],
+      extra:['Diện tích: 31.422 ha', 'Có nhiều loài động thực vật quý hiếm', 'Hệ sinh thái rừng nhiệt đới đa dạng'],
       lat:10.3645, lng:103.9919,
       games:[],
-      img: [
-      'images/vuonqg.jpg',
-      'images/vuon.jpg',
-      'images/vuon1.jpg',
-      'images/vuon2.jpg',
-      'images/vuon3.jpg',
-      'images/vuon4.jpg',
-      'images/vuon5.jpg',
-      ],
+      img: 'images/vuon.jpg',
       category: 'nature'
     },
     {
@@ -2202,26 +2118,10 @@ zoomControl: true,
       name:'Bãi Sao',
       address:'Bãi Sao, Phú Quốc, Kiên Giang, Việt Nam',
       note:'Bãi biển đẹp với cát trắng mịn, nước biển trong xanh, hình lưỡi liềm đặc trưng.',
-      extra:[
-'Bãi cát dài 7km', 
-'Biển ở Bãi Sao rất êm và nước khá nông, kể cả vào mùa mưa nên rất thích hợp để cảm nhận “nhịp đập” của biển cả.', 
-'Hình dạng lưỡi liềm độc đáo',
-'Du khách cũng có thể vừa tắm biển vừa chơi các trò chơi thú vị như: bóng ném, chèo thuyền Kayak, cano kéo dù, lái moto nước, phao chuối',
-],
+      extra:['Cát trắng mịn', 'Nước biển trong xanh', 'Hình dạng lưỡi liềm độc đáo'],
       lat:10.0572, lng:104.0360,
       games:[],
-      img: [
-      'images/baisao.jpg',
-      'images/baisao1.jpg',
-      'images/baisao2.jpg',
-      'images/baisao3.jpg',
-      'images/baisao4.jpg',
-      'images/baisao5.jpg',
-      'images/baisao6.jpg',
-      'images/baisao7.jpg',
-      'images/baisao8.jpg',
-      'images/baisao9.jpg',
-      ],
+      img:'images/baisao.jpg',
       category: 'nature'
     },
     {
@@ -2229,23 +2129,10 @@ zoomControl: true,
       name:'Hòn Thơm',
       address:'Hòn Thơm, Phú Quốc, Kiên Giang, Việt Nam',
       note:'Hòn đảo lớn thứ hai trong quần đảo An Thới, nổi tiếng với cảnh quan thiên nhiên hoang sơ.',
-      extra: [
-'Nằm cách cảng An Thới khoảng 6km', 
-'Điểm nhấn của hòn đảo là phong cảnh hoang sơ, thơ mộng với màu nước trong xanh, nhiều ghềnh đá đẹp và lạ mắt.', 
-'Nhiều bãi biển đẹp như bãi Nồm, bãi Nam, bãi Chướng, bãi Trào', 
-'Hòn Thơm phát triển theo hướng du lịch giải trí và nghỉ dưỡng với cáp treo và quần thể vui chơi giải trí biển Sun World Hon Thom Nature Park',
-],
+      extra:['Đảo lớn thứ hai quần đảo An Thới', 'Cảnh quan thiên nhiên hoang sơ', 'Nhiều bãi biển đẹp'],
       lat:9.9560, lng:104.0179,
       games:[],
-      img: [
-      'images/honthom.jpg',
-      'images/honthom1.jpg',
-      'images/honthom2.jpg',
-      'images/honthom3.jpg',
-      'images/honthom4.jpg',
-      'images/honthom5.jpg',
-      ],
-
+      img:'images/honthom.jpg',
       category: 'nature'
     },
     
@@ -2258,24 +2145,11 @@ zoomControl: true,
       extra:[
         'Năm xây dựng: 01/06/1967',
         'Còn gọi: Nhà lao Cây Dừa',
-        'Khoảng 40.000 tù binh từng bị giam; nhiều tù nhân bị tra tấn dã man. Có 45 cuộc vượt ngục ghi nhận.',
-        'Các hình thức tra tấn dã man: đóng kim, chuồng cọp kẽm gai, ăn cơm nhạt, gõ thùng, đục răng, đóng đinh,..',
+        'Khoảng 40.000 tù binh từng bị giam; nhiều tù nhân bị tra tấn dã man. Có 45 cuộc vượt ngục ghi nhận.'
       ],
       lat:10.044417, lng:104.017639,
       games:['quiz_nhatu', 'memory_nhatu'],
-      img: [
-      'images/nhatupq1.jpg',
-      'images/nhatuphuquoc2.jpg',
-      'images/nhatupq3.jpg',
-      'images/nhatupq4.jpg',
-      'images/nhatupq5.jpg',
-      'images/nhatupq6.jpg',
-      'images/nhatupq7.jpg',
-      'images/nhatupq8.jpg',
-      'images/nhatupq9.jpg',
-      'images/nhatupq10.jpg',
-      'images/nhatupq11.jpg',
-      'images/nhatupq12.jpg', ],
+      img: 'images/nhatupq3.jpg',
       category: 'culture'
     },
     {
@@ -2286,13 +2160,7 @@ zoomControl: true,
       extra:['Ngôi chùa lớn nhất Phú Quốc', 'Kiến trúc truyền thống Việt Nam', 'Không gian tâm linh thanh tịnh'],
       lat:10.110028, lng:104.029056,
       games:[],
-      img: [
-      'images/chua.jpg',
-      'images/chua1.jpg',
-      'images/chua2.jpg',
-      'images/chua3.jpg',
-      'images/chua4.jpg',
-      'images/chua5.jpg',  ],
+      img: 'images/chua.jpg',
       category: 'culture'
     },
     {
@@ -2301,12 +2169,9 @@ zoomControl: true,
       address:'9RFV+848, Gành Dầu, Phú Quốc, Kiên Giang, Việt Nam',
       note:'Di tích lịch sử văn hóa. Đình thờ Anh hùng dân tộc Nguyễn Trung Trực (1839-1868).',
       extra:[
-       'Nguyễn Trung Trực là vị anh hùng có công lớn trong công cuộc chống thực dân Pháp giành lại Rạch Giá.',
-        'Với chiến tích lẫy lừng đánh chìm tàu Hy Vọng của Pháp trên sông Nhật Tảo và trận đánh tiêu diệt đồn Rạch Giá, Kiên Giang.',
-        'Tháng 9/1868 ông bị thực dân Pháp bắt tại Phú Quốc. Ngày 27/10/1868 chúng đưa ông về Rạch Giá và xử tử tại đây.',
-      'Đình được xây dựng từ năm 1993',
-     'Sở hữu nhiều kiến trúc độc đáo của ông cha ta thời xưa. Với đường nét hoa văn, chất liệu xây dựng và màu sắc đậm chất văn hóa Nam Bộ xưa.',
-        'Vào ngày 26 đến ngày 28 tháng 8 âm lịch hàng năm, đền thờ Nguyễn Trung Trực Phú Quốc đón người dân địa phương về đây dâng hương, tưởng nhớ đến công lao của ông.',
+        'Đình được xây dựng từ năm 1882',
+        'Lễ giỗ tổ chức hàng năm (âm lịch) — hoạt động truyền thống hơn 100 năm',
+        'Nguyễn Trung Trực nổi tiếng với chiến công đốt tàu Pháp trên sông Nhật Tảo.'
       ],
       lat:10.373306, lng:103.842972,
       games:['quiz_trungtruc', 'memory_trungtruc'],
@@ -2316,7 +2181,7 @@ zoomControl: true,
     {
       id:'baotang',
       name:'Bảo tàng Cội Nguồn',
-      address:'Số 149, đường Trần Hưng Đạo, Dương Đông, Phú Quốc',
+      address:'số 149, đường Trần Hưng Đạo, Dương Đông, Phú Quốc’',
       note:'Bảo tàng tư nhân nhưng sở hữu nhiều hiện vật quý giá về văn hoá - lịch sử của Phú Quốc',
       extra:['Năm khởi công xây dựng: 2009', 'Quy mô lớn với nhiều hạng mục như nhà trưng bày, nhà sàn truyền thống, khu quà lưu niệm,..(rộng khoảng 6 ha)', 'Sở hữu nhiều bộ sưu tập gốm, đá, sứ,..Ngoài ra còn có bộ sưu tập biển, rừng Phú Quốc'],
       lat:10.192500, lng:103.967000,
@@ -2329,70 +2194,19 @@ zoomControl: true,
       'images/coinguon5.jpg',
       'images/coinguon6.jpg',
       'images/coinguon7.jpg',
-      'images/bt.jpg',
-      'images/bt1.jpg',
-      'images/bt2.jpg',
-      'images/bt3.jpg',
-      'images/bt4.jpg',
-      'images/bt5.jpg',
-      'images/bt6.jpg',
-      'images/bt7.jpg',
-      'images/bt8.jpg',
-      'images/bt9.jpg',
-      'images/bt10.jpg',
-      'images/bt11.jpg',
-      'images/bt12.jpg',
-      'images/bt13.jpg',
-      'images/bt14.jpg',
-      'images/bt15.jpg',
        ],
+
       category: 'culture'
     },
-    {
-    id:'quang-truong',
-      name:'Quảng trường Hồ Chí Minh',
-      address:'6XHH+66W, Dương Đông, Phú Quốc, An Giang, Việt Nam',
-      note:'Quảng trường Hồ Chí Minh và tượng đài Bác Hồ là công trình có ý nghĩa chính trị, văn hoá và lịch sử sâu sắc, đặc biệt là nơi tôn vinh công lao to lớn của Chủ tịch Hồ Chí Minh',
-        extra:[
-        'Quảng trường nơi đặt tượng đài Bác Hồ với quy mô 7,45 ha tại khu vực trung tâm đô thị', 
-        'Tượng Bác được đúc bằng hợp kim đồng, tổng chiều cao 20,7 m',
-        'Phía sau lưng tượng đài là bức phù điêu hai mặt, chạm nổi, dài 63m, nơi cao nhất 10,8 m, nằm trên bệ cao 1,2 m. Phù điêu gồm 484 tấm đá trắng ghép lại với nhau.',
-        'Bên cạnh đó, kết hợp với đền thờ, nhà trưng bày về Chủ tịch Hồ Chí Minh, nhà đón tiếp, sân quảng trường và nhiều hạng mục khác tạo thành một quần thể công trình có ý nghĩa chính trị, văn hóa to lớn và sâu sắc, mang tầm quốc gia và quốc tế.'
-      ],
-      lat:10.2286667, lng:103.9770556,
-      games:[],
-      img: [
-      'images/quangtruong.jpg',
-      'images/quangtruong1.jpg',
-      'images/quangtruong2.jpg',
-   ],
-      category: 'culture',
-    },
-
     {
       id:'dinh-cau',
       name:'Dinh Cậu',
       address:'Khu phố 2, Tp. Phú Quốc, Kiên Giang 92500, Việt Nam',
       note:'Di tích thắng cảnh; tín ngưỡng của ngư dân, có lễ hội hàng năm (15–16/10 âm lịch).',
-      extra:[
-'Xây dựng: 1937 (tu sửa 1997)', 
-'Là nơi thờ phụng Chúa Ngọc Nương Nương và Cậu Tài, Cậu Quý',
-'Hằng năm, vào ngày 15 và 16 tháng 10 âm lịch, lễ hội Dinh Cậu được tổ chức long trọng với nhiều nghi thức truyền thống nhằm tôn vinh và tưởng nhớ các vị thần này, thu hút đông đảo người dân và du khách đến tham dự.', 
-'Vị trí đẹp nhìn ra biển',
-],
+      extra:['Xây dựng: 1937 (tu sửa 1997)','Biểu tượng tâm linh của người dân địa phương', 'Vị trí đẹp nhìn ra biển'],
       lat:10.217194, lng:103.956500,
       games:[],
-     img:[
-      'images/dinhcau.jpg',
-      'images/dc1.jpg',
-      'images/dc2.jpg',
-      'images/dc3.jpg',
-      'images/dc4.jpg',
-      'images/dc5.jpg',
-      'images/dc6.jpg',
-      'images/dc7.jpg',
-      'images/dc8.jpg',
-      ],
+      img:'images/dinhcau.jpg',
       category: 'culture'
     },
     
@@ -2402,19 +2216,10 @@ zoomControl: true,
       name:'Cáp treo Hòn Thơm',
       address:'Cáp treo Hòn Thơm, Phú Quốc, Kiên Giang, Việt Nam',
       note:'Tuyến cáp treo vượt biển dài nhất thế giới, kết nối đảo Phú Quốc với đảo Hòn Thơm.',
-      extra: [ 
-     'Cáp treo Hòn Thơm Phú Quốc có chiều dài 7899,9m xuất phát từ ga An Thới, qua đảo Hòn Dừa, Hòn Rỏi và kết thúc ở Hòn Thơm, Phú Quốc.',
-    'Cáp treo Hòn Thơm Phú Quốc được tổ chức Guinness thế giới chứng nhận là Cáp treo 3 dây dài nhất thế giới',
-    ],
+      extra:['Tuyến cáp treo vượt biển dài nhất thế giới', 'Kết nối đảo Phú Quốc với Hòn Thơm', 'Cung đường ngắm cảnh tuyệt đẹp'],
       lat:10.0269, lng:104.0073,
       games:[],
-      img:[
-      'images/captreo.jpg',
-      'images/ct1.jpg',
-      'images/ct2.jpg',
-      'images/ct3.jpg',
-      'images/ct4.jpg',
-      ],
+      img:'images/captreo.jpg',
       category: 'entertainment'
     },
     {
@@ -2422,18 +2227,10 @@ zoomControl: true,
       name:'Grand World Phú Quốc',
       address:'Grand World Phú Quốc, Bãi Dài, Phú Quốc, Kiên Giang, Việt Nam',
       note:'Khu phức hợp giải trí, mua sắm và ẩm thực với kiến trúc châu Âu độc đáo.',
-      extra:[
-'Grand World Phú Quốc bao gồm 23 khu khác nhau với các chức năng riêng biệt: Bảo tàng gấu Teddy Bear Museum, Kênh đào Venice Phú Quốc, Công viên nghệ thuật đương đại Urban Park, Nhà tre Bamboo Legend, Quảng trường Vũ điệu Nhiệt đới',
-      ],
+      extra:['Khu phức hợp giải trí hiện đại', 'Kiến trúc châu Âu độc đáo', 'Nhiều hoạt động vui chơi, mua sắm'],
       lat:10.3289, lng:103.8629,
       games:[],
-      img:[ 
-'images/grandworld.jpg',
-'images/gw1.jpg', 
-'images/gw2.jpg',
-'images/gw3.jpg', 
-'images/gw4.jpg', 
-],
+      img:'images/grandworld.jpg',
       category: 'entertainment'
     },
     
@@ -2443,18 +2240,10 @@ zoomControl: true,
       name:'Nhà thùng nước mắm Phú Quốc (Phụng Hưng)',
       address:'471 Đ. Nguyễn Văn Cừ, Khu 2, Phú Quốc, Kiên Giang',
       note:'Nhà thùng nước mắm truyền thống; nghề truyền thống của đảo.',
-      extra: [
-      'Lịch sử nhà thùng nước mắm Phú Quốc đã có từ 200 năm trước.',
-      'Tận dụng nguồn cá cơm dồi dào từ biển cả, người dân nơi đây bắt đầu tập trung sản xuất nước mắm theo phương thức ủ muối bí truyền, hình thành nên các làng nghề nước mắm sôi động trên đảo ngọc.',
-      'Thiết bị chính ở các nhà thùng nước mắm Phú Quốc là những thùng gỗ có kích thước “khủng”. Thùng thường được làm bằng gỗ bời lời hoặc gỗ vên vên, cao khoảng từ 2 - 4m, đường kính khoảng 1,5 - 3m. Với kích thước “siêu to khổng lồ”, thùng có thể chứa khoảng từ 7 - 13 tấn cá cơm trên mỗi lần ủ.',
-      'Thời gian ủ tối thiểu là 12 tháng. Tuy nhiên, ở một số nhà thùng nước mắm nổi tiếng Phú Quốc, thời gian ủ có thể kéo dài lên đến 15 tháng để đảm bảo cho ra đời tinh chất nước mắm hảo hạng nhất.',
-      ],
+      extra:['Lịch sử: hàng trăm năm, phương thức ủ muối truyền thống', 'Nước mắm Phú Quốc nổi tiếng thơm ngon'],
       lat:10.044917, lng:104.017444,
       games:[],
-      img:[
-'images/nhathung.jpg', 
-'images/nt1.jpg',
-],
+      img:'images/nhathung.jpg',
       category: 'craft'
     },
     {
@@ -2462,16 +2251,10 @@ zoomControl: true,
       name:'Cơ sở nuôi cấy ngọc trai (Ngọc Hiền Pearl)',
       address:'Cơ sở nuôi cấy ngọc trai Ngọc Hiền Pearl, Phú Quốc, Kiên Giang',
       note:'Cơ sở nuôi cấy và chế tác ngọc trai nổi tiếng tại Phú Quốc.',
-      extra: [ 
-'Cơ sở nuôi cấy ngọc trai có quy mô lớn nhất tại đảo Phú Quốc, sở hữu nông trại 1000ha và quy trình nuôi cấy kết hợp công nghệ Nhật – Úc.',
-'Những món trang sức cao cấp mang giá trị thẩm mỹ và tinh thần bền vững.',
-],
+      extra:['Nuôi cấy và chế tác ngọc trai', 'Sản phẩm ngọc trai chất lượng cao', 'Quy trình nuôi cấy công phu'],
       lat:10.1701, lng:103.9703,
       games:[],
-      img: [
-'images/ngoctrai.jpg',
-'images/ngoctrai1.jpg',
-],
+      img:'images/ngoctrai.jpg',
       category: 'craft'
     },
     {
@@ -2482,12 +2265,7 @@ zoomControl: true,
       extra:['Làng chài truyền thống lâu đời', 'Nổi tiếng với ghẹ Hàm Ninh tươi ngon', 'Cảnh biển đẹp, bình yên'],
       lat:10.180917, lng:104.048472,
       games:[],
-      img: [
-'images/langchai.jpg', 
-'images/lc1.jpg',
-'images/lc2.jpg',
-'images/lc3.jpg',
-],
+      img:'images/langchai.jpg',
       category: 'craft'
     }
   ];
@@ -2675,23 +2453,8 @@ const QUIZZES = {
         ans:2,
         explain:'Đáp án đúng là C. Căn cứ theo Quyết định số 2408/QĐ-TTg ngày 31/12/2014 của Thủ tướng Chính phủ.'
       },
-
       {
-        q:'Đâu là các hình thức tra tấn dã man tại nhà tù Phú Quốc?',
-        opts:['Chuồng cọp kẽm gai', 'Đóng đinh', 'Chôn sống tù nhân giữa trời nắng nóng, 'Tất cả các đáp án trên đều đúng'],
-        ans:3,
-        explain:'Đáp án đúng là D. Các hình thức tra tấn dã man tại nhà tù Phú Quốc bao gồm: chuồng cọp kẽm gai, đóng đinh, chôn sống tù nhân,...',
-      },
-
- {
-        q:'Nơi đây từng diễn ra bao nhiêu cuộc vượt ngục',
-        opts:['42','45','50','36'],
-        ans:0,
-        explain:'Đáp án đúng là A. Nơi đây từng diễn ra 42 cuộc vượt ngục'
-      },
-
-      {
-        q:'“Địa ngục trần gian” Phú Quốc chính thức tồn tại trong khoảng thời gian nào?',
+        q:'"Địa ngục trần gian" Phú Quốc chính thức tồn tại trong khoảng thời gian nào?',
         opts:['Từ năm 1949 đến năm 1954','Từ tháng 6/1967 đến tháng 3/1973','Từ năm 1965 đến năm 1975','Từ năm 1954 đến năm 1975'],
         ans:1,
         explain:'Đáp án đúng là B. Theo tư liệu, trại giam tồn tại chưa đầy 6 năm trong giai đoạn này dưới sự quản lý của chính quyền Mỹ - Ngụy.'
@@ -2701,47 +2464,18 @@ const QUIZZES = {
   'quiz_trungtruc': {
     title:'Quiz Đình Nguyễn Trung Trực',
     items:[
-        {
-        q:'Đình thần Nguyễn Trung Trực tại Gành Dầu, Phú Quốc được xây dựng vào thời điểm nào?',
-        opts:['1995','1993','1987','1975t'],
-        ans:1,
-        explain:'Đáp án đúng là B. Đình thần Nguyễn Trung Trực tại Gành Dầu, Phú Quốc được xây dựng vào năm 1993’
-      },
-
       {
         q:'Nguyễn Trung Trực là thủ lĩnh nổi tiếng của phong trào kháng chiến chống?',
         opts:['Chống Pháp','Chống Pháp và chống Mỹ','Chống Mỹ','Chống Nhật'],
         ans:0,
         explain:'Đáp án đúng là A. Nguyễn Trung Trực là thủ lĩnh nghĩa quân chống lại thực dân Pháp xâm lược ở Nam Kỳ vào nửa cuối thế kỷ 19 (từ 1861-1868).'
       },
-
       {
         q:'Nguyễn Trung Trực đã chỉ huy nghĩa quân đốt cháy tàu chiến nào của Pháp trên sông Vàm Cỏ Đông vào năm 1861, gây tiếng vang lớn?',
         opts:['Tàu Hy Vọng (L\'Espérance)','Tàu Hằng Tâm (La Persévérance)','Tàu Jaccaré','Tàu Avalanche'],
         ans:0,
         explain:'Đáp án đúng là A. Chiến công nổi tiếng nhất của ông là chỉ huy nghĩa quân đốt cháy tiểu hạm L\'Espérance (có tên Việt là "Hy Vọng") của Pháp trên sông Vàm Cỏ Đông năm 1861.'
-      },
-
-      {
-        q:'Đâu là những chiến công vang dội của AHDT Nguyễn Trung Trực?',
-        opts:['Đánh chìm tàu Hy Vọng của Pháp trên sông Nhật Tảo','Trận đánh tiêu diệt đồn Rạch Giá, Kiên Giang','Chiến thắng tại Phú Quốc, Kiên Giang','A và B đều đúng'],
-        ans:3,
-        explain:'Đáp án đúng là D. Những chiến công vang dội của AHDT Nguyễn Trung Trực là Đánh chìm tàu Hy Vọng của Pháp trên sông Nhật Tảo và Trận đánh tiêu diệt đồn Rạch Giá, Kiên Giang',
-      },
-
-      {
-        q:'AHDT Nguyễn Trung Trực bị xử tử tại Rạch Giá vào thời gian nào?',
-        opts:['Tháng 9/1868','27/10/1868','22/11/1868','Tháng 3/1867'],
-        ans:1,
-        explain:'Đáp án đúng là B. AHDT Nguyễn Trung Trực bị xử tử tại Rạch Giá vào ngày 27/10/1868',     
-       },
-      {
-        q:'Hằng năm, vào ngày 26 - 28/8 âm lịch sẽ diễn ra sự kiện gì?',
-        opts:[ 'Lễ hội đua thuyền truyền thống trên sông Rạch Giá', 'Lễ giỗ anh hùng dân tộc Nguyễn Trung Trực', 'Lễ hội Văn hoá - Du lịch Nam Bộ', 'Lễ hội Dinh Cậu'],
-        ans:1,
-        explain:'Đáp án đúng là B. Lễ giỗ anh hùng dân tộc Nguyễn Trung Trực sẽ diễn ra vào ngày 26 đến 28/8 âm lịch hằng năm.’,
-       },
-
+      }
     ]
   }
 };
@@ -2752,16 +2486,8 @@ const MEMORY_GAMES = {
     cards: [
       { id: 1, image: 'images/nhatucard1.jpg', matchId: 2 },
       { id: 2, image: 'images/nhatutext1.jpg', matchId: 1 },
-
       { id: 3, image: 'images/nhatucard2.jpg', matchId: 4 },
-      { id: 4, image: 'images/nhatutext2.jpg', matchId: 3 },
-
-      { id: 5, image: 'images/nhatucard3.jpg', matchId: 6 },
-      { id: 6, image: 'images/nhatutext3.jpg', matchId: 5 },
-
-      { id: 7, image: 'images/nhatucard4.jpg', matchId: 8 },
-      { id: 8, image: 'images/nhatutext4.jpg', matchId: 7 },
-
+      { id: 4, image: 'images/nhatutext2.jpg', matchId: 3 }
     ]
   },
   'memory_trungtruc': {
@@ -2769,16 +2495,8 @@ const MEMORY_GAMES = {
     cards: [
       { id: 1, image: 'images/dinhcard1.jpg', matchId: 2 },
       { id: 2, image: 'images/dinhtext1.jpg', matchId: 1 },
-
       { id: 3, image: 'images/dinhcard2.jpg', matchId: 4 },
-      { id: 4, image: 'images/dinhtext2.jpg', matchId: 3 },
-
-      { id: 5, image: 'images/dinhcard3.jpg', matchId: 6 },
-      { id: 6, image: 'images/dinhtext3.jpg', matchId: 5 },
-
-      { id: 7, image: 'images/dinhcard4.jpg', matchId: 8 },
-      { id: 8, image: 'images/dinhtext4.jpg', matchId: 7 },
-
+      { id: 4, image: 'images/dinhtext2.jpg', matchId: 3 }
     ]
   }
 };
@@ -3340,4 +3058,3 @@ function renderAnalytics() {
 </script>
 </body>
 </html>
-
