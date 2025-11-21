@@ -1078,6 +1078,54 @@
     .stat-card {
       margin-bottom: 15px;
     }
+/* Hiển thị huy hiệu trong profile */
+.badge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 15px;
+  width: 100%;
+}
+
+.badge-item {
+  text-align: center;
+  padding: 10px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  transition: transform 0.3s;
+}
+
+.badge-item:hover {
+  transform: translateY(-5px);
+}
+
+.badge-item img {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--gold);
+  margin-bottom: 8px;
+}
+
+.badge-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+.badge-count {
+  background: var(--accent);
+  color: white;
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  display: inline-block;
+}
   }
 </style>
 </head>
@@ -1422,13 +1470,15 @@ async function loadUserData(uid) {
       currentUser.badges = userData.badges || [];
       currentUser.visitedSites = userData.visitedSites || [];
       currentUser.completedGames = userData.completedGames || {};
-      console.log('✅ User data loaded');
+      console.log('✅ User data loaded, badges:', currentUser.badges.length);
+      
+      // Cập nhật UI ngay sau khi load data
+      refreshProfileAuthUI();
     }
   } catch (error) {
     console.log('⚠️ Cannot load user data');
   }
 }
-
 // Save user data lên Firestore
 async function saveUserData() {
   if (!currentUser || !auth.currentUser) return;
@@ -1591,19 +1641,48 @@ function refreshProfileAuthUI(){
     profileInfo.innerHTML = `Xin chào <strong>${user.name}</strong> — ${user.email}<br><small>${source}</small>`;
     profileInfo.className = 'alert alert-success';
     
-    renderUserBadges(user);
-  } else {
-    btnLogin.style.display = 'inline-block';
-    btnRegister.style.display = 'inline-block';
-    btnLogout.style.display = 'none';
-    
-    profileInfo.innerHTML = 'Bạn chưa đăng nhập. Vui lòng đăng nhập để lưu tiến trình.';
-    profileInfo.className = 'alert alert-info';
-    
-    renderProfileBadges();
+  function renderUserBadges(user) {
+  const wrap = document.getElementById('profile-badge-area');
+  if (!wrap) return;
+  
+  wrap.innerHTML = '';
+  
+  if (!user.badges || user.badges.length === 0) {
+    wrap.innerHTML = `
+      <div class="text-center py-4 w-100">
+        <i class="fas fa-trophy fa-2x text-muted mb-3"></i>
+        <div class="text-muted">Chưa có huy hiệu nào</div>
+        <small class="text-muted">Hãy khám phá các địa điểm để nhận huy hiệu!</small>
+      </div>
+    `;
+    return;
   }
+  
+  // Hiển thị số lượng huy hiệu
+  const badgeCount = document.createElement('div');
+  badgeCount.className = 'w-100 text-center mb-3';
+  badgeCount.innerHTML = `<div class="badge-count">${user.badges.length} huy hiệu</div>`;
+  wrap.appendChild(badgeCount);
+  
+  // Tạo grid container
+  const gridContainer = document.createElement('div');
+  gridContainer.className = 'badge-grid';
+  
+  // Thêm từng huy hiệu vào grid
+  user.badges.forEach(badge => {
+    const badgeElement = document.createElement('div');
+    badgeElement.className = 'badge-item';
+    badgeElement.innerHTML = `
+      <img src="${badge.icon}" 
+           alt="${badge.name}" 
+           onerror="this.src='https://via.placeholder.com/64/C33/fff?text=${badge.name.charAt(0)}'">
+      <div class="badge-name">${badge.name}</div>
+    `;
+    gridContainer.appendChild(badgeElement);
+  });
+  
+  wrap.appendChild(gridContainer);
 }
-
 function renderUserBadges(user) {
   const wrap = document.getElementById('profile-badge-area');
   if (!wrap) return;
@@ -1642,18 +1721,27 @@ function awardBadge(id, name, icon) {
   }
   
   if (!user.badges) user.badges = [];
-  if (user.badges.find(b => b.id === id)) return false;
   
+  // Kiểm tra xem đã có huy hiệu này chưa
+  const existingBadge = user.badges.find(b => b.id === id);
+  if (existingBadge) {
+    console.log('Huy hiệu đã tồn tại:', id);
+    return false;
+  }
+  
+  // Thêm huy hiệu mới
   user.badges.push({ id, name, icon });
+  console.log('Đã thêm huy hiệu:', name, user.badges);
   
   // Cập nhật user data
   if (updateUser(user)) {
+    // Cập nhật UI ngay lập tức
+    refreshProfileAuthUI();
     showBadgePopup(name, icon);
     return true;
   }
   return false;
 }
-
 function markVisited(siteId) {
   const user = getCurrentUser();
   if (!user) return;
@@ -3208,3 +3296,4 @@ function renderAnalytics() {
 </script>
 </body>
 </html>
+
