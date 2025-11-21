@@ -2125,7 +2125,7 @@ function initMap() {
   
   // Tạo bản đồ với các tùy chọn giới hạn
   map = L.map('map', {
-    zoomControl: true,
+zoomControl: true,
     maxBounds: phuQuocBounds,           // Giới hạn khu vực
     maxBoundsViscosity: 1.0,            // Độ "dính" khi kéo ra biên
     minZoom: 10,                        // Zoom tối thiểu
@@ -2138,11 +2138,12 @@ function initMap() {
     attribution: '© OpenStreetMap',
     bounds: phuQuocBounds              // Giới hạn tile chỉ trong khu vực
   }).addTo(map);
-  
-  // Đặt giới hạn cho bản đồ
+// Đặt giới hạn cho bản đồ
   map.setMaxBounds(phuQuocBounds);
   
-  // Phần còn lại của hàm giữ nguyên...
+  // PHẦN QUAN TRỌNG: Đảm bảo map đã được khởi tạo trước khi thêm marker
+  // Di chuyển phần tạo marker vào đây
+  
   function createCustomIcon(category) {
     const colorMap = {
       'nature': '#A5D6A7',
@@ -2162,7 +2163,7 @@ function initMap() {
           height: 24px; 
           border-radius: 50%; 
           border: 3px solid white;
-          box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         "></div>
       `,
       iconSize: [30, 30],
@@ -2686,7 +2687,7 @@ const QUIZZES = {
         q:'Nơi đây từng diễn ra bao nhiêu cuộc vượt ngục',
         opts:['42','45','50','36'],
         ans:0,
-        explain:'Đáp án đúng là A. Nơi đây từng diễn ra 42 cuộc vượt ngục',
+        explain:'Đáp án đúng là A. Nơi đây từng diễn ra 42 cuộc vượt ngục'
       },
 
       {
@@ -2704,7 +2705,7 @@ const QUIZZES = {
         q:'Đình thần Nguyễn Trung Trực tại Gành Dầu, Phú Quốc được xây dựng vào thời điểm nào?',
         opts:['1995','1993','1987','1975t'],
         ans:1,
-        explain:'Đáp án đúng là B. Đình thần Nguyễn Trung Trực tại Gành Dầu, Phú Quốc được xây dựng vào năm 1993’,
+        explain:'Đáp án đúng là B. Đình thần Nguyễn Trung Trực tại Gành Dầu, Phú Quốc được xây dựng vào năm 1993’
       },
 
       {
