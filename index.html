@@ -1056,27 +1056,6 @@
   .note-color-7 { background: #C5E1A5; }
   .note-color-8 { background: #B39DDB; }
  
-  
-  /* Responsive */
-  @media (max-width: 768px) {
-    .stories-hero h1 {
-      font-size: 2.5rem;
-    }
-    
-    .stories-hero p {
-      font-size: 1.1rem;
-    }
-    
-    .stories-wall-new {
-      grid-template-columns: 1fr;
-    }
-    
-    .story-modal {
-      width: 95%;
-    }
-    
-    .stat-card {
-      margin-bottom: 15px;
 /* ========== STORYTELLING EXPERIENCE STYLES ========== */
 .storytelling-fullscreen {
     position: fixed;
@@ -1512,35 +1491,28 @@
         justify-content: center;
     }
 }
-/* Responsive */
-@media (max-width: 768px) {
-  .mystery-question {
-    font-size: 1.6rem;
-  }
   
-  .timeline-item {
-    flex-direction: column;
-  }
-  
-  .timeline-year {
-    margin-right: 0;
-    margin-bottom: 15px;
-    align-self: flex-start;
-  }
-  
-  .story-timeline::before {
-    left: 15px;
-  }
-  
-  .story-controls {
-    flex-direction: column;
-    gap: 15px;
-  }
-  
-  .story-btn {
-    width: 100%;
-  }
-}
+  /* Responsive */
+  @media (max-width: 768px) {
+    .stories-hero h1 {
+      font-size: 2.5rem;
+    }
+    
+    .stories-hero p {
+      font-size: 1.1rem;
+    }
+    
+    .stories-wall-new {
+      grid-template-columns: 1fr;
+    }
+    
+    .story-modal {
+      width: 95%;
+    }
+    
+    .stat-card {
+      margin-bottom: 15px;
+    }
   }
 </style>
 </head>
@@ -1754,229 +1726,7 @@
     </div>
   </div>
 </div>
-<!-- Storytelling Experience Modal -->
-<div class="modal fade" id="storyModal" tabindex="-1">
-  <div class="modal-dialog modal-xl modal-dialog-centered">
-    <div class="modal-content" style="background: transparent; border: none;">
-      <div class="modal-header" style="background: transparent; border: none; position: absolute; top: 20px; right: 20px; z-index: 1002;">
-        <button class="btn-close btn-close-white" data-bs-dismiss="modal" style="filter: brightness(0) invert(1);"></button>
-      </div>
-      <div class="modal-body p-0">
-        <div class="story-progress">
-          <div class="story-progress-bar" id="storyProgress"></div>
-        </div>
-        
-        <div class="story-modal-content">
-          <!-- Trang 1: Mở đầu bí ẩn -->
-          <div class="story-page active" id="page1">
-            <div class="story-mystery">
-              <h1 class="text-center mb-4" style="color: var(--gold); font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
-                NHÀ TÙ PHÚ QUỐC
-              </h1>
-              
-              <div class="mystery-image">
-                <i class="fas fa-landmark"></i>
-              </div>
-              <div class="mystery-question" id="typed-question"></div>
-              <p style="color: #ccc; font-size: 1.1rem; margin-bottom: 30px;">
-                Di tích lịch sử Quốc gia đặc biệt - Chứng tích của ý chí kiên cường
-              </p>
-              
-              <div class="row justify-content-center mt-4">
-                <div class="col-3">
-                  <img src="images/nhatupq3.jpg" alt="Nhà tù Phú Quốc" 
-                       class="img-fluid rounded shadow" 
-                       style="border: 2px solid var(--gold);">
-                </div>
-                <div class="col-3">
-                  <img src="images/nhatupq5.jpg" alt="Khu trưng bày" 
-                       class="img-fluid rounded shadow" 
-                       style="border: 2px solid var(--gold);">
-                </div>
-                <div class="col-3">
-                  <img src="images/hientat.jpg" alt="Hiện vật" 
-                       class="img-fluid rounded shadow" 
-                       style="border: 2px solid var(--gold);">
-                </div>
-              </div>
-              
-              <button class="story-btn mt-4" onclick="nextPage(2)">
-                Bắt đầu hành trình <i class="fas fa-arrow-right ms-2"></i>
-              </button>
-            </div>
-          </div>
 
-          <!-- Trang 2: Dòng thời gian -->
-          <div class="story-page" id="page2">
-            <div class="story-content">
-              <h3 class="text-center mb-4" style="color: var(--accent);">Dòng Thời Gian Lịch Sử</h3>
-              
-              <div class="story-timeline">
-                <div class="timeline-item">
-                  <div class="timeline-year">1967</div>
-                  <div class="timeline-content vintage-paper">
-                    <p>Nhà tù Phú Quốc chính thức được xây dựng vào ngày 1/6/1967 với tên gọi "Nhà lao Cây Dừa"</p>
-                    <div class="text-center mt-3">
-                      <img src="images/nhatupq-1967.jpg" alt="Nhà tù năm 1967" 
-                           class="img-fluid rounded" style="max-height: 200px;">
-                    </div>
-                  </div>
-                </div>
-                
-                <div class="timeline-item">
-                  <div class="timeline-year">1967-1973</div>
-                  <div class="timeline-content vintage-paper">
-                    <p>Hơn 40,000 tù binh đã bị giam giữ tại đây. Nơi đây trở thành "địa ngục trần gian" với các hình thức tra tấn dã man</p>
-                    <div class="text-center mt-3">
-                      <img src="images/tubinh.jpg" alt="Tù binh" 
-                           class="img-fluid rounded" style="max-height: 200px;">
-                    </div>
-                  </div>
-                </div>
-                
-                <div class="timeline-item">
-                  <div class="timeline-year">2014</div>
-                  <div class="timeline-content vintage-paper">
-                    <p>Được xếp hạng Di tích Quốc gia đặc biệt, trở thành biểu tượng của ý chí kiên cường</p>
-                    <div class="text-center mt-3">
-                      <img src="images/ditich.jpg" alt="Di tích ngày nay" 
-                           class="img-fluid rounded" style="max-height: 200px;">
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="story-controls">
-              <button class="story-btn" onclick="prevPage(1)">
-                <i class="fas fa-arrow-left me-2"></i>Quay lại
-              </button>
-              <button class="story-btn" onclick="nextPage(3)">
-                Tiếp tục <i class="fas fa-arrow-right ms-2"></i>
-              </button>
-            </div>
-          </div>
-
-          <!-- Trang 3: Hình ảnh và câu chuyện -->
-          <div class="story-page" id="page3">
-            <div class="story-content">
-              <h3 class="text-center mb-4" style="color: var(--accent);">Chứng Tích Lịch Sử</h3>
-              
-              <div>
-                <img src="images/trantan.jpg" alt="Nhà tù Phú Quốc" class="story-image-reveal" 
-                     onload="this.classList.add('revealed')" style="width: 100%; border-radius: 10px; max-height: 400px; object-fit: cover;">
-              </div>
-              
-              <div class="vintage-paper mt-4">
-                <h5><i class="fas fa-quote-left text-muted me-2"></i>Câu chuyện từ quá khứ</h5>
-                <p class="mb-0">"Dù bị tra tấn dã man, những người tù vẫn giữ vững khí tiết. Họ đã biến nhà tù thành trường học cách mạng, nơi truyền dạy lòng yêu nước và ý chí đấu tranh..."</p>
-              </div>
-
-              <div class="row mt-4">
-                <div class="col-md-4">
-                  <div class="text-center">
-                    <img src="images/chuongcopkemgai.jpg" alt="Chuồng cọp" class="img-fluid rounded shadow" style="max-height: 150px;">
-                    <p class="small text-muted mt-2">Chuồng cọp kẽm gai</p>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="text-center">
-                    <img src="images/hientat.jpg" alt="Hiện vật" class="img-fluid rounded shadow" style="max-height: 150px;">
-                    <p class="small text-muted mt-2">Hiện vật lịch sử</p>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="text-center">
-                    <img src="images/tutuong.jpg" alt="Tượng đài" class="img-fluid rounded shadow" style="max-height: 150px;">
-                    <p class="small text-muted mt-2">Tượng đài tưởng niệm</p>
-                  </div>
-                </div>
-              </div>
-
-              <div class="row mt-4">
-                <div class="col-md-6">
-                  <div class="vintage-paper h-100">
-                    <h6><i class="fas fa-exclamation-triangle text-warning me-2"></i>Hình thức tra tấn</h6>
-                    <ul class="mb-0">
-                      <li>Chuồng cọp kẽm gai</li>
-                      <li>Đóng đinh vào tay</li>
-                      <li>Ăn cơm nhạt</li>
-                      <li>Gõ thùng, đục răng</li>
-                    </ul>
-                    <div class="text-center mt-3">
-                      <img src="images/trantan.jpg" alt="Tra tấn" class="img-fluid rounded" style="max-height: 120px;">
-                    </div>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="vintage-paper h-100">
-                    <h6><i class="fas fa-medal text-success me-2"></i>Ý chí kiên cường</h6>
-                    <ul class="mb-0">
-                      <li>45 cuộc vượt ngục</li>
-                      <li>Tổ chức học tập</li>
-                      <li>Đấu tranh chính trị</li>
-                      <li>Đoàn kết tương trợ</li>
-                    </ul>
-                    <div class="text-center mt-3">
-                      <img src="images/vuotnguc.jpg" alt="Vượt ngục" class="img-fluid rounded" style="max-height: 120px;">
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="story-controls">
-              <button class="story-btn" onclick="prevPage(2)">
-                <i class="fas fa-arrow-left me-2"></i>Quay lại
-              </button>
-              <button class="story-btn" onclick="nextPage(4)">
-                Tiếp tục <i class="fas fa-arrow-right ms-2"></i>
-              </button>
-            </div>
-          </div>
-
-          <!-- Trang 4: Kết thúc và thông điệp -->
-          <div class="story-page" id="page4">
-            <div class="story-content text-center">
-              <div>
-                <div class="mystery-image" style="background: linear-gradient(45deg, #4CAF50, #2E7D32); width: 150px; height: 150px; margin: 0 auto 30px;">
-                  <i class="fas fa-peace" style="color: white; font-size: 3rem;"></i>
-                </div>
-              </div>
-              
-              <h3 style="color: var(--accent);">Bài Học Từ Lịch Sử</h3>
-              
-              <div class="vintage-paper mt-4">
-                <p class="lead">"Di tích Nhà tù Phú Quốc không chỉ là chứng tích của một thời đau thương, mà còn là minh chứng hùng hồn cho ý chí kiên cường, lòng yêu nước và khát vọng tự do của dân tộc Việt Nam."</p>
-              </div>
-
-              <div class="row mt-4">
-                <div class="col-md-8 mx-auto">
-                  <div>
-                    <img src="images/hientai.jpg" alt="Nhà tù ngày nay" class="img-fluid rounded shadow">
-                    <p class="small text-muted mt-2">Di tích Nhà tù Phú Quốc ngày nay - Nơi giáo dục truyền thống</p>
-                  </div>
-                </div>
-              </div>
-
-              <div class="vintage-paper mt-4">
-                <h6>Thông điệp cho thế hệ trẻ:</h6>
-                <p class="mb-0">Hãy trân trọng hòa bình, phát huy tinh thần bất khuất của cha ông, và góp phần xây dựng đất nước ngày càng phát triển.</p>
-              </div>
-
-              <div class="mt-5">
-                <button class="story-btn me-3" onclick="closeStoryModal()">
-                  <i class="fas fa-check me-2"></i>Hoàn thành
-                </button>
-                <button class="btn btn-outline-secondary" onclick="restartStory()">
-                  <i class="fas fa-redo me-2"></i>Xem lại
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 <!-- GAME FULLSCREEN MODE -->
 <div id="gameFullscreen" class="game-fullscreen">
   <div class="game-fullscreen-header">
@@ -3334,6 +3084,7 @@ let diModal;
 if (document.getElementById('diModal')) {
   diModal = new bootstrap.Modal(document.getElementById('diModal'));
 }
+
 function openDiModal(p){
   if (!diModal) return;
   
@@ -3390,81 +3141,7 @@ function openDiModal(p){
     return;
   }
   
-  // ... (giữ nguyên phần xử lý cho các địa điểm khác)  
-  // Xử lý bình thường cho các địa điểm khác
-  document.getElementById('diTitle').innerText = p.name;
-  const extras = p.extra.map(x => `<li>${x}</li>`).join('');
-  
-  // Tạo HTML cho carousel nếu có nhiều ảnh
-  let imageHTML = '';
-  if (Array.isArray(p.img) && p.img.length > 0) {
-    imageHTML = `
-      <div id="carousel-${p.id}" class="carousel slide" data-bs-ride="carousel">
-        <div class="carousel-inner">
-          ${p.img.map((imgSrc, index) => `
-            <div class="carousel-item ${index === 0 ? 'active' : ''}">
-              <img src="${imgSrc}" class="d-block w-100" alt="${p.name} - Ảnh ${index + 1}" 
-                   style="border-radius:8px;object-fit:cover;height:300px">
-            </div>
-          `).join('')}
-        </div>
-        ${p.img.length > 1 ? `
-          <button class="carousel-control-prev" type="button" data-bs-target="#carousel-${p.id}" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-          </button>
-          <button class="carousel-control-next" type="button" data-bs-target="#carousel-${p.id}" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-          </button>
-        ` : ''}
-      </div>
-    `;
-  } else {
-    // Nếu chỉ có 1 ảnh
-    const imgSrc = typeof p.img === 'string' ? p.img : (p.img && p.img[0] ? p.img[0] : '');
-    imageHTML = `<img src="${imgSrc}" alt="${p.name}" style="width:100%;border-radius:8px;object-fit:cover;height:300px">`;
-  }
-  
-  const html = `
-    <div class="row">
-      <div class="col-md-5">
-        ${imageHTML}
-      </div>
-      <div class="col-md-7">
-        <h5 class="diatic-title">${p.name}</h5>
-        <p style="margin:0">${p.address}</p>
-        <p style="margin-top:8px;color:#333">${p.note}</p>
-        ${extras ? `<ul>${extras}</ul>` : ''}
-      </div>
-    </div>
-  `;
-  
-  document.getElementById('diBody').innerHTML = html;
-  document.getElementById('diCoords').innerText = `${p.lat.toFixed(6)}, ${p.lng.toFixed(6)}`;
-  
-  const btnPlay = document.getElementById('btn-play');
-  if(p.games && p.games.length){
-    btnPlay.style.display = 'inline-block';
-    btnPlay.onclick = () => { diModal.hide(); openGamePicker(p); };
-  } else { 
-    btnPlay.style.display = 'none'; 
-    btnPlay.onclick = null; 
-  }
-  
-  document.getElementById('btn-checkin').onclick = () => {
-    const user = getCurrentUser();
-    if(!user){ 
-      alert('Vui lòng đăng nhập trước khi check-in.'); 
-      return; 
-    }
-    markVisited(p.id);
-    awardBadgeSite(p.id, p.name);
-  };
-  
-  diModal.show();
-}
-
+  // ... (giữ nguyên phần xử lý cho các địa điểm khác)
 function awardBadgeSite(siteId, siteName) {
   const badgeIcons = {
     'chua': 'images/hhchua.jpg',
@@ -4118,6 +3795,7 @@ function showSuccessMessage() {
 document.getElementById('successClose').addEventListener('click', () => {
   document.getElementById('successMessage').classList.remove('show');
 });
+
 /* ========== STORYTELLING EXPERIENCE FUNCTIONS ========== */
 let currentStoryPage = 1;
 const totalStoryPages = 4;
@@ -4261,6 +3939,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
+
 /* ---------- ANALYTICS ---------- */
 function renderAnalytics() {
   // Placeholder for analytics functionality
@@ -4272,92 +3951,6 @@ function renderAnalytics() {
   document.getElementById('pageViewsChart').innerHTML = '<p class="text-muted">Chưa có dữ liệu</p>';
   document.getElementById('deviceChart').innerHTML = '<p class="text-muted">Chưa có dữ liệu</p>';
   document.getElementById('recentActivity').innerHTML = '<p class="text-muted">Chưa có hoạt động nào</p>';
-}
-/* ========== STORYTELLING EXPERIENCE FUNCTIONS ========== */
-let storyModal;
-if (document.getElementById('storyModal')) {
-  storyModal = new bootstrap.Modal(document.getElementById('storyModal'));
-}
-
-let currentStoryPage = 1;
-const totalStoryPages = 4;
-
-function openStoryExperience() {
-  currentStoryPage = 1;
-  updateStoryProgress();
-  showStoryPage(1);
-  
-  // Typewriter effect for the question
-  const question = "Bạn có biết nơi nào từng được mệnh danh là 'địa ngục trần gian' nhưng nay là chứng tích cho ý chí kiên cường?";
-  typeWriterEffect('typed-question', question);
-  
-  storyModal.show();
-}
-
-function typeWriterEffect(elementId, text) {
-  const element = document.getElementById(elementId);
-  element.innerHTML = '';
-  element.classList.add('typewriter');
-  
-  let i = 0;
-  function type() {
-    if (i < text.length) {
-      element.innerHTML += text.charAt(i);
-      i++;
-      setTimeout(type, 50);
-    } else {
-      element.classList.remove('typewriter');
-    }
-  }
-  type();
-}
-
-function showStoryPage(pageNumber) {
-  // Hide all pages
-  document.querySelectorAll('.story-page').forEach(page => {
-    page.classList.remove('active');
-  });
-  
-  // Show current page
-  const currentPage = document.getElementById(`page${pageNumber}`);
-  if (currentPage) {
-    currentPage.classList.add('active');
-  }
-  
-  currentStoryPage = pageNumber;
-  updateStoryProgress();
-}
-
-function nextPage(nextPageNumber) {
-  if (nextPageNumber <= totalStoryPages) {
-    showStoryPage(nextPageNumber);
-  }
-}
-
-function prevPage(prevPageNumber) {
-  if (prevPageNumber >= 1) {
-    showStoryPage(prevPageNumber);
-  }
-}
-
-function updateStoryProgress() {
-  const progress = (currentStoryPage / totalStoryPages) * 100;
-  const progressBar = document.getElementById('storyProgress');
-  if (progressBar) {
-    progressBar.style.width = `${progress}%`;
-  }
-}
-
-function closeStoryModal() {
-  if (storyModal) {
-    storyModal.hide();
-  }
-  // Award badge for completing the story experience
-  awardBadge('story_nhatu', 'Nhà Kể Chuyện', 'images/hhstory.jpg');
-}
-
-function restartStory() {
-  showStoryPage(1);
 }
 </script>
 </body>
