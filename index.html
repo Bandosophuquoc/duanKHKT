@@ -1640,24 +1640,7 @@ function refreshProfileAuthUI(){
     const source = currentUser ? '🔥 Firebase' : '📱 LocalStorage';
     profileInfo.innerHTML = `Xin chào <strong>${user.name}</strong> — ${user.email}<br><small>${source}</small>`;
     profileInfo.className = 'alert alert-success';
-    
-  function renderUserBadges(user) {
-  const wrap = document.getElementById('profile-badge-area');
-  if (!wrap) return;
-  
-  wrap.innerHTML = '';
-  
-  if (!user.badges || user.badges.length === 0) {
-    wrap.innerHTML = `
-      <div class="text-center py-4 w-100">
-        <i class="fas fa-trophy fa-2x text-muted mb-3"></i>
-        <div class="text-muted">Chưa có huy hiệu nào</div>
-        <small class="text-muted">Hãy khám phá các địa điểm để nhận huy hiệu!</small>
-      </div>
-    `;
-    return;
-  }
-  
+      
   // Hiển thị số lượng huy hiệu
   const badgeCount = document.createElement('div');
   badgeCount.className = 'w-100 text-center mb-3';
@@ -2694,20 +2677,20 @@ const QUIZZES = {
 
       {
         q:'Đâu là các hình thức tra tấn dã man tại nhà tù Phú Quốc?',
-        opts:['Chuồng cọp kẽm gai', 'Đóng đinh', 'Chôn sống tù nhân giữa trời nắng nóng, 'Tất cả các đáp án trên đều đúng',],
+        opts:['Chuồng cọp kẽm gai', 'Đóng đinh', 'Chôn sống tù nhân giữa trời nắng nóng, 'Tất cả các đáp án trên đều đúng'],
         ans:3,
-        explain:'Đáp án đúng là D. Các hình thức tra tấn dã man tại nhà tù Phú Quốc bao gồm: chuồng cọp kẽm gai, đóng đinh, chôn sống tù nhân,...
+        explain:'Đáp án đúng là D. Các hình thức tra tấn dã man tại nhà tù Phú Quốc bao gồm: chuồng cọp kẽm gai, đóng đinh, chôn sống tù nhân,...',
       },
 
  {
         q:'Nơi đây từng diễn ra bao nhiêu cuộc vượt ngục',
         opts:['42','45','50','36'],
         ans:0,
-        explain:'Đáp án đúng là A. Nơi đây từng diễn ra 42 cuộc vượt ngục’,
+        explain:'Đáp án đúng là A. Nơi đây từng diễn ra 42 cuộc vượt ngục',
       },
 
       {
-        q:'"Địa ngục trần gian" Phú Quốc chính thức tồn tại trong khoảng thời gian nào?',
+        q:'“Địa ngục trần gian” Phú Quốc chính thức tồn tại trong khoảng thời gian nào?',
         opts:['Từ năm 1949 đến năm 1954','Từ tháng 6/1967 đến tháng 3/1973','Từ năm 1965 đến năm 1975','Từ năm 1954 đến năm 1975'],
         ans:1,
         explain:'Đáp án đúng là B. Theo tư liệu, trại giam tồn tại chưa đầy 6 năm trong giai đoạn này dưới sự quản lý của chính quyền Mỹ - Ngụy.'
@@ -2753,7 +2736,7 @@ const QUIZZES = {
        },
       {
         q:'Hằng năm, vào ngày 26 - 28/8 âm lịch sẽ diễn ra sự kiện gì?',
-        opts:[ 'Lễ hội đua thuyền truyền thống trên sông Rạch Giá', 'Lễ giỗ anh hùng dân tộc Nguyễn Trung Trực', 'Lễ hội Văn hoá - Du lịch Nam Bộ', 'Lễ hội Dinh Cậu']
+        opts:[ 'Lễ hội đua thuyền truyền thống trên sông Rạch Giá', 'Lễ giỗ anh hùng dân tộc Nguyễn Trung Trực', 'Lễ hội Văn hoá - Du lịch Nam Bộ', 'Lễ hội Dinh Cậu'],
         ans:1,
         explain:'Đáp án đúng là B. Lễ giỗ anh hùng dân tộc Nguyễn Trung Trực sẽ diễn ra vào ngày 26 đến 28/8 âm lịch hằng năm.’,
        },
