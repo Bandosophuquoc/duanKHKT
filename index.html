@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="vi">
 <head>
-<!-- Firebase SDK -->
+<!-- Firebase SDK →
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -1381,6 +1381,15 @@ function initFirebase() {
       console.log('✅ Firebase initialized');
     }
     
+    // DI CHUYỂN 2 DÒNG NÀY RA NGOÀI if statement
+    const analytics = firebase.analytics();
+    
+    // Ghi nhận page view
+    analytics.logEvent('page_view', {
+      page_title: document.title,
+      page_location: window.location.href
+    });
+    
     auth = firebase.auth();
     db = firebase.firestore();
     
@@ -1388,6 +1397,14 @@ function initFirebase() {
     auth.onAuthStateChanged((user) => {
       if (user) {
         console.log('🔥 User logged in:', user.email);
+        
+        // Ghi nhận sự kiện đăng nhập
+        if (typeof firebase.analytics !== 'undefined') {
+          firebase.analytics().logEvent('login', {
+            method: 'email'
+          });
+        }
+        
         currentUser = {
           id: user.uid,
           name: user.displayName || user.email,
@@ -1397,7 +1414,6 @@ function initFirebase() {
           completedGames: {}
         };
         
-        // Load user data từ Firestore
         loadUserData(user.uid);
       } else {
         console.log('🔥 User logged out');
@@ -1412,7 +1428,6 @@ function initFirebase() {
     return false;
   }
 }
-
 // Load user data từ Firestore
 async function loadUserData(uid) {
   try {
