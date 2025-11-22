@@ -2252,36 +2252,34 @@ function setupStoriesListener() {
 /* ---------- MAP SYSTEM ---------- */
 let map;
 let currentTooltip = null;
-
 function initMap() {
   if (!document.getElementById('map')) return;
   
   // Giới hạn khu vực bản đồ cho Phú Quốc
   const phuQuocBounds = L.latLngBounds(
-    L.latLng(9.8, 103.7),   // Tây Nam (góc dưới bên trái)
-    L.latLng(10.5, 104.2)   // Đông Bắc (góc trên bên phải)
+    L.latLng(9.8, 103.7),   // Tây Nam
+    L.latLng(10.5, 104.2)   // Đông Bắc
   );
   
-  // Tạo bản đồ với các tùy chọn giới hạn
+  // Tạo bản đồ
   map = L.map('map', {
     zoomControl: true,
-    maxBounds: phuQuocBounds,           // Giới hạn khu vực
-    maxBoundsViscosity: 1.0,            // Độ "dính" khi kéo ra biên
-    minZoom: 10,                        // Zoom tối thiểu
-    maxZoom: 16                         // Zoom tối đa
+    maxBounds: phuQuocBounds,
+    maxBoundsViscosity: 1.0,
+    minZoom: 10,
+    maxZoom: 16
   }).setView([10.28, 103.98], 11);
   
-  // Thêm tile layer với bounds
+  // Thêm tile layer
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
-    attribution: '© OpenStreetMap',
-    bounds: phuQuocBounds              // Giới hạn tile chỉ trong khu vực
+    attribution: '© OpenStreetMap'
   }).addTo(map);
   
-  // Đặt giới hạn cho bản đồ
+  // Đặt giới hạn
   map.setMaxBounds(phuQuocBounds);
   
-  // Phần còn lại của hàm giữ nguyên...
+  // Tạo custom icon
   function createCustomIcon(category) {
     const colorMap = {
       'nature': '#A5D6A7',
@@ -2309,6 +2307,55 @@ function initMap() {
     });
   }
 
+  // Dữ liệu địa điểm - GIỮ NGUYÊN PHẦN NÀY
+  const DI_TICH = [
+    // ... GIỮ NGUYÊN TOÀN BỘ DANH SÁCH DI_TICH Ở ĐÂY ...
+    // (copy toàn bộ mảng DI_TICH từ code cũ vào đây)
+  ];
+
+  // 🎯 QUAN TRỌNG: THÊM MARKERS VÀ SỰ KIỆN CLICK
+  DI_TICH.forEach(p => {
+    const m = L.marker([p.lat, p.lng], { 
+      icon: createCustomIcon(p.category) 
+    }).addTo(map);
+    
+    // Tooltip khi hover
+    m.on('mouseover', function(e) {
+      if (currentTooltip) {
+        document.body.removeChild(currentTooltip);
+      }
+      
+      currentTooltip = document.createElement('div');
+      currentTooltip.className = 'marker-tooltip';
+      currentTooltip.textContent = p.name;
+      
+      const point = map.latLngToContainerPoint(e.latlng);
+      currentTooltip.style.left = (point.x + 20) + 'px';
+      currentTooltip.style.top = (point.y - 10) + 'px';
+      
+      document.body.appendChild(currentTooltip);
+    });
+    
+    m.on('mouseout', function() {
+      if (currentTooltip) {
+        document.body.removeChild(currentTooltip);
+        currentTooltip = null;
+      }
+    });
+    
+    // 🎯 SỰ KIỆN CLICK QUAN TRỌNG - MỞ MODAL
+    m.on('click', function(e) {
+      if (currentTooltip) {
+        document.body.removeChild(currentTooltip);
+        currentTooltip = null;
+      }
+      openDiModal(p); // Gọi hàm mở modal
+    });
+    
+    // Popup thông tin
+    m.bindPopup(`<strong>${p.name}</strong><br>${p.address}`);
+  });
+}
   // Dữ liệu địa điểm
   const DI_TICH = [
     // Nhóm Thiên Nhiên (Xanh Lá pastel)
