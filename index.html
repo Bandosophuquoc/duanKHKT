@@ -1509,11 +1509,13 @@ async function loadUserData(uid) {
       currentUser.badges = userData.badges || [];
       currentUser.visitedSites = userData.visitedSites || [];
       currentUser.completedGames = userData.completedGames || {};
+      console.log('✅ User data loaded');
     }
   } catch (error) {
-    console.error('Error loading user data:', error);
+    console.log('⚠️ Cannot load user data');
   }
 }
+
 // Save user data lên Firestore
 async function saveUserData() {
   if (!currentUser || !auth.currentUser) return;
@@ -2252,34 +2254,36 @@ function setupStoriesListener() {
 /* ---------- MAP SYSTEM ---------- */
 let map;
 let currentTooltip = null;
+
 function initMap() {
   if (!document.getElementById('map')) return;
   
   // Giới hạn khu vực bản đồ cho Phú Quốc
   const phuQuocBounds = L.latLngBounds(
-    L.latLng(9.8, 103.7),   // Tây Nam
-    L.latLng(10.5, 104.2)   // Đông Bắc
+    L.latLng(9.8, 103.7),   // Tây Nam (góc dưới bên trái)
+    L.latLng(10.5, 104.2)   // Đông Bắc (góc trên bên phải)
   );
   
-  // Tạo bản đồ
+  // Tạo bản đồ với các tùy chọn giới hạn
   map = L.map('map', {
     zoomControl: true,
-    maxBounds: phuQuocBounds,
-    maxBoundsViscosity: 1.0,
-    minZoom: 10,
-    maxZoom: 16
+    maxBounds: phuQuocBounds,           // Giới hạn khu vực
+    maxBoundsViscosity: 1.0,            // Độ "dính" khi kéo ra biên
+    minZoom: 10,                        // Zoom tối thiểu
+    maxZoom: 16                         // Zoom tối đa
   }).setView([10.28, 103.98], 11);
   
-  // Thêm tile layer
+  // Thêm tile layer với bounds
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
-    attribution: '© OpenStreetMap'
+    attribution: '© OpenStreetMap',
+    bounds: phuQuocBounds              // Giới hạn tile chỉ trong khu vực
   }).addTo(map);
   
-  // Đặt giới hạn
+  // Đặt giới hạn cho bản đồ
   map.setMaxBounds(phuQuocBounds);
   
-  // Tạo custom icon
+  // Phần còn lại của hàm giữ nguyên...
   function createCustomIcon(category) {
     const colorMap = {
       'nature': '#A5D6A7',
@@ -2307,55 +2311,6 @@ function initMap() {
     });
   }
 
-  // Dữ liệu địa điểm - GIỮ NGUYÊN PHẦN NÀY
-  const DI_TICH = [
-    // ... GIỮ NGUYÊN TOÀN BỘ DANH SÁCH DI_TICH Ở ĐÂY ...
-    // (copy toàn bộ mảng DI_TICH từ code cũ vào đây)
-  ];
-
-  // 🎯 QUAN TRỌNG: THÊM MARKERS VÀ SỰ KIỆN CLICK
-  DI_TICH.forEach(p => {
-    const m = L.marker([p.lat, p.lng], { 
-      icon: createCustomIcon(p.category) 
-    }).addTo(map);
-    
-    // Tooltip khi hover
-    m.on('mouseover', function(e) {
-      if (currentTooltip) {
-        document.body.removeChild(currentTooltip);
-      }
-      
-      currentTooltip = document.createElement('div');
-      currentTooltip.className = 'marker-tooltip';
-      currentTooltip.textContent = p.name;
-      
-      const point = map.latLngToContainerPoint(e.latlng);
-      currentTooltip.style.left = (point.x + 20) + 'px';
-      currentTooltip.style.top = (point.y - 10) + 'px';
-      
-      document.body.appendChild(currentTooltip);
-    });
-    
-    m.on('mouseout', function() {
-      if (currentTooltip) {
-        document.body.removeChild(currentTooltip);
-        currentTooltip = null;
-      }
-    });
-    
-    // 🎯 SỰ KIỆN CLICK QUAN TRỌNG - MỞ MODAL
-    m.on('click', function(e) {
-      if (currentTooltip) {
-        document.body.removeChild(currentTooltip);
-        currentTooltip = null;
-      }
-      openDiModal(p); // Gọi hàm mở modal
-    });
-    
-    // Popup thông tin
-    m.bindPopup(`<strong>${p.name}</strong><br>${p.address}`);
-  });
-}
   // Dữ liệu địa điểm
   const DI_TICH = [
     // Nhóm Thiên Nhiên (Xanh Lá pastel)
@@ -2869,16 +2824,13 @@ const badgeIcons = {
   'dai-tuong-niem': 'images/hhdaituongniempq.jpg',
   'nghia-trang-tu-binh': 'images/hhnghiatrangtubinh.jpg'
 };
-const badgeIcon = badgeIcons[siteId] || `https://via.placeholder.com/64/C33/fff?text=${siteName.charAt(0)}`;
-  awardBadge(`site_${siteId}`, siteName, badgeIcon);
-}
-
-// Tách hàm debug ra ngoài
+// Hàm debug để kiểm tra huy hiệu
 function debugBadgeSystem() {
   console.log('=== DEBUG BADGE SYSTEM ===');
   const user = getCurrentUser();
   console.log('Current user:', user);
   console.log('User badges:', user ? user.badges : 'No user');
+  console.log('Badge icons:', badgeIcons);
   console.log('====================');
 }
 
@@ -2934,28 +2886,6 @@ const QUIZZES = {
         ans:2,
         explain:'Đáp án đúng là C. Căn cứ theo Quyết định số 2408/QĐ-TTg ngày 31/12/2014 của Thủ tướng Chính phủ.'
       },
-
-  {
-        q:'Đâu là các hình thức tra tấn tại Nhà tù Phú Quốc?',
-        opts:['Chuồng cọp kẽm gai','Ăn cơm nhạt','Đóng đinh','Tất cả các đáp án trên'],
-        ans:3,
-        explain:'Đáp án đúng là D. Các hình thức tra tấn tại Nhà tù Phú Quốc bao gồm: chuồng cọp kẽm gai, ăn cơm nhạt, đóng đinh,...'
-      },
-
- {
-        q:'Cuộc vượt ngục nổi tiếng ngày 21/1/1969 thành công nhờ vào phương thức nào?',
-        opts:['Cải trang thành lính canh','Đào đường hầm dài 120m','Tấn công đồn giặc trực diện','Nhận sự giải cứu từ bên ngoài'],
-        ans:1,
-        explain:'Đáp án đúng là B. Cuộc vượt ngục sau 6 tháng ròng rã đào, hình thành đường hầm dài 120m, rộng 60cm, đưa 21 chiến sĩ cách mạng thoát ngục'
-      },
-
- {
-        q:'Con số nào sau đây phản ánh đúng nhất sự tàn khốc và quy mô lớn của Nhà tù Phú Quốc?',
-        opts:['Gần 500 ngôi nhà và 12 khu','Gần 40.000 lượt tù binh và gần 4.000 liệt sĩ','10 lớp kẽm gai và 4 vọng gác mỗi phân khu','Diện tích 400 ha'],
-        ans:1,
-        explain:'Đáp án đúng là B. Nơi đây từng giam giữ gần 40.000 tù binh và gần 4.000 người hi sinh anh dũng.'
-      },
-
       {
         q:'"Địa ngục trần gian" Phú Quốc chính thức tồn tại trong khoảng thời gian nào?',
         opts:['Từ năm 1949 đến năm 1954','Từ tháng 6/1967 đến tháng 3/1973','Từ năm 1965 đến năm 1975','Từ năm 1954 đến năm 1975'],
@@ -2973,32 +2903,6 @@ const QUIZZES = {
         ans:0,
         explain:'Đáp án đúng là A. Nguyễn Trung Trực là thủ lĩnh nghĩa quân chống lại thực dân Pháp xâm lược ở Nam Kỳ vào nửa cuối thế kỷ 19 (từ 1861-1868).'
       },
-
-      {
-        q:'Anh hùng Nguyễn Trung Trực (1838-1868) nổi tiếng với câu nói bất hủ nào?',
-        opts:['"Bao giờ người Tây nhổ hết cỏ nước Nam thì mới hết người Nam đánh Tây."','"Ta thà làm quỷ nước Nam còn hơn làm vương đất Bắc."','"Đánh một trận sạch không kình ngạc, đánh hai trận tan tác chim muông."'],
-        ans:0,
-        explain:'Đáp án đúng là A. "Bao giờ người Tây nhổ hết cỏ nước Nam thì mới hết người Nam đánh Tây."'
-      },
-      {
-      q:'Đình thần Nguyễn Trung Trực tại Gành Dầu, Phú Quốc được xây dựng chủ yếu để làm gì?',
-        opts:['Kỷ niệm nơi ông đốt tàu Pháp.','Thờ cúng và tưởng niệm vị anh hùng dân tộc Nguyễn Trung Trực.','Làm trụ sở chỉ huy của nghĩa quân.','Là pháo đài phòng thủ bờ biển.' ],
-        ans:1,
-        explain:'Đáp án đúng là B. Thờ cúng và tưởng niệm vị anh hùng dân tộc Nguyễn Trung Trực.'
-      },
- {
-        q:'Lễ hội giỗ Anh hùng dân tộc Nguyễn Trung Trực được tổ chức long trọng hàng năm vào những ngày nào theo âm lịch?',
-        opts:['Ngày 26 - 27 tháng 7 âm lịch','Ngày 18 - 19 tháng 5 âm lịch','Ngày 27 - 28 tháng 8 âm lịch','Ngày 10 - 11 tháng 12 âm lịch' ],
-        ans:2,
-        explain:'Đáp án đúng là C. Lễ hội giỗ Anh hùng dân tộc Nguyễn Trung Trực được tổ chức long trọng hàng năm vào ngày 27 - 28 tháng 8 âm lịch hằng năm.'
-      },
- {
-        q:'Nguyễn Trung Trực bị thực dân Pháp đưa ra xét xử và xử chém tại Rạch Giá vào ngày, tháng, năm nào?',
-        opts:['Ngày 27 tháng 10 năm 1868','Ngày 10 tháng 12 năm 1861','Ngày 28 tháng 8 năm 1868','Ngày 16 tháng 6 năm 1867' ],
-        ans:0,
-        explain:'Đáp án đúng là A. 'Nguyễn Trung Trực bị thực dân Pháp đưa ra xét xử và xử chém tại Rạch Giá vào ngày 27 tháng 10 năm 1868'
-      },
-
       {
         q:'Nguyễn Trung Trực đã chỉ huy nghĩa quân đốt cháy tàu chiến nào của Pháp trên sông Vàm Cỏ Đông vào năm 1861, gây tiếng vang lớn?',
         opts:['Tàu Hy Vọng (L\'Espérance)','Tàu Hằng Tâm (La Persévérance)','Tàu Jaccaré','Tàu Avalanche'],
@@ -3398,11 +3302,6 @@ function initData() {
 }
 
 /* ---------- EVENT LISTENERS ---------- */
-// Thêm vào đầu phần event listeners
-let authModal;
-if (document.getElementById('authModal')) {
-  authModal = new bootstrap.Modal(document.getElementById('authModal'));
-}
 const authModal = new bootstrap.Modal(document.getElementById('authModal'));
 
 document.getElementById('btn-profile-register').addEventListener('click', () => {
@@ -3592,4 +3491,3 @@ function renderAnalytics() {
 </script>
 </body>
 </html>
-
