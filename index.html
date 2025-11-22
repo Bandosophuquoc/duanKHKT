@@ -1644,11 +1644,50 @@ function getCurrentUser() {
 }
 
 function updateUser(user) {
-  // Nếu dùng Firebase
-  if (currentUser && auth.currentUser) {
+  console.log('💾 START updateUser:', user);
+  
+  // Ưu tiên Firebase
+  if (currentUser && auth && auth.currentUser) {
+    console.log('🔥 Using Firebase update');
     saveUserData();
     return true;
   }
+  
+  // Fallback localStorage
+  console.log('📱 Using localStorage update');
+  
+  // Cập nhật currentUser
+  if (currentUser) {
+    currentUser.badges = user.badges;
+    currentUser.visitedSites = user.visitedSites;
+    currentUser.completedGames = user.completedGames;
+    console.log('✅ Updated currentUser');
+  }
+  
+  // Lưu vào localStorage users
+  const users = JSON.parse(localStorage.getItem(STORAGE_USERS) || '[]');
+  const userIndex = users.findIndex(u => u.id === user.id);
+  
+  if (userIndex !== -1) {
+    users[userIndex] = user;
+    localStorage.setItem(STORAGE_USERS, JSON.stringify(users));
+    console.log('✅ Updated localStorage users');
+  } else {
+    console.log('❌ User not found in localStorage');
+  }
+  
+  // Cập nhật session
+  const session = JSON.parse(localStorage.getItem(STORAGE_SESSION) || '{}');
+  if (session.userId === user.id) {
+    session.userData = user;
+    localStorage.setItem(STORAGE_SESSION, JSON.stringify(session));
+    console.log('✅ Updated session data');
+  }
+  
+  console.log('💾 END updateUser: SUCCESS');
+  return true;
+}
+
 /* ---------- PROFILE UI ---------- */
 
 function refreshProfileAuthUI(){
@@ -1739,33 +1778,56 @@ function renderProfileBadges() {
 }
 /* ---------- BADGES & GAME SYSTEM ---------- */
 function awardBadge(id, name, icon) {
+  console.log('🎖️ START awardBadge:', { id, name, icon });
+  
   const user = getCurrentUser();
   if (!user) {
+    console.log('❌ No user logged in');
     alert('Vui lòng đăng nhập để nhận huy hiệu');
     return false;
   }
   
-  if (!user.badges) user.badges = [];
+  // Đảm bảo badges array tồn tại
+  if (!user.badges) {
+    user.badges = [];
+    console.log('🆕 Initialized badges array');
+  }
   
   // Kiểm tra xem đã có huy hiệu này chưa
   const existingBadge = user.badges.find(b => b.id === id);
-  if (existingBadge) return false;
+  if (existingBadge) {
+    console.log('⚠️ Badge already exists:', id);
+    return false;
+  }
+  
+  console.log('➕ Adding new badge:', { id, name, icon });
   
   // Thêm huy hiệu mới
   user.badges.push({ id, name, icon });
+  console.log('📊 User badges after push:', user.badges);
   
-  // Cập nhật user data
-  if (updateUser(user)) {
-    // Cập nhật UI ngay lập tức
-    renderUserBadges(user);
+  // Cập nhật dữ liệu
+  const updateSuccess = updateUser(user);
+  console.log('💾 Update user success:', updateSuccess);
+  
+  if (updateSuccess) {
+    console.log('✅ User data updated successfully');
     
     // Hiển thị popup
     showBadgePopup(name, icon);
     
+    // Cập nhật UI trang cá nhân ngay lập tức
+    setTimeout(() => {
+      console.log('🔄 Refreshing profile UI...');
+      refreshProfileAuthUI();
+    }, 1000);
+    
     console.log(`✅ Badge awarded: ${name}`);
     return true;
+  } else {
+    console.log('❌ Failed to update user data');
+    return false;
   }
-  return false;
 }
 function markVisited(siteId) {
   const user = getCurrentUser();
@@ -2447,6 +2509,48 @@ function initMap() {
       category: 'culture',
     },
 
+{
+  id: 'dai-tuong-niem',
+  name: 'Đài Tưởng Niệm Liệt Sĩ Nhà Tù Phú Quốc',
+  address: 'Khu di tích Nhà tù Phú Quốc, 350 Nguyễn Văn Cừ, An Thới, Phú Quốc, Kiên Giang',
+  note: 'Công trình tưởng niệm các chiến sĩ cách mạng đã hy sinh anh dũng tại Nhà tù Phú Quốc.',
+  extra: [
+    'Được xây dựng để tưởng nhớ hơn 4.000 liệt sĩ đã hy sinh tại nhà tù',
+    'Kiến trúc mang tính biểu tượng cao, thể hiện sự tri ân sâu sắc',
+    'Nơi tổ chức các lễ truy điền, dâng hương hàng năm',
+    'Là điểm đến quan trọng trong hành trình về nguồn',
+    'Kết cấu đài tưởng niệm bằng đá granite, uy nghi và trang trọng',
+    'Xung quanh là vườn cây xanh tạo không gian tĩnh lặng, tôn nghiêm'
+  ],
+  lat: 10.042417, 
+  lng: 104.017472,
+  games: [],
+  img:  'images/dai1.jpg',
+  category: 'culture'
+},
+{
+  id: 'nghia-trang-tu-binh',
+  name: 'Nghĩa Trang Tù Binh Phú Quốc',
+  address: 'Khu di tích Nhà tù Phú Quốc, An Thới, Phú Quốc, Kiên Giang',
+  note: 'Tượng đài "Nắm Đấm" sừng sững biểu tượng cho tinh thần kiên cường, bất khuất.',
+  extra: [
+    'Diện tích: 20.000 m² (2 hecta)',
+    'Vị trí: Cách khu giam giữ chính khoảng 1km',
+    'Nơi chôn cất hàng ngàn tù binh hy sinh trong thời kỳ bị giam giữ',
+    'Tượng đài "Nắm Đấm" - biểu tượng của tinh thần bất khuất',
+    'Mỗi nấm mộ là minh chứng cho tội ác chiến tranh',
+    'Khu vực được bảo tồn để giáo dục lịch sử cho thế hệ trẻ',
+    'Nơi tổ chức lễ truy điền, dâng hương hàng năm'
+  ],
+  lat: 10.051722, 
+  lng: 104.021278,
+  games: [],
+  img: [
+   'images/tuongdainamdam.jpg',
+    'images/nghiatrangtubinh.jpg',
+   ],
+  category: 'culture'
+},
     {
       id:'dinh-cau',
       name:'Dinh Cậu',
@@ -2715,8 +2819,26 @@ function awardBadgeSite(siteId, siteName) {
     'hon-thom': 'images/hhhonthom.jpg',
     'cap-treo': 'images/hhcaptreo.jpg',
     'grand-world': 'images/hhgrandworld.jpg',
-    'ngoc-trai': 'images/hhngoctrai.jpg'
+    'ngoc-trai': 'images/hhngoctrai.jpg',
+    'quang-truong': 'images/hhquangtruong.jpg',
+    'dai-tuong-niem': 'images/daituongniem.jpg',
+    'nghia-trang-tu-binh': 'images/hhnghiatrangtubinh.jpg'
+
   };
+// Hàm debug để kiểm tra huy hiệu
+function debugBadgeSystem() {
+  console.log('=== DEBUG BADGE SYSTEM ===');
+  const user = getCurrentUser();
+  console.log('Current user:', user);
+  console.log('User badges:', user ? user.badges : 'No user');
+  console.log('Badge icons:', badgeIcons);
+  console.log('====================');
+}
+
+// Gọi debug khi vào trang profile
+document.querySelector('.menu-item[data-page="profile"]').addEventListener('click', () => {
+  setTimeout(debugBadgeSystem, 500);
+});
   
   const badgeIcon = badgeIcons[siteId] || `https://via.placeholder.com/64/C33/fff?text=${siteName.charAt(0)}`;
   awardBadge(`site_${siteId}`, siteName, badgeIcon);
