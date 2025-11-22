@@ -28,7 +28,74 @@
   .hero{background:linear-gradient(90deg, rgba(198,40,40,0.06), rgba(255,213,79,0.02));padding:22px;border-radius:12px;margin:18px 0}
   .btn-accent{background:linear-gradient(90deg,var(--accent),#EF5350);color:white;border:none}
   #map{height:64vh;border-radius:12px}
-  .badge-img{width:56px;height:56px;border-radius:8px;object-fit:cover}
+/* CSS cho huy hiệu */
+.badge-img {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+  border: 3px solid var(--gold);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.badge-img:hover {
+  transform: scale(1.1);
+}
+
+#profile-badge-area {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 20px;
+  padding: 20px 0;
+  align-items: start;
+}
+
+/* Badge container styling */
+.profile-badges {
+  background: white;
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+  margin-bottom: 30px;
+}
+
+/* Badge item styling */
+#profile-badge-area .text-center {
+  padding: 10px;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+#profile-badge-area .text-center:hover {
+  background: rgba(198, 40, 40, 0.05);
+}
+
+/* Check mark on badge */
+.position-relative {
+  position: relative;
+  display: inline-block;
+}
+
+.bg-success {
+  background-color: #28a745 !important;
+}
+
+.rounded-circle {
+  border-radius: 50% !important;
+}
+
+.position-absolute {
+  position: absolute !important;
+}
+
+.top-0 {
+  top: 0 !important;
+}
+
+.end-0 {
+  right: 0 !important;
+}
   .marker-emoji{font-size:20px}
   .diatic-title{font-weight:700}
   .game-card{border-radius:10px;background:white;padding:12px;box-shadow:0 6px 18px rgba(0,0,0,0.06)}
@@ -1582,19 +1649,8 @@ function updateUser(user) {
     saveUserData();
     return true;
   }
-  
-  // Fallback localStorage
-  const users = JSON.parse(localStorage.getItem(STORAGE_USERS) || '[]');
-  const index = users.findIndex(u => u.id === user.id);
-  if (index !== -1) {
-    users[index] = user;
-    localStorage.setItem(STORAGE_USERS, JSON.stringify(users));
-    return true;
-  }
-  return false;
-}
-
 /* ---------- PROFILE UI ---------- */
+
 function refreshProfileAuthUI(){
   const user = getCurrentUser();
   const profileInfo = document.getElementById('profile-info');
@@ -1611,6 +1667,7 @@ function refreshProfileAuthUI(){
     profileInfo.innerHTML = `Xin chào <strong>${user.name}</strong> — ${user.email}<br><small>${source}</small>`;
     profileInfo.className = 'alert alert-success';
     
+    // Gọi hàm render huy hiệu
     renderUserBadges(user);
   } else {
     btnLogin.style.display = 'inline-block';
@@ -1620,10 +1677,10 @@ function refreshProfileAuthUI(){
     profileInfo.innerHTML = 'Bạn chưa đăng nhập. Vui lòng đăng nhập để lưu tiến trình.';
     profileInfo.className = 'alert alert-info';
     
+    // Hiển thị thông báo khi chưa đăng nhập
     renderProfileBadges();
   }
 }
-
 function renderUserBadges(user) {
   const wrap = document.getElementById('profile-badge-area');
   if (!wrap) return;
@@ -1631,28 +1688,55 @@ function renderUserBadges(user) {
   wrap.innerHTML = '';
   
   if (!user.badges || user.badges.length === 0) {
-    wrap.innerHTML = '<div class="text-muted">Chưa có huy hiệu nào. Hãy khám phá các địa điểm!</div>';
+    wrap.innerHTML = `
+      <div class="text-center w-100 py-4">
+        <i class="fas fa-medal fa-3x text-muted mb-3"></i>
+        <div class="text-muted">Chưa có huy hiệu nào. Hãy khám phá các địa điểm và check-in để nhận huy hiệu!</div>
+      </div>
+    `;
     return;
   }
   
+  // Hiển thị tất cả huy hiệu
   user.badges.forEach(badge => {
     const el = document.createElement('div');
     el.className = 'text-center';
     el.innerHTML = `
-      <img src="${badge.icon}" class="badge-img" alt="${badge.name}">
-      <div style="font-size:12px; max-width:80px">${badge.name}</div>
+      <div class="position-relative">
+        <img src="${badge.icon}" class="badge-img" alt="${badge.name}" 
+             style="border: 3px solid var(--gold); box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+        <div class="position-absolute top-0 end-0 bg-success rounded-circle" 
+             style="width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;">
+          <i class="fas fa-check text-white" style="font-size: 10px;"></i>
+        </div>
+      </div>
+      <div style="font-size:12px; max-width:80px; margin-top: 8px; font-weight: 600;">${badge.name}</div>
     `;
     wrap.appendChild(el);
   });
+  
+  // Thêm thống kê
+  const statsEl = document.createElement('div');
+  statsEl.className = 'w-100 mt-3 text-center';
+  statsEl.innerHTML = `
+    <div class="alert alert-success py-2">
+      <small><strong>${user.badges.length}</strong> huy hiệu đã đạt được</small>
+    </div>
+  `;
+  wrap.appendChild(statsEl);
 }
-
 function renderProfileBadges() {
   const wrap = document.getElementById('profile-badge-area');
   if (!wrap) return;
   
-  wrap.innerHTML = '<div class="text-muted">Đăng nhập để xem huy hiệu của bạn</div>';
+  wrap.innerHTML = `
+    <div class="text-center w-100 py-4">
+      <i class="fas fa-lock fa-3x text-muted mb-3"></i>
+      <div class="text-muted">Đăng nhập để xem huy hiệu của bạn</div>
+      <small class="text-muted">Huy hiệu sẽ được trao khi bạn check-in tại các địa điểm</small>
+    </div>
+  `;
 }
-
 /* ---------- BADGES & GAME SYSTEM ---------- */
 function awardBadge(id, name, icon) {
   const user = getCurrentUser();
@@ -1662,18 +1746,27 @@ function awardBadge(id, name, icon) {
   }
   
   if (!user.badges) user.badges = [];
-  if (user.badges.find(b => b.id === id)) return false;
   
+  // Kiểm tra xem đã có huy hiệu này chưa
+  const existingBadge = user.badges.find(b => b.id === id);
+  if (existingBadge) return false;
+  
+  // Thêm huy hiệu mới
   user.badges.push({ id, name, icon });
   
   // Cập nhật user data
   if (updateUser(user)) {
+    // Cập nhật UI ngay lập tức
+    renderUserBadges(user);
+    
+    // Hiển thị popup
     showBadgePopup(name, icon);
+    
+    console.log(`✅ Badge awarded: ${name}`);
     return true;
   }
   return false;
 }
-
 function markVisited(siteId) {
   const user = getCurrentUser();
   if (!user) return;
