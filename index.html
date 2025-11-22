@@ -1382,9 +1382,9 @@ function initFirebase() {
     }
   // === THÊM ĐOẠN NÀY VÀO ===
     // Khởi tạo Analytics
-    const analytics = firebase.analytics;
-    console.log('✅ Analytics initialized');
-    
+     if (firebase.analytics) {
+     firebase.analytics();
+}    
     // Bật debug mode để test
     firebase.analytics().setAnalyticsCollectionEnabled(true);
     console.log('🔍 Analytics debug enabled');
