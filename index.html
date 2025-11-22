@@ -1509,13 +1509,11 @@ async function loadUserData(uid) {
       currentUser.badges = userData.badges || [];
       currentUser.visitedSites = userData.visitedSites || [];
       currentUser.completedGames = userData.completedGames || {};
-      console.log('✅ User data loaded');
     }
   } catch (error) {
-    console.log('⚠️ Cannot load user data');
+    console.error('Error loading user data:', error);
   }
 }
-
 // Save user data lên Firestore
 async function saveUserData() {
   if (!currentUser || !auth.currentUser) return;
@@ -2824,13 +2822,16 @@ const badgeIcons = {
   'dai-tuong-niem': 'images/hhdaituongniempq.jpg',
   'nghia-trang-tu-binh': 'images/hhnghiatrangtubinh.jpg'
 };
-// Hàm debug để kiểm tra huy hiệu
+const badgeIcon = badgeIcons[siteId] || `https://via.placeholder.com/64/C33/fff?text=${siteName.charAt(0)}`;
+  awardBadge(`site_${siteId}`, siteName, badgeIcon);
+}
+
+// Tách hàm debug ra ngoài
 function debugBadgeSystem() {
   console.log('=== DEBUG BADGE SYSTEM ===');
   const user = getCurrentUser();
   console.log('Current user:', user);
   console.log('User badges:', user ? user.badges : 'No user');
-  console.log('Badge icons:', badgeIcons);
   console.log('====================');
 }
 
@@ -3350,6 +3351,11 @@ function initData() {
 }
 
 /* ---------- EVENT LISTENERS ---------- */
+// Thêm vào đầu phần event listeners
+let authModal;
+if (document.getElementById('authModal')) {
+  authModal = new bootstrap.Modal(document.getElementById('authModal'));
+}
 const authModal = new bootstrap.Modal(document.getElementById('authModal'));
 
 document.getElementById('btn-profile-register').addEventListener('click', () => {
