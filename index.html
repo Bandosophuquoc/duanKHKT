@@ -1380,23 +1380,43 @@ function initFirebase() {
       firebase.initializeApp(firebaseConfig);
       console.log('✅ Firebase initialized');
     }
+  // === THÊM ĐOẠN NÀY VÀO ===
+    // Khởi tạo Analytics
+    const analytics = firebase.analytics;
+    console.log('✅ Analytics initialized');
     
+    // Bật debug mode để test
+    firebase.analytics().setAnalyticsCollectionEnabled(true);
+    console.log('🔍 Analytics debug enabled');
+    // === KẾT THÚC PHẦN THÊM ===
+
     auth = firebase.auth();
     db = firebase.firestore();
-    
+ 
     // Theo dõi trạng thái đăng nhập
-    auth.onAuthStateChanged((user) => {
-      if (user) {
-        console.log('🔥 User logged in:', user.email);
-        currentUser = {
-          id: user.uid,
-          name: user.displayName || user.email,
-          email: user.email,
-          badges: [],
-          visitedSites: [],
-          completedGames: {}
-        };
-        
+  auth.onAuthStateChanged((user) => {
+  if (user) {
+    console.log('🔥 User logged in:', user.email);
+    
+    // === THÊM ĐOẠN NÀY ===
+    // Log sự kiện đăng nhập
+    if (typeof firebase.analytics !== 'undefined') {
+      firebase.analytics().logEvent('login', {
+        method: 'email',
+        user_id: user.uid
+      });
+      console.log('📊 Logged login event');
+    }
+    // === KẾT THÚC ===
+    
+    currentUser = {
+      id: user.uid,
+      name: user.displayName || user.email,
+      email: user.email,
+      badges: [],
+      visitedSites: [],
+      completedGames: {}
+    };        
         // Load user data từ Firestore
         loadUserData(user.uid);
       } else {
@@ -1688,18 +1708,36 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('⚠️ Using localStorage mode only');
   }
   
+  // === THÊM AUTO-TEST ===
+  // Tự động test sau 3 giây
+  setTimeout(() => {
+    if (window.location.hostname === 'pqstorymap.xyz') {
+      console.log('🌐 Domain detected: pqstorymap.xyz');
+      
+      if (typeof firebase !== 'undefined' && firebase.analytics) {
+        // Log domain info
+        firebase.analytics().logEvent('domain_detected', {
+          domain: 'pqstorymap.xyz',
+          status: 'active'
+        });
+        console.log('📊 Logged domain detection');
+      }
+    }
+  }, 3000);
+  // === KẾT THÚC ===
+  
   // Khởi tạo các component
   initData();
   refreshProfileAuthUI();
   loadStories();
   initMap();
-  // Thiết lập real-time listener cho stories
-if (firebaseOK) {
-  setupStoriesListener();
-}
+  
+  if (firebaseOK) {
+    setupStoriesListener();
+  }
+  
   console.log('✅ Application started successfully');
 });
-
 /* ---------- Menu Navigation ---------- */
 const menuBtn = document.getElementById('nav-menu');
 const menuDropdown = document.getElementById('menuDropdown');
@@ -1734,7 +1772,16 @@ function showPage(page) {
   });
   
   document.getElementById(`page-${page}`).style.display = 'block';
-  
+// === THÊM ĐOẠN NÀY VÀO ===
+  // Log sự kiện xem trang
+  if (typeof firebase !== 'undefined' && firebase.analytics) {
+    firebase.analytics().logEvent('page_view', {
+      page_title: page,
+      page_location: window.location.href
+    });
+    console.log('📊 Logged page view:', page);
+  }
+  // === KẾT THÚC PHẦN THÊM ===
   if (page === 'map') {
     setTimeout(() => {
       if (typeof map !== 'undefined') map.invalidateSize();
@@ -1817,6 +1864,16 @@ async function saveStories() {
 }
 
 async function likeStory(storyId) {
+ // === THÊM ĐOẠN NÀY VÀO ĐẦU HÀM ===
+  if (typeof firebase !== 'undefined' && firebase.analytics) {
+    firebase.analytics().logEvent('like', {
+      content_type: 'story',
+      item_id: storyId
+    });
+    console.log('📊 Logged story like:', storyId);
+  }
+  // === KẾT THÚC PHẦN THÊM ===
+
   const user = getCurrentUser();
   if (!user) {
     alert('Vui lòng đăng nhập để thích câu chuyện.');
@@ -2465,6 +2522,18 @@ if (document.getElementById('diModal')) {
 }
 
 function openDiModal(p){
+// === THÊM ĐOẠN NÀY VÀO ĐẦU HÀM ===
+  // Log sự kiện xem địa điểm
+  if (typeof firebase !== 'undefined' && firebase.analytics) {
+    firebase.analytics().logEvent('select_content', {
+      content_type: 'location',
+      item_id: p.id,
+      item_name: p.name
+    });
+    console.log('📊 Logged location view:', p.name);
+  }
+  // === KẾT THÚC PHẦN THÊM ===
+
   if (!diModal) return;
   
   document.getElementById('diTitle').innerText = p.name;
@@ -3205,6 +3274,154 @@ function renderAnalytics() {
   document.getElementById('deviceChart').innerHTML = '<p class="text-muted">Chưa có dữ liệu</p>';
   document.getElementById('recentActivity').innerHTML = '<p class="text-muted">Chưa có hoạt động nào</p>';
 }
+// === THÊM HÀM MỚI NÀY Ở CUỐI FILE ===
+// Hàm test analytics thủ công
+function testAnalytics() {
+  if (typeof firebase !== 'undefined' && firebase.analytics) {
+    // Log test event
+    firebase.analytics().logEvent('test_event', {
+      test_param: 'analytics_is_working',
+      timestamp: new Date().toISOString()
+    });
+    console.log('🧪 Test analytics event sent');
+    
+    // Log current screen
+    firebase.analytics().logEvent('screen_view', {
+      screen_name: currentPage,
+      screen_class: 'website'
+    });
+    
+    alert('✅ Test analytics event đã được gửi! Kiểm tra console và Firebase.');
+  } else {
+    console.log('❌ Analytics not available');
+    alert('❌ Analytics chưa khả dụng. Kiểm tra Firebase configuration.');
+  }
+}
+
+// Tự động log session start khi trang load
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('🚀 Starting application...');
+  
+  // Khởi tạo Firebase
+  const firebaseOK = initFirebase();
+  
+  if (!firebaseOK) {
+    console.log('⚠️ Using localStorage mode only');
+  }
+  
+  // === THÊM ĐOẠN NÀY ===
+  // Log session start sau khi init
+  setTimeout(() => {
+    if (typeof firebase !== 'undefined' && firebase.analytics) {
+      firebase.analytics().logEvent('session_start');
+      console.log('📊 Logged session start');
+      
+      // Test ngay lập tức
+      testAnalytics();
+    }
+  }, 1000);
+  // === KẾT THÚC ===
+  
+  // Khởi tạo các component
+  initData();
+  refreshProfileAuthUI();
+  loadStories();
+  initMap();
+  
+  if (firebaseOK) {
+    setupStoriesListener();
+  }
+  
+  console.log('✅ Application started successfully');
+});
+/* ---------- FIREBASE DEBUG FUNCTIONS ---------- */
+function testAnalytics() {
+  const debugStatus = document.getElementById('debugStatus');
+  debugStatus.innerHTML = 'Testing Analytics...';
+  
+  console.log('🧪 Testing Firebase Analytics...');
+  
+  if (typeof firebase === 'undefined') {
+    debugStatus.innerHTML = '❌ Firebase not loaded';
+    alert('Firebase chưa được tải');
+    return;
+  }
+  
+  if (typeof firebase.analytics === 'undefined') {
+    debugStatus.innerHTML = '❌ Analytics not available';
+    alert('Analytics không khả dụng');
+    return;
+  }
+  
+  try {
+    // Test các loại event
+    firebase.analytics().logEvent('debug_test', {
+      test_id: 'debug_' + Date.now(),
+      domain: 'pqstorymap.xyz',
+      url: window.location.href,
+      timestamp: new Date().toISOString()
+    });
+    
+    firebase.analytics().logEvent('page_view', {
+      page_title: 'Debug Test Page',
+      page_location: window.location.href
+    });
+    
+    console.log('✅ Test events sent successfully');
+    debugStatus.innerHTML = '✅ Events sent! Check Firebase Console';
+    alert('✅ Test events đã được gửi! Kiểm tra Firebase Console → Analytics → StreamView');
+    
+  } catch (error) {
+    console.log('❌ Analytics Error:', error);
+    debugStatus.innerHTML = '❌ Error: ' + error.message;
+    alert('Lỗi: ' + error.message);
+  }
+}
+
+function debugFirebase() {
+  console.log('=== FIREBASE DEBUG INFO ===');
+  console.log('Domain:', window.location.hostname);
+  console.log('URL:', window.location.href);
+  console.log('Firebase Config:', {
+    projectId: firebaseConfig.projectId,
+    appId: firebaseConfig.appId,
+    measurementId: firebaseConfig.measurementId
+  });
+  
+  const debugStatus = document.getElementById('debugStatus');
+  let status = 'Firebase Status:<br>';
+  
+  if (typeof firebase === 'undefined') {
+    status += '❌ Firebase not loaded<br>';
+  } else {
+    status += '✅ Firebase loaded<br>';
+    status += 'Apps: ' + firebase.apps.length + '<br>';
+    
+    if (typeof firebase.analytics !== 'undefined') {
+      status += '✅ Analytics available<br>';
+      status += '✅ Ready for pqstorymap.xyz<br>';
+    } else {
+      status += '❌ Analytics not available<br>';
+    }
+  }
+  
+  debugStatus.innerHTML = status;
+}
+
+function clearDebug() {
+  document.getElementById('debugStatus').innerHTML = '';
+}
 </script>
+<!-- Debug Panel - Thêm vào cuối file trước </body> -->
+<div class="debug-panel" style="position: fixed; bottom: 10px; left: 10px; background: rgba(0,0,0,0.8); color: white; padding: 10px; border-radius: 5px; z-index: 10000; font-size: 12px;">
+  <div style="margin-bottom: 5px;">
+    <strong>Firebase Debug</strong>
+  </div>
+  <button onclick="testAnalytics()" class="btn btn-success btn-sm" style="margin: 2px;">Test Analytics</button>
+  <button onclick="debugFirebase()" class="btn btn-info btn-sm" style="margin: 2px;">Debug Info</button>
+  <button onclick="clearDebug()" class="btn btn-warning btn-sm" style="margin: 2px;">Clear</button>
+  <div id="debugStatus" style="margin-top: 5px; font-size: 10px;"></div>
+</div>
 </body>
 </html>
+
