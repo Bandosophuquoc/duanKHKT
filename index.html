@@ -2921,30 +2921,7 @@ const QUIZZES = {
         ans:0,
         explain:'Đáp án đúng là A. Nguyễn Trung Trực là thủ lĩnh nghĩa quân chống lại thực dân Pháp xâm lược ở Nam Kỳ vào nửa cuối thế kỷ 19 (từ 1861-1868).'
       },
-      {
-        q:'Anh hùng Nguyễn Trung Trực (1838-1868) nổi tiếng với câu nói bất hủ nào?',
-        opts:['"Bao giờ người Tây nhổ hết cỏ nước Nam thì mới hết người Nam đánh Tây."','"Ta thà làm quỷ nước Nam còn hơn làm vương đất Bắc."','"Đánh một trận sạch không kình ngạc, đánh hai trận tan tác chim muông."'],
-        ans:0,
-        explain:'Đáp án đúng là A. "Bao giờ người Tây nhổ hết cỏ nước Nam thì mới hết người Nam đánh Tây."'
-      },
-      {
-      q:'Đình thần Nguyễn Trung Trực tại Gành Dầu, Phú Quốc được xây dựng chủ yếu để làm gì?',
-        opts:['Kỷ niệm nơi ông đốt tàu Pháp.','Thờ cúng và tưởng niệm vị anh hùng dân tộc Nguyễn Trung Trực.','Làm trụ sở chỉ huy của nghĩa quân.','Là pháo đài phòng thủ bờ biển.' ],
-        ans:1,
-        explain:'Đáp án đúng là B. Thờ cúng và tưởng niệm vị anh hùng dân tộc Nguyễn Trung Trực.'
-      },
-      {
-        q:'Lễ hội giỗ Anh hùng dân tộc Nguyễn Trung Trực được tổ chức long trọng hàng năm vào những ngày nào theo âm lịch?',
-        opts:['Ngày 26 - 27 tháng 7 âm lịch','Ngày 18 - 19 tháng 5 âm lịch','Ngày 27 - 28 tháng 8 âm lịch','Ngày 10 - 11 tháng 12 âm lịch' ],
-        ans:2,
-        explain:'Đáp án đúng là C. Lễ hội giỗ Anh hùng dân tộc Nguyễn Trung Trực được tổ chức long trọng hàng năm vào ngày 27 - 28 tháng 8 âm lịch hằng năm.'
-      },
-      {
-        q:'Nguyễn Trung Trực bị thực dân Pháp đưa ra xét xử và xử chém tại Rạch Giá vào ngày, tháng, năm nào?',
-        opts:['Ngày 27 tháng 10 năm 1868','Ngày 10 tháng 12 năm 1861','Ngày 28 tháng 8 năm 1868','Ngày 16 tháng 6 năm 1867' ],
-        ans:0,
-        explain:'Đáp án đúng là A. Nguyễn Trung Trực bị thực dân Pháp đưa ra xét xử và xử chém tại Rạch Giá vào ngày 27 tháng 10 năm 1868'
-      },
+
       {
         q:'Nguyễn Trung Trực đã chỉ huy nghĩa quân đốt cháy tàu chiến nào của Pháp trên sông Vàm Cỏ Đông vào năm 1861, gây tiếng vang lớn?',
         opts:['Tàu Hy Vọng (L\'Espérance)','Tàu Hằng Tâm (La Persévérance)','Tàu Jaccaré','Tàu Avalanche'],
@@ -2956,13 +2933,86 @@ const QUIZZES = {
 };
 
 const MEMORY_GAMES = {
-  'memory_nhatu': {
+ 'memory_nhatu': {
     title: 'Memory Việt - Nhà tù Phú Quốc',
     cards: [
-      { id: 1, image: 'images/nhatucard1.jpg', matchId: 2 },
-      { id: 2, image: 'images/nhatutext1.jpg', matchId: 1 },
-      { id: 3, image: 'images/nhatucard2.jpg', matchId: 4 },
-      { id: 4, image: 'images/nhatutext2.jpg', matchId: 3 }
+      { 
+        id: 1, 
+        image: 'images/nhatucard1.jpg', 
+        matchId: 2,
+        info: {
+          title: 'Di tích Quốc gia đặc biệt',
+          text: 'Nhà tù Phú Quốc được xếp hạng là Di tích Quốc gia đặc biệt vào ngày 31/12/2014.',
+          image: 'images/nhatucard1.jpg'
+        }
+      },
+      { 
+        id: 2, 
+        image: 'images/nhatut1.jpg', 
+        matchId: 1,
+        info: {
+          title: 'Di tích Quốc gia đặc biệt',
+          text: 'Nhà tù Phú Quốc được xếp hạng là Di tích Quốc gia đặc biệt vào ngày 31/12/2014.',
+          image: 'images/nhatucard1.jpg'
+        }
+      },
+      { 
+        id: 3, 
+        image: 'images/nhatucard2.jpg', 
+        matchId: 4,
+        info: {
+          title: 'Đường Hầm Vượt Ngục',
+          text: 'Cuộc vượt ngục sau 6 tháng ròng rã đào, hình thành đường hầm dài 120cm, rộng 60cm, đưa 21 chiến sĩ Cách mạng thoát ngục vào sáng ngày 21/1/1969.',
+          image: 'images/nhatucard2.jpg'
+        }
+      },
+      { 
+        id: 4, 
+        image: 'images/nhatut2.jpg', 
+        matchId: 3,
+        info: {
+          title: 'Đường Hầm Vượt Ngục',
+          text: 'Cuộc vượt ngục sau 6 tháng ròng rã đào, hình thành đường hầm dài 120cm, rộng 60cm, đưa 21 chiến sĩ Cách mạng thoát ngục vào sáng ngày 21/1/1969.',
+          image: 'images/nhatucard2.jpg'
+        }
+      },
+      { 
+        id: 5, 
+        image: 'images/nhatucard3.jpg', 
+        matchId: 6,
+        info: {
+          title: 'Chuồng cọp kẽm gai',
+          text: 'Được làm bằng dây kẽm gai chằng chịt, đặt ngoài trời, buộc tù nhân phải nằm hoặc ngồi khom lưng. Tù nhân bị lột quần áo, phơi nắng phơi sương, chỉ cần cử động nhẹ là bị kẽm gai đâm vào cơ thể. Đây là minh chứng cho tội ác dã man của quân địch và tinh thần kiên cường của chiến sĩ Cách mạng Việt Nam.',
+          image: 'images/nhatucard3.jpg'
+        }
+      },
+      { 
+        id: 6, 
+        image: 'images/nhatut3.jpg', 
+        matchId: 5,
+          title: 'Chuồng cọp kẽm gai',
+          text: 'Được làm bằng dây kẽm gai chằng chịt, đặt ngoài trời, buộc tù nhân phải nằm hoặc ngồi khom lưng. Tù nhân bị lột quần áo, phơi nắng phơi sương, chỉ cần cử động nhẹ là bị kẽm gai đâm vào cơ thể. Đây là minh chứng cho tội ác dã man của quân địch và tinh thần kiên cường của chiến sĩ Cách mạng Việt Nam.',
+          image: 'images/nhatucard3.jpg'
+        }
+      },
+      { 
+        id: 7, 
+        image: 'images/nhatucard4.jpg', 
+        matchId: 8,
+        info: {
+          title: 'Phân khu B2',
+          text: 'Phân khu B2 thuộc Nhà tù Phú Quốc, còn được gọi là khu biệt giam, là khu vực được phục dựng lại với hơn 17.000m2 nhằm tái hiện chân thật nhất cuộc sống của các tù binh.',
+          image: 'images/nhatucard4.jpg'
+        }
+      },
+      { 
+        id: 8, 
+        image: 'images/nhatutext4.jpg', 
+        matchId: 7,
+          title: 'Phân khu B2',
+          text: 'Phân khu B2 thuộc Nhà tù Phú Quốc, còn được gọi là khu biệt giam, là khu vực được phục dựng lại với hơn 17.000m2 nhằm tái hiện chân thật nhất cuộc sống của các tù binh.',
+        }
+      }
     ]
   },
   'memory_trungtruc': {
@@ -3100,9 +3150,9 @@ function handleAnswerAndNext(){
 let currentMemoryGame = null;
 let flippedCards = [];
 let matchedPairs = 0;
+let foundPairs = []; // THÊM DÒNG NÀY
 let canFlip = true;
 let flipCount = 0;
-
 function startMemoryGame(gameId, site) {
   const gameData = MEMORY_GAMES[gameId];
   if (!gameData) {
@@ -3112,13 +3162,15 @@ function startMemoryGame(gameId, site) {
   currentMemoryGame = { id: gameId, site: site, gameData: gameData };
   flippedCards = [];
   matchedPairs = 0;
+  foundPairs = []; // Reset foundPairs
   canFlip = true;
   flipCount = 0;
+  
   const html = `
     <div class="memory-container text-center">
       <h4 class="mb-3">${gameData.title}</h4>
       <div class="memory-stats mb-3">
-        <span class="badge bg-primary">Cặp đã tìm: <span id="matchedCount">0</span>/2</span>
+        <span class="badge bg-primary">Cặp đã tìm: <span id="matchedCount">0</span>/4</span>
         <span class="badge bg-secondary ms-2">Lượt lật: <span id="flipCount">0</span></span>
       </div>
       
@@ -3135,14 +3187,15 @@ function startMemoryGame(gameId, site) {
         <div class="alert alert-success">
           <h5>🎉 Chúc mừng!</h5>
           <p>Bạn đã hoàn thành game Memory Việt!</p>
+          <p><small>Bạn đã học được ${foundPairs.length} thông tin lịch sử quan trọng</small></p>
         </div>
       </div>
     </div>
   `;
+  
   showGameFullscreen(gameData.title, html);
   initializeMemoryGame();
 }
-
 function initializeMemoryGame() {
   const board = document.getElementById('memoryBoard');
   const gameData = currentMemoryGame.gameData;
@@ -3190,28 +3243,49 @@ function checkForMatch() {
   const [card1, card2] = flippedCards;
   const matchId1 = card1.dataset.matchId;
   const matchId2 = card2.dataset.matchId;
+  
   if (card1.dataset.cardId === matchId2 && card2.dataset.cardId === matchId1) {
     card1.classList.add('matched');
     card2.classList.add('matched');
     matchedPairs++;
     updateMatchedCount();
-    if (matchedPairs === 2) {
+    
+    // Lấy thông tin của cặp thẻ vừa tìm được
+    const cardId = parseInt(card1.dataset.cardId);
+    const gameData = currentMemoryGame.gameData;
+    const cardInfo = gameData.cards.find(card => card.id === cardId);
+    
+    // Kiểm tra xem cặp thẻ này đã hiển thị popup chưa
+    if (cardInfo && cardInfo.info && !foundPairs.includes(cardId)) {
+      foundPairs.push(cardId);
+      
+      // Hiển thị popup thông tin sau 1 giây
       setTimeout(() => {
-        const memoryComplete = document.getElementById('memoryComplete');
-        if (memoryComplete) {
-          memoryComplete.style.display = 'block';
-        }
-        showVictory('🎉 Xuất sắc! Bạn đã hoàn thành Memory Việt!');
-      }, 500);
+        showCardInfoPopup(cardInfo.info);
+      }, 1000);
+    } else {
+      // Nếu không có thông tin hoặc đã hiển thị rồi, tiếp tục game
+      flippedCards = [];
+      canFlip = true;
+      
+      // Kiểm tra hoàn thành game
+      if (matchedPairs === 4) {
+        setTimeout(() => {
+          const memoryComplete = document.getElementById('memoryComplete');
+          if (memoryComplete) {
+            memoryComplete.style.display = 'block';
+          }
+          showVictory('🎉 Xuất sắc! Bạn đã hoàn thành Memory Việt!');
+        }, 500);
+      }
     }
   } else {
     card1.classList.remove('flipped');
     card2.classList.remove('flipped');
+    flippedCards = [];
+    canFlip = true;
   }
-  flippedCards = [];
-  canFlip = true;
 }
-
 function updateMatchedCount() {
   const matchedCount = document.getElementById('matchedCount');
   if (matchedCount) {
@@ -3229,6 +3303,7 @@ function updateFlipCount() {
 function resetMemoryGame() {
   flippedCards = [];
   matchedPairs = 0;
+  foundPairs = []; // Reset foundPairs
   canFlip = true;
   flipCount = 0;
   
@@ -3241,6 +3316,12 @@ function resetMemoryGame() {
     memoryComplete.style.display = 'none';
   }
   
+  // Đóng popup thông tin nếu đang mở
+  const popup = document.querySelector('.card-info-popup');
+  if (popup) {
+    popup.remove();
+  }
+  
   updateMatchedCount();
   updateFlipCount();
   
@@ -3249,16 +3330,14 @@ function resetMemoryGame() {
   cards.sort(() => Math.random() - 0.5);
   cards.forEach(card => board.appendChild(card));
 }
-
 function finishMemoryGame() {
-  if (matchedPairs === 2) {
+  if (matchedPairs === 4) {
     recordDone(currentMemoryGame.site.id, currentMemoryGame.id);
     hideGameFullscreen();
   } else {
-    alert(`Bạn đã tìm được ${matchedPairs}/2 cặp thẻ. Hãy tiếp tục!`);
+    alert(`Bạn đã tìm được ${matchedPairs}/4 cặp thẻ. Hãy tiếp tục!`);
   }
 }
-
 /* ---------- GAME FULLSCREEN MODE ---------- */
 const gameFullscreen = document.getElementById('gameFullscreen');
 const gameFullscreenTitle = document.getElementById('gameFullscreenTitle');
@@ -3334,7 +3413,46 @@ function showVictory(message) {
     }, 500);
   }
 }
+/* ---------- Card Info Popup ---------- */
+function showCardInfoPopup(cardInfo) {
+  // Tạo popup element
+  const popup = document.createElement('div');
+  popup.className = 'card-info-popup';
+  popup.innerHTML = `
+    <div class="card-info-content">
+      <div class="card-info-title">${cardInfo.title}</div>
+      ${cardInfo.image ? `<img src="${cardInfo.image}" class="card-info-image" alt="${cardInfo.title}">` : ''}
+      <div class="card-info-text">${cardInfo.text}</div>
+      <button class="card-info-understood" onclick="closeCardInfoPopup()">Đã hiểu</button>
+    </div>
+  `;
+  
+  document.body.appendChild(popup);
+  
+  // Vô hiệu hóa tương tác với game trong khi popup hiển thị
+  canFlip = false;
+}
 
+function closeCardInfoPopup() {
+  const popup = document.querySelector('.card-info-popup');
+  if (popup) {
+    popup.remove();
+  }
+  
+  // Kích hoạt lại tương tác với game
+  canFlip = true;
+  
+  // Kiểm tra xem đã hoàn thành game chưa
+  if (matchedPairs === 4) { // 4 cặp = 8 thẻ
+    setTimeout(() => {
+      const memoryComplete = document.getElementById('memoryComplete');
+      if (memoryComplete) {
+        memoryComplete.style.display = 'block';
+      }
+      showVictory('🎉 Xuất sắc! Bạn đã hoàn thành Memory Việt!');
+    }, 500);
+  }
+}
 /* ---------- KHỞI TẠO DATA ---------- */
 function initData() {
   // Khởi tạo stories nếu chưa có
@@ -3533,4 +3651,3 @@ function renderAnalytics() {
 </script>
 </body>
 </html>
-
