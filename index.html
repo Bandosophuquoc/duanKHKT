@@ -2,9 +2,11 @@
 <html lang="vi">
 <head>
 <!-- Firebase SDK -->
+<!-- Thêm Firebase Storage -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -1215,6 +1217,25 @@
     .stat-card {
       margin-bottom: 15px;
     }
+/* CSS cho nút Xem thêm/Thu gọn */
+.btn-show-more, .btn-show-less {
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.btn-show-more:hover, .btn-show-less:hover {
+  color: #b71c1c !important;
+  transform: translateY(-1px);
+}
+
+.story-content-short, .story-content-full {
+  line-height: 1.5;
+  color: #555;
+}
+
+.story-content-full {
+  white-space: pre-line; /* Giữ nguyên định dạng xuống dòng */
+}
   }
 </style>
 </head>
@@ -1529,7 +1550,11 @@ function initFirebase() {
 
     auth = firebase.auth();
     db = firebase.firestore();
- 
+    // THÊM DÒNG NÀY: Khởi tạo Storage
+    if (firebase.storage) {
+      console.log('✅ Firebase Storage initialized');
+    }
+
     // Theo dõi trạng thái đăng nhập
   auth.onAuthStateChanged((user) => {
   if (user) {
@@ -2071,6 +2096,52 @@ async function saveStoryToFirestore(story) {
   }
 }
 
+// Hàm upload file lên Firebase Storage
+async function uploadFileToStorage(file, userId) {
+  return new Promise((resolve, reject) => {
+    // Kiểm tra Firebase Storage
+    if (!firebase.storage) {
+      console.log('⚠️ Firebase Storage không khả dụng');
+      reject(new Error('Storage không khả dụng'));
+      return;
+    }
+    
+    const storage = firebase.storage();
+    const storageRef = storage.ref();
+    
+    // Tạo tên file unique
+    const fileExtension = file.name.split('.').pop();
+    const fileName = `stories/${userId}_${Date.now()}.${fileExtension}`;
+    const fileRef = storageRef.child(fileName);
+    
+    // Upload file
+    const uploadTask = fileRef.put(file);
+    
+    uploadTask.on('state_changed',
+      (snapshot) => {
+        // Hiển thị tiến trình upload (optional)
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log('Upload progress: ' + progress + '%');
+      },
+      (error) => {
+        console.error('Lỗi upload file:', error);
+        reject(error);
+      },
+      async () => {
+        // Upload thành công, lấy download URL
+        try {
+          const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+          console.log('✅ File uploaded:', downloadURL);
+          resolve(downloadURL);
+        } catch (urlError) {
+          console.error('Lỗi lấy URL:', urlError);
+          reject(urlError);
+        }
+      }
+    );
+  });
+}
+
 async function updateStoryInFirestore(storyId, updates) {
   try {
     const storyRef = db.collection('stories').doc(storyId.toString());
@@ -2215,6 +2286,10 @@ function renderStories() {
   stories.forEach(story => {
     const userLiked = currentUser && story.likedBy && story.likedBy.includes(currentUser.id);
     
+    // Kiểm tra nội dung có dài không (quá 150 ký tự)
+    const isLongContent = story.content.length > 150;
+    const shortContent = isLongContent ? story.content.substring(0, 150) + '...' : story.content;
+    
     const storyElement = document.createElement('div');
     storyElement.className = `story-note-new ${story.colorClass}`;
     storyElement.innerHTML = `
@@ -2222,14 +2297,40 @@ function renderStories() {
         <h3>${story.title}</h3>
         ${story.media ? (
           story.mediaType && story.mediaType.startsWith('image/') ? 
-            `<img src="${story.media}" alt="${story.title}" class="story-media-new">` :
+            `<img src="${story.media}" alt="${story.title}" class="story-media-new" 
+                 onerror="this.style.display='none'">` :
           story.mediaType && story.mediaType.startsWith('video/') ? 
-            `<video controls class="story-media-new"><source src="${story.media}" type="${story.mediaType}">Trình duyệt của bạn không hỗ trợ video.</video>` :
+            `<video controls class="story-media-new">
+               <source src="${story.media}" type="${story.mediaType}">
+               Trình duyệt của bạn không hỗ trợ video.
+             </video>` :
           story.mediaType && story.mediaType.startsWith('audio/') ? 
-            `<audio controls class="story-media-new"><source src="${story.media}" type="${story.mediaType}">Trình duyệt của bạn không hỗ trợ audio.</audio>` :
-            ''
+            `<audio controls class="story-media-new">
+               <source src="${story.media}" type="${story.mediaType}">
+               Trình duyệt của bạn không hỗ trợ audio.
+             </audio>` :
+            `<div class="alert alert-warning p-2">
+               <small>File không được hỗ trợ: ${story.mediaType}</small>
+             </div>`
         ) : ''}
-        <div class="story-content-new">${story.content}</div>
+        <div class="story-content-new">
+          <div class="story-content-short" id="content-short-${story.id}">
+            ${shortContent}
+          </div>
+          <div class="story-content-full" id="content-full-${story.id}" style="display: none;">
+            ${story.content}
+          </div>
+          ${isLongContent ? `
+            <button class="btn-show-more btn btn-link p-0 mt-2" onclick="toggleStoryContent('${story.id}')" 
+                    style="text-decoration: none; font-size: 0.9rem; color: var(--accent);">
+              <i class="fas fa-chevron-down me-1"></i>Xem thêm
+            </button>
+            <button class="btn-show-less btn btn-link p-0 mt-2" onclick="toggleStoryContent('${story.id}')" 
+                    style="text-decoration: none; font-size: 0.9rem; color: var(--accent); display: none;">
+              <i class="fas fa-chevron-up me-1"></i>Thu gọn
+            </button>
+          ` : ''}
+        </div>
       </div>
       <div>
         <div class="story-meta-new">
@@ -2265,6 +2366,30 @@ function renderStories() {
     `;
     storiesWallNew.appendChild(storyElement);
   });
+}
+
+// Hàm toggle hiển thị nội dung đầy đủ
+function toggleStoryContent(storyId) {
+  const shortContent = document.getElementById(`content-short-${storyId}`);
+  const fullContent = document.getElementById(`content-full-${storyId}`);
+  const btnShowMore = shortContent?.nextElementSibling?.nextElementSibling; // nút "Xem thêm"
+  const btnShowLess = shortContent?.nextElementSibling?.nextElementSibling?.nextElementSibling; // nút "Thu gọn"
+  
+  if (shortContent && fullContent && btnShowMore && btnShowLess) {
+    if (fullContent.style.display === 'none') {
+      // Hiển thị nội dung đầy đủ
+      shortContent.style.display = 'none';
+      fullContent.style.display = 'block';
+      btnShowMore.style.display = 'none';
+      btnShowLess.style.display = 'inline';
+    } else {
+      // Ẩn nội dung đầy đủ
+      shortContent.style.display = 'block';
+      fullContent.style.display = 'none';
+      btnShowMore.style.display = 'inline';
+      btnShowLess.style.display = 'none';
+    }
+  }
 }
 
 /* ---------- REAL-TIME UPDATES ---------- */
@@ -2320,6 +2445,22 @@ function setupStoriesListener() {
     console.log('⚠️ Cannot setup real-time listener');
   }
 }
+
+function showSuccessMessage() {
+  const successMessage = document.getElementById('successMessage');
+  if (successMessage) {
+    successMessage.classList.add('show');
+    
+    setTimeout(() => {
+      successMessage.classList.remove('show');
+    }, 5000);
+  }
+}
+
+document.getElementById('successClose').addEventListener('click', () => {
+  document.getElementById('successMessage').classList.remove('show');
+});
+
 
 /* ---------- MAP SYSTEM ---------- */
 let map;
@@ -3514,13 +3655,13 @@ document.getElementById('storyContentNew').addEventListener('input', () => {
     document.getElementById('btnPostStory').disabled = false;
   }
 });
-
-  document.getElementById('btnPostStory').addEventListener('click', async (e) => {
+document.getElementById('btnPostStory').addEventListener('click', async (e) => {
   e.preventDefault();
   
   const title = document.getElementById('storyTitleNew').value;
   const content = document.getElementById('storyContentNew').value;
   const user = getCurrentUser();
+  const fileInput = document.getElementById('fileInputNew');
   
   if (!user) {
     alert('Vui lòng đăng nhập để chia sẻ câu chuyện.');
@@ -3538,63 +3679,67 @@ document.getElementById('storyContentNew').addEventListener('input', () => {
     return;
   }
   
-  const storyId = Date.now().toString();
+  // TẠM THỜI VÔ HIỆU HÓA NÚT ĐĂNG
+  const postBtn = document.getElementById('btnPostStory');
+  postBtn.disabled = true;
+  postBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang đăng...';
   
-  const newStory = {
-    id: storyId,
-    title: title,
-    content: content,
-    author: user.name,
-    authorId: user.id,
-    timestamp: new Date().toISOString(),
-    likes: 0,
-    likedBy: [],
-    comments: [],
-    media: document.getElementById('fileInputNew').files[0] ? URL.createObjectURL(document.getElementById('fileInputNew').files[0]) : null,
-    mediaType: document.getElementById('fileInputNew').files[0] ? document.getElementById('fileInputNew').files[0].type : null,
-    colorClass: `note-color-${Math.floor(Math.random() * 8) + 1}`
-  };
-  
-  // Thêm story vào mảng local
-  stories.unshift(newStory);
-  
-  // Lưu vào Firestore
-  const firestoreSuccess = await saveStoryToFirestore(newStory);
-  
-  if (!firestoreSuccess) {
-    // Nếu Firestore thất bại, lưu vào localStorage
-    saveStories();
-  }
-  
-  // Cập nhật giao diện
-  renderStories();
-  
-  // Đóng modal
-  document.getElementById('storyModalOverlay').classList.remove('active');
-  
-  // Reset form
-  document.getElementById('storyFormNew').reset();
-  document.getElementById('filePreviewNew').style.display = 'none';
-  document.getElementById('fileInputNew').value = '';
-  document.getElementById('wordCount').textContent = '0/200 từ';
-  document.getElementById('wordCount').classList.remove('warning');
-  
-  // Hiển thị thông báo thành công
-  showSuccessMessage();
-});
-function showSuccessMessage() {
-  const successMessage = document.getElementById('successMessage');
-  if (successMessage) {
-    successMessage.classList.add('show');
+  try {
+    let mediaUrl = null;
+    let mediaType = null;
     
-    setTimeout(() => {
-      successMessage.classList.remove('show');
-    }, 5000);
+    // Xử lý upload file nếu có
+    if (fileInput.files[0]) {
+      mediaUrl = await uploadFileToStorage(fileInput.files[0], user.id);
+      mediaType = fileInput.files[0].type;
+    }
+    
+    const storyId = Date.now().toString();
+    
+    const newStory = {
+      id: storyId,
+      title: title,
+      content: content,
+      author: user.name,
+      authorId: user.id,
+      timestamp: new Date().toISOString(),
+      likes: 0,
+      likedBy: [],
+      comments: [],
+      media: mediaUrl, // URL từ Firebase Storage
+      mediaType: mediaType,
+      colorClass: `note-color-${Math.floor(Math.random() * 8) + 1}`
+    };
+    
+    // Lưu vào Firestore
+    const firestoreSuccess = await saveStoryToFirestore(newStory);
+    
+    if (firestoreSuccess) {
+      // Thêm vào local stories để hiển thị ngay lập tức
+      stories.unshift(newStory);
+      renderStories();
+      
+      // Hiển thị thông báo thành công
+      showSuccessMessage();
+      
+      // Đóng modal và reset form
+      document.getElementById('storyModalOverlay').classList.remove('active');
+      document.getElementById('storyFormNew').reset();
+      document.getElementById('filePreviewNew').style.display = 'none';
+      fileInput.value = '';
+      document.getElementById('wordCount').textContent = '0/200 từ';
+    } else {
+      throw new Error('Không thể lưu vào database');
+    }
+    
+  } catch (error) {
+    console.error('Lỗi khi đăng story:', error);
+    alert('Có lỗi xảy ra khi đăng story. Vui lòng thử lại.');
+  } finally {
+    // KÍCH HOẠT LẠI NÚT
+    postBtn.disabled = false;
+    postBtn.innerHTML = 'Đăng story';
   }
-}
-
-document.getElementById('successClose').addEventListener('click', () => {
-  document.getElementById('successMessage').classList.remove('show');
 });
 
 /* ---------- ANALYTICS ---------- */
@@ -3612,4 +3757,3 @@ function renderAnalytics() {
 </script>
 </body>
 </html>
-
